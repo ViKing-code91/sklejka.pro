@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Склейка — монтаж ролика на телефоне</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3f4; --surface:#ffffff; --line:#cddbe0; --text:#10222c; --muted:#557080;
+  --accent:#b3660a; --accent-ink:#ffffff; --sea:#1f7f8c; --danger:#b23a2e;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1a22; --surface:#162733; --line:#27414f; --text:#e9f0f2; --muted:#8fa6b1;
+    --accent:#f2b35d; --accent-ink:#1d1408; --sea:#5fc0cb; --danger:#ff8a7a;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1a22; --surface:#162733; --line:#27414f; --text:#e9f0f2; --muted:#8fa6b1;
+  --accent:#f2b35d; --accent-ink:#1d1408; --sea:#5fc0cb; --danger:#ff8a7a;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--sea);outline-offset:2px}
+
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 200px}
+header{padding:20px 0 12px}
+h1{font-family:var(--display);font-weight:700;font-size:1.75rem;line-height:1.1;margin:0;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--muted);max-width:34em}
+
+.stage{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:6px 0 10px;margin:0 -16px}
+.screen{position:relative;background:#000;display:flex;justify-content:center}
+canvas#cv{display:block;max-width:100%;max-height:38vh;width:auto;height:auto}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#c9d6db;padding:16px;font-size:.95rem}
+.empty[hidden]{display:none}
+
+h2{font-family:var(--display);font-weight:500;font-size:1rem;margin:30px 0 4px;padding-top:14px;border-top:1px solid var(--line)}
+h2.first{border-top:0;padding-top:0;margin-top:18px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.row > span.lbl{flex:0 0 100%;color:var(--muted);font-size:.9rem;margin-bottom:-2px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;min-height:40px;font-size:.95rem}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.note{color:var(--muted);font-size:.88rem;margin:4px 0 0}
+.note.warn{color:var(--danger)}
+
+.add{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border:1.5px dashed var(--sea);border-radius:12px;background:transparent;color:var(--sea);font-weight:600;margin-top:10px;cursor:pointer}
+.add input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.add:focus-within{outline:2px solid var(--sea);outline-offset:2px}
+.auto{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.auto[hidden]{display:none}
+.auto button{min-height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:.92rem;padding:6px 8px}
+.auto button.smart{grid-column:1 / -1;background:var(--text);color:var(--bg);border-color:var(--text);min-height:50px}
+
+ol.clips{list-style:none;margin:0;padding:0}
+.clip{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:8px 0;overflow:hidden}
+.clip.bad{border-color:var(--danger)}
+.clip-head{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:8px;text-align:left}
+.clip-head img,.clip-head .ph{width:72px;height:40px;border-radius:6px;object-fit:cover;background:#000;flex:none}
+.clip-head .num{font-family:var(--display);font-size:.8rem;width:1.6em;text-align:center;color:var(--muted);flex:none}
+.clip-head .meta{min-width:0;flex:1}
+.clip-head .name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.85rem;color:var(--muted)}
+.clip-head .cut{display:block;font-weight:600;font-size:.95rem}
+.clip-head .chev{flex:none;color:var(--muted);transition:transform .15s}
+.clip.open .chev{transform:rotate(180deg)}
+.clip-body{display:none;padding:4px 12px 12px;border-top:1px solid var(--line)}
+.clip.open .clip-body{display:block}
+label.sl{display:block;margin-top:12px;font-size:.9rem;color:var(--muted)}
+label.sl b{color:var(--text);font-weight:600}
+input[type=range]{width:100%;height:36px;accent-color:var(--accent);margin:0;display:block}
+.mini{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}
+.mini .lbl{color:var(--muted);font-size:.9rem;flex:0 0 100%}
+.mini .chip{min-height:38px;padding:6px 12px;font-size:.9rem}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.tools button{min-height:42px;border:1px solid var(--line);background:transparent;border-radius:10px;font-size:.9rem}
+.tools button.del{color:var(--danger)}
+.tools button:disabled{opacity:.35}
+
+input[type=text]{width:100%;min-height:46px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:8px 12px}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--sea);font-weight:600;padding:8px 0}
+.linkbtn{background:none;border:0;padding:8px 0;color:var(--sea);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.music{display:flex;gap:8px;align-items:center;margin:10px 0}
+.music .pick{position:relative;display:inline-flex;align-items:center;min-height:42px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 14px;font-weight:600;cursor:pointer;flex:none}
+.music .pick input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.music .pick:focus-within{outline:2px solid var(--sea);outline-offset:2px}
+.music .mname{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:.9rem}
+.ver{color:var(--muted);font-size:.8rem;margin-top:28px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.bar-in{max-width:560px;margin:0 auto}
+.total{display:flex;justify-content:space-between;align-items:baseline;font-size:.9rem;color:var(--muted)}
+.total b{font-family:var(--display);font-weight:500;color:var(--text);font-size:1rem}
+.gauge{height:6px;background:var(--line);border-radius:3px;margin:6px 0 10px;overflow:hidden}
+.gauge i{display:block;height:100%;width:0;background:var(--sea);border-radius:3px}
+.gauge i.hit{background:var(--accent)}
+.acts{display:flex;gap:8px}
+.acts button{flex:1;min-height:50px;border-radius:12px;font-weight:600;border:1.5px solid var(--text);background:transparent}
+.acts button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.acts button:disabled{opacity:.4}
+.msg{margin:8px 0 0;font-size:.9rem;color:var(--muted);min-height:1.3em}
+.msg.err{color:var(--danger)}
+
+.result{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px))}
+.result[hidden]{display:none}
+.result-in{max-width:560px;margin:0 auto}
+.result video{display:block;width:100%;max-height:52vh;background:#000;border-radius:8px;margin:14px 0}
+.result .acts{flex-direction:column}
+#pool{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none;overflow:hidden}
+#pool video{width:2px;height:2px}
+main[inert]{opacity:.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Склейка</h1>
+    <p>Соберите ролик из своих видео: умный, случайный или ручной монтаж, киноцвет, эффекты, музыка и отправка в соцсети.</p>
+  </header>
+
+  <div class="stage">
+    <div class="screen">
+      <canvas id="cv" width="1280" height="720" aria-label="Предпросмотр ролика"></canvas>
+      <div class="empty" id="empty">Добавьте видео — здесь появится ваш ролик</div>
+    </div>
+  </div>
+
+  <main id="main">
+    <h2 class="first">Видео по порядку</h2>
+    <ol class="clips" id="clips"></ol>
+    <label class="add">
+      <input type="file" id="file" accept="video/*" multiple>
+      <span aria-hidden="true">＋</span> Добавить видео
+    </label>
+    <div class="auto" id="auto" hidden>
+      <button type="button" id="smart" class="smart">Умный монтаж: выбрать лучшие моменты</button>
+      <button type="button" id="random">Случайный монтаж</button>
+      <button type="button" id="fit">Поровну по порядку</button>
+    </div>
+    <p class="note" id="autoNote" hidden>Умный монтаж просматривает каждое видео и берёт моменты, где картинка резче и больше движения. Это расчёт на телефоне, а не нейросеть, поэтому результат стоит проверить глазами. Любой кусок можно поправить вручную: нажмите на него в списке.</p>
+
+    <h2>Куда пойдёт ролик</h2>
+    <div class="row" id="presets"><span class="lbl">Быстрая настройка под соцсеть</span>
+      <button class="chip" data-preset="reels">Reels, TikTok, Shorts</button>
+      <button class="chip" data-preset="youtube">YouTube</button>
+      <button class="chip" data-preset="post">Пост в Instagram</button>
+      <button class="chip" data-preset="cinema">Кино</button>
+    </div>
+
+    <h2>Формат</h2>
+    <div class="row" data-set="target"><span class="lbl">Длина ролика</span>
+      <button class="chip" data-v="15">15 с</button>
+      <button class="chip" data-v="30">30 с</button>
+      <button class="chip" data-v="60">1 мин</button>
+      <button class="chip" data-v="180">3 мин</button>
+      <button class="chip" data-v="300">5 мин</button>
+      <button class="chip" data-v="600">10 мин</button>
+    </div>
+    <div class="row" data-set="frame"><span class="lbl">Кадр</span>
+      <button class="chip" data-v="cinema">Кино с полосами</button>
+      <button class="chip" data-v="wide">Обычный 16:9</button>
+      <button class="chip" data-v="vertical">Вертикальный 9:16</button>
+      <button class="chip" data-v="four5">Пост 4:5</button>
+      <button class="chip" data-v="square">Квадрат 1:1</button>
+    </div>
+    <div class="row" data-set="quality"><span class="lbl">Разрешение</span>
+      <button class="chip" data-v="360">360p</button>
+      <button class="chip" data-v="480">480p</button>
+      <button class="chip" data-v="720">720p</button>
+      <button class="chip" data-v="1080">1080p</button>
+      <button class="chip" data-v="1440">2K</button>
+      <button class="chip" data-v="2160">4K</button>
+    </div>
+    <div class="row" data-set="fps"><span class="lbl">Кадров в секунду</span>
+      <button class="chip" data-v="24">24, как в кино</button>
+      <button class="chip" data-v="25">25</button>
+      <button class="chip" data-v="30">30</button>
+      <button class="chip" data-v="60">60, плавно</button>
+    </div>
+    <p class="note" id="sizeNote"></p>
+
+    <h2>Картинка</h2>
+    <div class="row" data-set="look" id="looks"><span class="lbl">Кинофильтр</span></div>
+    <label class="sl">Сила фильтра: <b id="o-power"></b><input type="range" data-range="power" min="0" max="100" step="5"></label>
+    <div class="row" data-set="stab"><span class="lbl">Стабилизация</span>
+      <button class="chip" data-v="off">Выключена</button>
+      <button class="chip" data-v="light">Лёгкая</button>
+      <button class="chip" data-v="strong">Сильная</button>
+    </div>
+    <p class="note">Стабилизация сглаживает дрожание рук и немного приближает кадр. Сильную тряску и повороты камеры она не уберёт.</p>
+    <div class="row"><span class="lbl">Эффекты</span>
+      <button class="chip" data-toggle="grain">Плёночное зерно</button>
+      <button class="chip" data-toggle="vig">Затемнение по краям</button>
+      <button class="chip" data-toggle="push">Медленный наезд камеры</button>
+      <button class="chip" data-toggle="leak">Засветы плёнки</button>
+      <button class="chip" data-toggle="glow">Мягкое свечение</button>
+      <button class="chip" data-toggle="ca">Цветные края объектива</button>
+      <button class="chip" data-toggle="old">Старая киноплёнка</button>
+    </div>
+    <details>
+      <summary>Тонкая настройка цвета</summary>
+      <label class="sl">Яркость: <b id="o-bright"></b><input type="range" data-range="bright" min="-50" max="50" step="5"></label>
+      <label class="sl">Контраст: <b id="o-contrast"></b><input type="range" data-range="contrast" min="-50" max="50" step="5"></label>
+      <label class="sl">Насыщенность: <b id="o-sat"></b><input type="range" data-range="sat" min="-50" max="50" step="5"></label>
+      <label class="sl">Теплота: <b id="o-temp"></b><input type="range" data-range="temp" min="-50" max="50" step="5"></label>
+      <button type="button" class="linkbtn" id="resetFine">Сбросить настройку цвета</button>
+    </details>
+
+    <h2>Монтаж</h2>
+    <div class="row" data-set="trans"><span class="lbl">Переход между видео</span>
+      <button class="chip" data-v="mix">Наплыв</button>
+      <button class="chip" data-v="blur">Через размытие</button>
+      <button class="chip" data-v="zoom">Наезд</button>
+      <button class="chip" data-v="slide">Сдвиг</button>
+      <button class="chip" data-v="wipe">Шторка</button>
+      <button class="chip" data-v="iris">Круг</button>
+      <button class="chip" data-v="black">Через чёрное</button>
+      <button class="chip" data-v="white">Вспышка</button>
+      <button class="chip" data-v="rand">Разные</button>
+      <button class="chip" data-v="cut">Резкая склейка</button>
+    </div>
+    <label class="sl" for="title">Титр в начале ролика</label>
+    <input type="text" id="title" maxlength="60" placeholder="Например: Море. Ноябрь" autocomplete="off">
+    <label class="sl" for="outro">Подпись в конце ролика</label>
+    <input type="text" id="outro" maxlength="60" placeholder="Например: ваш ник в Instagram" autocomplete="off">
+
+    <h2>Звук</h2>
+    <label class="sl">Звук из видео: <b id="o-volVideo"></b><input type="range" data-range="volVideo" min="0" max="100" step="5"></label>
+    <div class="music">
+      <label class="pick"><input type="file" id="musicFile" accept="audio/*">Выбрать музыку</label>
+      <span class="mname" id="musicName">Музыка не выбрана</span>
+      <button type="button" class="linkbtn" id="musicDel" hidden>Убрать</button>
+    </div>
+    <label class="sl">Громкость музыки: <b id="o-volMusic"></b><input type="range" data-range="volMusic" min="0" max="100" step="5"></label>
+
+    <h2>Если тормозит</h2>
+    <div class="row">
+      <button class="chip" data-toggle="turbo">Ускоренный режим</button>
+    </div>
+    <p class="note">Ускоренный режим снимает часть нагрузки с телефона. На некоторых телефонах в нём меняются цвета или переворачивается картинка — тогда выключите его. Ещё помогают: разрешение меньше, 24 или 30 кадров в секунду, «Резкая склейка» и выключенная стабилизация. Просмотр по кнопке «Смотреть» всегда идёт в упрощённом качестве, готовый ролик собирается в выбранном.</p>
+
+    <p class="ver">Склейка, версия 3</p>
+  </main>
+</div>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="total"><span id="totalHint">Пока нет видео</span><b id="totalNum">0:00 из 0:30</b></div>
+    <div class="gauge"><i id="gauge"></i></div>
+    <div class="acts">
+      <button id="play" disabled>Смотреть</button>
+      <button id="save" class="primary" disabled>Собрать ролик</button>
+    </div>
+    <p class="msg" id="msg" role="status"></p>
+  </div>
+</div>
+
+<section class="result" id="result" hidden aria-label="Готовый ролик">
+  <div class="result-in">
+    <h1>Ролик готов</h1>
+    <video id="resVideo" controls playsinline></video>
+    <div class="acts">
+      <button class="primary" id="share">Отправить в соцсеть</button>
+      <button id="download">Сохранить на телефон</button>
+      <button id="back">Вернуться к монтажу</button>
+    </div>
+    <p class="msg" id="resMsg" role="status"></p>
+  </div>
+</section>
+
+<div id="pool" aria-hidden="true"></div>
+
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+const cv = $('cv');
+const MIN_LEN = 1, MAX_LEN = 600, PREVIEW_Q = 540;
+
+const S = { target:30, frame:'cinema', quality:1080, fps:30, look:'kino', power:100, stab:'off',
+            grain:true, vig:true, push:false, leak:false, glow:false, ca:false, old:false,
+            bright:0, contrast:0, sat:0, temp:0,
+            trans:'mix', title:'', outro:'', volVideo:100, volMusic:70, turbo:false };
+const NUMERIC = { target:1, quality:1, fps:1 };
+const BITRATE = { 360:1.2e6, 480:2.5e6, 720:6e6, 1080:12e6, 1440:20e6, 2160:40e6 };
+const STAB = { off:{zoom:1, k:0}, light:{zoom:1.07, k:.16}, strong:{zoom:1.16, k:.06} };
+const TRANS_ID = { mix:0, slide:3, wipe:4, iris:5, zoom:6, blur:7 };
+const RAND_TRANS = ['mix','blur','zoom','slide','wipe','iris','black'];
+const PRESETS = { reels:{frame:'vertical', quality:1080, fps:30}, youtube:{frame:'wide', quality:1080, fps:30},
+                  post:{frame:'four5', quality:1080, fps:30}, cinema:{frame:'cinema', quality:1080, fps:24} };
+/* g: highlight colour, sh: shadow colour, cu: contrast curve, sa: saturation, fa: faded blacks, ti/ta: overall tint */
+const LOOKS = {
+  none:   { name:'Как снято' },
+  kino:   { name:'Кино',             g:[1.04,1,.92],  sh:[-.01,.035,.05], cu:.35, sa:1.05, fa:.02 },
+  block:  { name:'Блокбастер',       g:[1.08,1,.86],  sh:[-.03,.05,.08],  cu:.55, sa:1.22 },
+  dune:   { name:'Пустыня',          g:[1.12,1,.78],  sh:[-.02,.03,.03],  cu:.45, sa:1.15 },
+  gold:   { name:'Золотой час',      g:[1.08,1,.84],  sh:[.04,.015,-.02], cu:.25, sa:1.08, fa:.02 },
+  north:  { name:'Холодный север',   g:[.93,1,1.08],  sh:[-.02,.02,.07],  cu:.35, sa:.8 },
+  dusk:   { name:'Сумерки',          g:[.98,.95,1.08],sh:[.03,0,.08],     cu:.3,  sa:.92, fa:.03 },
+  neon:   { name:'Неон',             g:[1.1,.93,1.08],sh:[.01,0,.13],     cu:.45, sa:1.3 },
+  film70: { name:'Плёнка семидесятых',g:[1.06,1.02,.9],sh:[.03,.045,0],   cu:.15, sa:.88, fa:.07 },
+  faded:  { name:'Выцветшая плёнка', g:[1.02,1,.96],  cu:.05, sa:.72, fa:.1 },
+  retro:  { name:'Ретро',            cu:.3, sa:.25, fa:.04, ti:[1.1,.9,.62], ta:.55 },
+  noir:   { name:'Нуар',             cu:.7, sa:0 },
+  harsh:  { name:'Суровый',          g:[.98,1,1.02],  cu:.75, sa:.45 },
+  matrix: { name:'Зелёный код',      g:[.9,1.06,.88], sh:[-.02,.05,0],    cu:.4,  sa:.8 },
+  soft:   { name:'Мягкий',           g:[1.04,1,.95],  cu:-.25, sa:.95, fa:.06 },
+  vivid:  { name:'Сочный',           cu:.3, sa:1.4 }
+};
+
+let sources = [];          // {url,file,name,dur,w,h,thumb,bad,scan}
+let clips = [];            // {id,src,start,len,rate,mute,fit,zoom,px,py,fresh}
+let openId = null, touched = false, nextId = 1, mode = 'even', busy = false;
+let running = null;
+let lastShown = null, stillTitle = null;
+
+/* ---------- helpers ---------- */
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const even = v => Math.round(v/2)*2;
+const floor1 = v => Math.floor(v*10 + 1e-6)/10;
+const fmt = t => { t = Math.max(0, Math.round(t)); return Math.floor(t/60) + ':' + String(t%60).padStart(2,'0'); };
+const sec = t => { if(t >= 90) return fmt(t) + ' мин'; return (Math.round(t*10)/10).toString().replace('.', ',') + ' с'; };
+function setMsg(text, err){ const m = $('msg'); m.textContent = text || ''; m.classList.toggle('err', !!err); }
+const good = () => clips.filter(c => !c.src.bad);
+const avail = c => Math.min(MAX_LEN, c.src.dur / c.rate);
+const transLen = () => S.trans === 'cut' ? 0 : .5;
+function xf(){
+  const g = good(); if(g.length < 2) return 0;
+  const minLen = g.reduce((m,c) => Math.min(m, c.len), Infinity);
+  return Math.max(0, Math.min(transLen(), minLen/2));
+}
+function totalLen(){ const g = good(); if(!g.length) return 0; return g.reduce((a,c)=>a+c.len,0) - (g.length-1)*xf(); }
+function saveSettings(){ try{ localStorage.setItem('sklejka.settings', JSON.stringify(Object.assign({}, S, {title:'', outro:''}))); }catch(e){} }
+(function loadSettings(){
+  try{
+    const o = JSON.parse(localStorage.getItem('sklejka.settings') || 'null'); if(!o) return;
+    for(const k in S){ if(k in o && typeof o[k] === typeof S[k]) S[k] = o[k]; }
+    if(!LOOKS[S.look]) S.look = 'kino'; if(!STAB[S.stab]) S.stab = 'off'; if(!BITRATE[S.quality]) S.quality = 1080;
+  }catch(e){}
+})();
+
+/* ---------- canvas geometry ---------- */
+function dims(q){
+  switch(S.frame){
+    case 'vertical': return [q, even(q*16/9)];
+    case 'square':   return [q, q];
+    case 'four5':    return [q, even(q*1.25)];
+    default:         return [even(q*16/9), q];
+  }
+}
+function sizeCanvas(full){
+  const d = dims(full ? S.quality : Math.min(S.quality, PREVIEW_Q));
+  if(cv.width !== d[0] || cv.height !== d[1]){ cv.width = d[0]; cv.height = d[1]; }
+}
+function picRect(){
+  if(S.frame === 'cinema'){ const h = even(cv.width/2.35); return {x:0, y:(cv.height-h)/2, w:cv.width, h}; }
+  return {x:0, y:0, w:cv.width, h:cv.height};
+}
+function fitMode(c, r){
+  if(c.fit !== 'auto') return c.fit;
+  const s = c.src; if(!s.w || !s.h) return 'fill';
+  const va = s.w/s.h, fa = r.w/r.h;
+  return ((va > 1.15 && fa < .87) || (va < .87 && fa > 1.15)) ? 'fit' : 'fill';
+}
+function xform(l, r){
+  const v = l.p.v, c = l.clip, vw = v.videoWidth || 16, vh = v.videoHeight || 9;
+  const base = fitMode(c, r) === 'fit' ? Math.min(r.w/vw, r.h/vh) : Math.max(r.w/vw, r.h/vh);
+  const s = base * (c.zoom || 1) * STAB[S.stab].zoom * (l.z || 1), sw = r.w/s, sh = r.h/s;
+  const slackX = (vw-sw)/2, slackY = (vh-sh)/2, st = l.p.stab;
+  let ox = (c.px || 0)*Math.abs(slackX), oy = (c.py || 0)*Math.abs(slackY);
+  if(st){ ox -= st.ox; oy -= st.oy; }
+  if(slackX >= 0) ox = clamp(ox, -slackX, slackX);
+  if(slackY >= 0) oy = clamp(oy, -slackY, slackY);
+  const sb = Math.max(r.w/vw, r.h/vh)*1.25;
+  return { a:[sw/vw, sh/vh, ox/vw, oy/vh], bg:[r.w/sb/vw, r.h/sb/vh, 0, 0], fit:(slackX < -.5 || slackY < -.5) ? 1 : 0, limX:Math.max(Math.abs(slackX), vw*.03), limY:Math.max(Math.abs(slackY), vh*.03) };
+}
+
+/* ---------- graphics engine (WebGL) ---------- */
+const VS = 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0., 1.); }';
+const FS_SMALL = `
+precision mediump float;
+uniform sampler2D uV; uniform vec2 uTexel;
+void main(){
+  vec2 uv = gl_FragCoord.xy * uTexel; vec3 s = vec3(0.);
+  for(int i=0;i<4;i++){ for(int j=0;j<4;j++){ s += texture2D(uV, uv + (vec2(float(i), float(j)) + .5)/4. * uTexel - .5*uTexel).rgb; } }
+  gl_FragColor = vec4(s/16., 1.);
+}`;
+const FS_MAIN = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 uRes; uniform vec4 uPic;
+uniform sampler2D uA, uB, uAs, uBs, uT;
+uniform vec4 uAx, uBx, uAbg, uBbg;
+uniform float uAfit, uBfit, uHasB, uProg, uTrans, uFade, uTitleA, uTime;
+uniform vec4 uDip;
+uniform float uK, uCurve, uSat, uFa, uTa; uniform vec3 uGain, uShadow, uTint;
+uniform float uBright, uContrast, uSat2, uTemp;
+uniform float uVig, uGrain, uLeak, uGlow, uCA, uOld;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+vec3 soft(sampler2D s, vec2 uv){
+  vec2 d = vec2(.012, .02);
+  return texture2D(s, uv).rgb*.28 + (texture2D(s, uv+vec2(d.x,0.)).rgb + texture2D(s, uv-vec2(d.x,0.)).rgb + texture2D(s, uv+vec2(0.,d.y)).rgb + texture2D(s, uv-vec2(0.,d.y)).rgb)*.18;
+}
+vec2 vuv(vec4 xf, vec2 p){ return (p-.5)*xf.xy + .5 + xf.zw; }
+vec3 layer(sampler2D tex, sampler2D texS, vec4 xf, vec4 bg, float fit, vec2 p){
+  vec2 uv = vuv(xf, p);
+  if(uv.x < 0. || uv.x > 1. || uv.y < 0. || uv.y > 1.){
+    if(fit > .5) return soft(texS, clamp(vuv(bg, p), 0., 1.))*.5;
+    return vec3(0.);
+  }
+  vec3 c;
+  if(uCA > 0.){
+    vec2 d = (p-.5)*.007*uCA*xf.xy;
+    c = vec3(texture2D(tex, clamp(uv+d,0.,1.)).r, texture2D(tex, uv).g, texture2D(tex, clamp(uv-d,0.,1.)).b);
+  } else c = texture2D(tex, uv).rgb;
+  if(uGlow > 0.) c += max(soft(texS, uv) - .62, 0.)*.8*uGlow;
+  return c;
+}
+vec3 low(sampler2D texS, vec4 xf, vec2 p){ return soft(texS, clamp(vuv(xf, p), 0., 1.)); }
+vec3 A(vec2 p){ return layer(uA, uAs, uAx, uAbg, uAfit, p); }
+vec3 B(vec2 p){ return layer(uB, uBs, uBx, uBbg, uBfit, p); }
+float lum(vec3 c){ return dot(c, vec3(.299, .587, .114)); }
+vec3 grade(vec3 c){
+  vec3 o = c;
+  c *= uGain;
+  float L = lum(c);
+  c += uShadow*(1.-L)*(1.-L);
+  c = clamp(c, 0., 1.);
+  if(uCurve >= 0.) c = mix(c, c*c*(3.-2.*c), uCurve); else c = mix(c, vec3(.5), -uCurve*.4);
+  L = lum(c);
+  c = mix(vec3(L), c, uSat);
+  c = mix(c, L*uTint, uTa);
+  c = uFa + c*(1.-uFa);
+  return mix(o, clamp(c, 0., 1.), uK);
+}
+void main(){
+  vec2 fc = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
+  vec2 p = (fc - uPic.xy)/uPic.zw;
+  if(p.x < 0. || p.x > 1. || p.y < 0. || p.y > 1.){ gl_FragColor = vec4(0., 0., 0., 1.); return; }
+  float t = uTime;
+  vec2 q = p;
+  if(uOld > .5) q.y = clamp(q.y + (hash(vec2(floor(t*24.), 9.)) - .5)*.004, 0., 1.);
+  vec3 c;
+  if(uHasB < .5) c = A(q);
+  else {
+    float a = uProg, e = a*a*(3.-2.*a);
+    if(uTrans < .5) c = mix(A(q), B(q), a);
+    else if(uTrans < 3.5){ if(q.x + e < 1.) c = A(vec2(q.x + e, q.y)); else c = B(vec2(q.x + e - 1., q.y)); }
+    else if(uTrans < 4.5){ float w = smoothstep(a*1.15 - .15, a*1.15, q.x); c = mix(B(q), A(q), w); }
+    else if(uTrans < 5.5){ vec2 asp = vec2(uPic.z/uPic.w, 1.); float d = length((q-.5)*asp); float R = a*(length(asp)*.5 + .1); c = mix(B(q), A(q), smoothstep(R - .08, R, d)); }
+    else if(uTrans < 6.5){ c = mix(A((q-.5)/(1. + e*.7) + .5), B((q-.5)/(1.35 - e*.35) + .5), e); }
+    else { float bl = sin(3.14159*a); c = mix(mix(A(q), low(uAs, uAx, q), bl), mix(B(q), low(uBs, uBx, q), bl), e); }
+  }
+  c = grade(c);
+  c = pow(max(c, 0.), vec3(exp(-uBright*.6)));
+  c = (c - .5)*(1. + uContrast*.6) + .5;
+  c = mix(vec3(lum(c)), c, 1. + uSat2);
+  c.r *= 1. + uTemp*.12; c.b *= 1. - uTemp*.12;
+  if(uLeak > 0.){
+    float l1 = pow(max(0., sin(p.x*2.4 + t*.45 + sin(t*.21)*2.)*sin(p.y*1.7 - t*.33 + 1.)), 2.5);
+    float l2 = pow(max(0., sin(p.x*1.3 - t*.27 + 2.)*sin(p.y*2.9 + t*.19)), 3.);
+    vec3 lk = (l1*vec3(1., .42, .12) + l2*vec3(1., .2, .35)*.6)*.55*uLeak;
+    c = 1. - (1. - clamp(c, 0., 1.))*(1. - lk);
+  }
+  if(uOld > .5){
+    c *= 1. + (hash(vec2(floor(t*16.), 3.)) - .5)*.14;
+    for(int k=0;k<2;k++){
+      float sx = hash(vec2(floor(t*9.) + float(k)*7., 1.));
+      float on = step(.55, hash(vec2(floor(t*9.), float(k) + 5.)));
+      c += on*smoothstep(.0018, 0., abs(p.x - sx))*.22;
+    }
+  }
+  if(uVig > 0.) c *= 1. - uVig*smoothstep(.45, 1., distance(p, vec2(.5))*1.414);
+  if(uGrain > 0.){
+    float gs = max(1., min(uRes.x, uRes.y)/900.);
+    float n = hash(floor(fc/gs) + fract(t*7.13)*vec2(37., 91.));
+    c += (n - .5)*uGrain*(.6 + .4*(1. - lum(clamp(c,0.,1.))));
+  }
+  c = mix(c, uDip.rgb, uDip.a);
+  c *= uFade;
+  if(uTitleA > 0.){ vec4 tt = texture2D(uT, p); c = mix(c, tt.rgb, tt.a*uTitleA); }
+  gl_FragColor = vec4(clamp(c, 0., 1.), 1.);
+}`;
+const SW = 128, SH = 72;
+let gl = null, glOK = false, progMain = null, progSmall = null, quad = null, texT = null, frameNo = 0;
+const smallBuf = new Uint8Array(SW*SH*4);
+function mkProg(fs){
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) || 'shader'); return s; };
+  const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs));
+  gl.bindAttribLocation(p, 0, 'a'); gl.linkProgram(p);
+  if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) || 'link');
+  const cache = {};
+  return { p, u: n => (n in cache ? cache[n] : (cache[n] = gl.getUniformLocation(p, n))) };
+}
+function mkTex(){
+  const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(16));
+  return t;
+}
+function initGL(){
+  glOK = false;
+  try{
+    gl = gl || cv.getContext('webgl', {alpha:false, antialias:false, depth:false, stencil:false, premultipliedAlpha:false, powerPreference:'high-performance'});
+    if(!gl) return false;
+    progMain = mkProg(FS_MAIN); progSmall = mkProg(FS_SMALL);
+    quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.disable(gl.DEPTH_TEST); gl.disable(gl.BLEND);
+    texT = mkTex(); titleKey = '';
+    for(const p of players){
+      p.tex = mkTex(); p.sTex = mkTex();
+      gl.bindTexture(gl.TEXTURE_2D, p.sTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SW, SH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      p.fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, p.fbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, p.sTex, 0);
+      p.smallAt = -1;
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    glOK = true;
+  }catch(e){ glOK = false; glError = String(e && e.message || e); }
+  return glOK;
+}
+let glError = '';
+cv.addEventListener('webglcontextlost', e => { e.preventDefault(); glOK = false; if(running) stop('Графика телефона не справилась с нагрузкой. Выберите разрешение меньше и попробуйте ещё раз.', true); });
+cv.addEventListener('webglcontextrestored', () => { if(initGL()) refreshStill(); });
+
+function upload(p){
+  if(!glOK) return false;
+  const v = p.v, vw = v.videoWidth, vh = v.videoHeight; if(!vw || !vh) return false;
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, p.tex);
+  try{
+    if(S.turbo){ gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v); }
+    else {
+      const k = Math.min(1, Math.max(cv.width, cv.height)*1.3/Math.max(vw, vh));
+      const cw = Math.max(2, Math.round(vw*k)), ch = Math.max(2, Math.round(vh*k));
+      if(p.c2d.width !== cw || p.c2d.height !== ch){ p.c2d.width = cw; p.c2d.height = ch; }
+      p.x2d.drawImage(v, 0, 0, cw, ch);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, p.c2d);
+    }
+  }catch(e){ return false; }
+  p.hasTex = true; return true;
+}
+function renderSmall(p){
+  if(p.smallAt === frameNo) return;
+  p.smallAt = frameNo;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, p.fbo); gl.viewport(0, 0, SW, SH);
+  gl.useProgram(progSmall.p);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, p.tex);
+  gl.uniform1i(progSmall.u('uV'), 0); gl.uniform2f(progSmall.u('uTexel'), 1/SW, 1/SH);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+/* titles are drawn as text once and laid over the picture */
+const tcv = document.createElement('canvas'), tctx = tcv.getContext('2d'); let titleKey = '';
+function titleTexture(text){
+  const r = picRect(), k = Math.min(1, 1920/Math.max(r.w, r.h)), w = Math.max(2, Math.round(r.w*k)), h = Math.max(2, Math.round(r.h*k));
+  const key = text + '|' + w + 'x' + h;
+  if(key === titleKey) return; titleKey = key;
+  tcv.width = w; tcv.height = h; tctx.clearRect(0,0,w,h);
+  let size = Math.round(w/h < .9 ? w*.085 : (w/h < 1.2 ? w*.075 : h*.105)), lines = [];
+  tctx.textAlign = 'center'; tctx.textBaseline = 'middle';
+  for(let tries=0; tries<6; tries++){
+    tctx.font = '500 ' + size + 'px Unbounded, "Arial Black", system-ui, sans-serif';
+    try{ tctx.letterSpacing = Math.round(size*.05) + 'px'; }catch(e){}
+    lines = []; let cur = '';
+    for(const word of text.split(/\s+/)){
+      const t = cur ? cur + ' ' + word : word;
+      if(cur && tctx.measureText(t).width > w*.84){ lines.push(cur); cur = word; } else cur = t;
+    }
+    if(cur) lines.push(cur);
+    const widest = lines.reduce((m,l) => Math.max(m, tctx.measureText(l).width), 0);
+    if(lines.length <= 3 && widest <= w*.9) break;
+    size = Math.round(size*.85);
+  }
+  tctx.fillStyle = '#fff'; tctx.shadowColor = 'rgba(0,0,0,.65)'; tctx.shadowBlur = size*.35;
+  const lh = size*1.25, y0 = h/2 - (lines.length-1)*lh/2;
+  lines.forEach((l,i) => tctx.fillText(l, w/2, y0 + i*lh));
+  gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, texT);
+  try{ gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tcv); }catch(e){}
+}
+
+/* layers: [{p, clip, z}] — first is the outgoing picture, second (optional) the incoming one */
+function draw(layers, o){
+  if(!glOK || !layers.length) return;
+  const r = picRect(), A = layers[0], B = layers[1] || null, trans = o.trans || 0;
+  const xa = xform(A, r), xb = B ? xform(B, r) : xa;
+  const wantSmall = (x) => S.glow || trans === 7 || x.fit;
+  if(wantSmall(xa)) renderSmall(A.p);
+  if(B && wantSmall(xb)) renderSmall(B.p);
+  const text = (o.titleText || '').trim();
+  if(text && o.titleA > 0) titleTexture(text);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, cv.width, cv.height);
+  const P = progMain, u = P.u; gl.useProgram(P.p);
+  const bp = B ? B.p : A.p;
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.p.tex);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, bp.tex);
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, A.p.sTex);
+  gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, bp.sTex);
+  gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, texT);
+  gl.uniform1i(u('uA'), 0); gl.uniform1i(u('uB'), 1); gl.uniform1i(u('uAs'), 2); gl.uniform1i(u('uBs'), 3); gl.uniform1i(u('uT'), 4);
+  gl.uniform2f(u('uRes'), cv.width, cv.height); gl.uniform4f(u('uPic'), r.x, r.y, r.w, r.h);
+  gl.uniform4fv(u('uAx'), xa.a); gl.uniform4fv(u('uBx'), xb.a); gl.uniform4fv(u('uAbg'), xa.bg); gl.uniform4fv(u('uBbg'), xb.bg);
+  gl.uniform1f(u('uAfit'), xa.fit); gl.uniform1f(u('uBfit'), xb.fit);
+  gl.uniform1f(u('uHasB'), B ? 1 : 0); gl.uniform1f(u('uProg'), o.prog || 0); gl.uniform1f(u('uTrans'), trans);
+  gl.uniform1f(u('uFade'), o.fade == null ? 1 : o.fade); gl.uniform1f(u('uTitleA'), text ? (o.titleA || 0) : 0); gl.uniform1f(u('uTime'), o.time || 0);
+  const d = o.dip; gl.uniform4f(u('uDip'), d ? d.c : 0, d ? d.c : 0, d ? d.c : 0, d ? clamp(d.a, 0, 1) : 0);
+  const L = LOOKS[S.look] || LOOKS.none, k = S.look === 'none' ? 0 : S.power/100;
+  gl.uniform1f(u('uK'), k); gl.uniform1f(u('uCurve'), L.cu || 0); gl.uniform1f(u('uSat'), L.sa == null ? 1 : L.sa);
+  gl.uniform1f(u('uFa'), L.fa || 0); gl.uniform1f(u('uTa'), L.ta || 0);
+  gl.uniform3fv(u('uGain'), L.g || [1,1,1]); gl.uniform3fv(u('uShadow'), L.sh || [0,0,0]); gl.uniform3fv(u('uTint'), L.ti || [1,1,1]);
+  gl.uniform1f(u('uBright'), S.bright/50); gl.uniform1f(u('uContrast'), S.contrast/50); gl.uniform1f(u('uSat2'), S.sat/50); gl.uniform1f(u('uTemp'), S.temp/50);
+  gl.uniform1f(u('uVig'), S.vig ? .42 : 0); gl.uniform1f(u('uGrain'), S.grain ? .1 : 0); gl.uniform1f(u('uLeak'), S.leak ? 1 : 0);
+  gl.uniform1f(u('uGlow'), S.glow ? 1 : 0); gl.uniform1f(u('uCA'), S.ca ? 1 : 0); gl.uniform1f(u('uOld'), S.old ? 1 : 0);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+function blank(){ if(!glOK) return; gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0,0,cv.width,cv.height); gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT); }
+
+/* ---------- stabiliser: follows how the picture shifts and moves it back ---------- */
+function profShift(A, B, R){
+  const n = A.length, vals = new Float32Array(2*R+1); let best = 0, bestV = Infinity, sum = 0;
+  for(let d=-R; d<=R; d++){
+    let s = 0, c = 0;
+    for(let x=Math.max(0,d); x<Math.min(n,n+d); x++){ s += Math.abs(B[x]-A[x-d]); c++; }
+    const v = s/c; vals[d+R] = v; sum += v; if(v < bestV){ bestV = v; best = d; }
+  }
+  if(vals[R] < 1e-6) return null;
+  if(!(bestV < (sum/(2*R+1))*0.6)) return 0;
+  let sub = 0;
+  if(best > -R && best < R){ const a = vals[best-1+R], c = vals[best+1+R], den = a - 2*bestV + c; if(den > 1e-9) sub = 0.5*(a-c)/den; }
+  return best + sub;
+}
+function stabUpdate(p){
+  const cfg = STAB[S.stab]; if(!cfg.k || !p.clip){ p.stab = null; return; }
+  const v = p.v, vw = v.videoWidth, vh = v.videoHeight; if(!vw || !vh) return;
+  renderSmall(p); gl.bindFramebuffer(gl.FRAMEBUFFER, p.fbo);
+  try{ gl.readPixels(0, 0, SW, SH, gl.RGBA, gl.UNSIGNED_BYTE, smallBuf); }catch(e){ return; }
+  const d = smallBuf, col = new Float32Array(SW), row = new Float32Array(SH);
+  for(let y=0, i=0; y<SH; y++){ for(let x=0; x<SW; x++, i+=4){ const l = d[i]*.3 + d[i+1]*.6 + d[i+2]*.1; col[x] += l; row[y] += l; } }
+  let mc = 0, mr = 0;
+  for(let x=0;x<SW;x++){ col[x] /= SH; mc += col[x]; } mc /= SW; for(let x=0;x<SW;x++) col[x] -= mc;
+  for(let y=0;y<SH;y++){ row[y] /= SW; mr += row[y]; } mr /= SH; for(let y=0;y<SH;y++) row[y] -= mr;
+  const st = p.stab;
+  if(!st){ p.stab = {col, row, cx:0, cy:0, mx:0, my:0, ox:0, oy:0}; return; }
+  const dx = profShift(st.col, col, 14), dy = profShift(st.row, row, 9);
+  if(dx === null && dy === null) return;
+  st.col = col; st.row = row;
+  st.cx += (dx || 0) * vw/SW; st.cy += (dy || 0) * vh/SH;
+  st.mx += (st.cx - st.mx) * cfg.k; st.my += (st.cy - st.my) * cfg.k;
+  const keep = {ox:st.ox, oy:st.oy}; st.ox = 0; st.oy = 0;
+  const lim = xform({p, clip:p.clip, z:1}, picRect()); st.ox = keep.ox; st.oy = keep.oy;
+  let ox = st.mx - st.cx, oy = st.my - st.cy;
+  if(ox > lim.limX){ ox = lim.limX; st.mx = st.cx + ox; } else if(ox < -lim.limX){ ox = -lim.limX; st.mx = st.cx + ox; }
+  if(oy > lim.limY){ oy = lim.limY; st.my = st.cy + oy; } else if(oy < -lim.limY){ oy = -lim.limY; st.my = st.cy + oy; }
+  st.ox = ox; st.oy = oy;
+}
+
+/* ---------- two players + sound ---------- */
+function mkPlayer(){
+  const v = document.createElement('video');
+  v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'auto';
+  $('pool').appendChild(v);
+  const c2d = document.createElement('canvas'); c2d.width = c2d.height = 2;
+  return { v, idx:-1, ready:false, tok:0, url:null, gain:null, stab:null, clip:null, c2d, x2d:c2d.getContext('2d', {alpha:false}), tex:null, sTex:null, fbo:null, smallAt:-1, hasTex:false };
+}
+const players = [mkPlayer(), mkPlayer()];
+const music = new Audio(); music.loop = true; music.preload = 'auto';
+let musicUrl = null, musicGain = null;
+let actx = null, master = null, recDest = null;
+function initAudio(){
+  if(actx) return;
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    actx = new AC();
+    master = actx.createGain(); master.connect(actx.destination);
+    recDest = actx.createMediaStreamDestination(); master.connect(recDest);
+    for(const p of players){ const src = actx.createMediaElementSource(p.v); p.gain = actx.createGain(); p.gain.gain.value = 0; src.connect(p.gain); p.gain.connect(master); }
+    const ms = actx.createMediaElementSource(music); musicGain = actx.createGain(); musicGain.gain.value = 0; ms.connect(musicGain); musicGain.connect(master);
+  }catch(e){ actx = null; master = null; recDest = null; musicGain = null; }
+}
+function setVol(p, g){ if(p.gain) p.gain.gain.value = g; else p.v.volume = clamp(g,0,1); }
+function setMusicVol(g){ if(musicGain) musicGain.gain.value = g; else music.volume = clamp(g,0,1); }
+
+function seekTo(v, time){
+  return new Promise(res => {
+    let done = false;
+    const fin = () => { if(done) return; done = true; v.removeEventListener('seeked', fin); res(); };
+    const go = () => { v.addEventListener('seeked', fin); try{ v.currentTime = clamp(time, 0, Math.max(0,(v.duration||time) - 0.05)); }catch(e){ fin(); } };
+    if(v.readyState >= 1) go(); else v.addEventListener('loadedmetadata', go, {once:true});
+    setTimeout(fin, 4000);
+  });
+}
+function load(p, url, time){
+  const tok = ++p.tok; p.ready = false; p.stab = null;
+  try{ p.v.pause(); }catch(e){}
+  if(p.url !== url){ p.url = url; p.v.src = url; p.v.load(); }
+  return seekTo(p.v, time).then(() => { if(p.tok === tok){ p.ready = true; return true; } return false; });
+}
+
+/* ---------- still preview while editing ---------- */
+let stillBusy = false, stillNext = null;
+function showStill(clip, time){
+  if(running || busy) return;
+  lastShown = {id:clip.id, time};
+  stillNext = {clip, time};
+  if(stillBusy) return;
+  stillBusy = true;
+  (async function loop(){
+    while(stillNext && !running && !busy){
+      const job = stillNext; stillNext = null;
+      const p = players[0]; p.idx = -1; p.clip = job.clip; setVol(p,0);
+      const ok = await load(p, job.clip.src.url, job.time);
+      if(ok && !running && !busy){
+        if(p.v.readyState < 2) await new Promise(r => setTimeout(r, 120));
+        sizeCanvas(false); frameNo++;
+        if(upload(p)) draw([{p, clip:job.clip, z:1}], {fade:1, titleA: stillTitle ? 1 : 0, titleText: stillTitle === 'outro' ? S.outro : S.title, time:1.7});
+      }
+    }
+    stillBusy = false;
+  })();
+}
+function refreshStill(){
+  if(running || busy) return;
+  const g = good();
+  if(!g.length){ sizeCanvas(false); blank(); return; }
+  const c = lastShown && g.find(x => x.id === lastShown.id);
+  if(c) showStill(c, clamp(lastShown.time, 0, c.src.dur)); else showStill(g[0], g[0].start);
+}
+
+/* ---------- adding files ---------- */
+function probe(file){
+  return new Promise(res => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'metadata';
+    let settled = false;
+    const out = (o) => { if(settled) return; settled = true; try{ v.removeAttribute('src'); v.load(); }catch(e){} res(Object.assign({url}, o)); };
+    v.onerror = () => out({bad:true});
+    v.onloadedmetadata = async () => {
+      const dur = isFinite(v.duration) ? v.duration : 0, w = v.videoWidth, h = v.videoHeight;
+      if(!dur || !w){ return out({bad:true}); }
+      await seekTo(v, Math.min(1, dur/2));
+      let thumb = '';
+      try{
+        const c = document.createElement('canvas'); c.width = 216; c.height = 120;
+        const g = c.getContext('2d'); const s = Math.max(216/w, 120/h), sw = 216/s, sh = 120/s;
+        g.drawImage(v, (w-sw)/2, (h-sh)/2, sw, sh, 0,0,216,120);
+        thumb = c.toDataURL('image/jpeg', .7);
+      }catch(e){}
+      out({dur, thumb, w, h});
+    };
+    setTimeout(() => out({bad:true}), 12000);
+    v.src = url;
+  });
+}
+function newClip(src, start, len){ return { id: nextId++, src, start: start || 0, len: len == null ? Math.min(4, src.dur) : len, rate:1, mute:false, fit:'auto', zoom:1, px:0, py:0, fresh:false }; }
+$('file').addEventListener('change', async e => {
+  const files = Array.from(e.target.files || []); e.target.value = '';
+  if(!files.length) return;
+  setMsg('Открываю видео…');
+  let bad = 0;
+  for(const f of files){
+    const info = await probe(f);
+    const src = { url:info.url, file:f, name:f.name, dur:info.dur||0, w:info.w||0, h:info.h||0, thumb:info.thumb||'', bad:!!info.bad, scan:null };
+    sources.push(src);
+    const c = newClip(src); c.fresh = true;
+    if(src.bad) bad++;
+    clips.push(c);
+    renderClips();
+  }
+  if(!touched){ mode = 'even'; evenFit(); } else { clips.forEach(c => c.fresh = false); renderClips(); }
+  setMsg(bad ? 'Телефон не смог открыть ' + bad + ' из ' + files.length + ' видео. Попробуйте другой браузер или переснимите файл в обычном формате.' : '', !!bad);
+  refreshStill();
+});
+
+/* ---------- automatic cuts ---------- */
+function distribute(g, need, weight, cap){
+  cap = cap || avail;
+  let left = need, free = g.slice();
+  g.forEach(c => c.len = 0);
+  for(let pass=0; pass<8 && free.length && left > 0.05; pass++){
+    const wsum = free.reduce((a,c) => a + weight(c), 0), pool = left, still = [];
+    for(const c of free){
+      const add = Math.max(0, Math.min(pool*weight(c)/wsum, cap(c) - c.len));
+      c.len += add; left -= add;
+      if(cap(c) - c.len > 0.05) still.push(c);
+    }
+    free = still;
+  }
+  g.forEach(c => { c.len = Math.max(Math.min(MIN_LEN, cap(c)), Math.round(c.len*10)/10); });
+  const diff = need - g.reduce((a,c) => a + c.len, 0);
+  if(Math.abs(diff) > 0.01 && Math.abs(diff) < 1){
+    const c = g.find(c => c.len + diff >= Math.min(MIN_LEN, cap(c)) && c.len + diff <= cap(c));
+    if(c) c.len = Math.round((c.len + diff)*100)/100;
+  }
+}
+function evenFit(){
+  const g = good();
+  if(g.length){
+    distribute(g, S.target + (g.length-1)*(g.length > 1 ? transLen() : 0), () => 1);
+    g.forEach(c => {
+      const slack = Math.max(0, c.src.dur - c.len*c.rate);
+      if(c.fresh){ c.start = floor1(slack*.3); c.fresh = false; } else c.start = Math.min(c.start, floor1(slack));
+    });
+  }
+  touched = false; renderClips(); refreshStill();
+}
+function randomCut(){
+  const g = good(); if(!g.length) return;
+  for(let i=g.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); const t = g[i]; g[i] = g[j]; g[j] = t; }
+  clips = g.concat(clips.filter(c => c.src.bad));
+  const w = new Map(); g.forEach(c => w.set(c, .6 + Math.random()));
+  distribute(g, S.target + (g.length-1)*(g.length > 1 ? transLen() : 0), c => w.get(c));
+  g.forEach(c => { c.start = floor1(Math.random()*Math.max(0, c.src.dur - c.len*c.rate)); c.fresh = false; });
+  touched = false; mode = 'random'; openId = null; lastShown = null; stillTitle = null;
+  renderClips(); refreshStill();
+  setMsg('Новый случайный вариант. Не нравится — нажмите ещё раз.');
+}
+$('fit').addEventListener('click', () => { mode = 'even'; evenFit(); setMsg('Все видео идут по порядку, длина поделена поровну.'); });
+$('random').addEventListener('click', randomCut);
+
+/* ---------- smart cut: watch every video quickly and score each moment ---------- */
+const scanV = document.createElement('video'); scanV.muted = true; scanV.playsInline = true; scanV.setAttribute('playsinline',''); scanV.preload = 'auto';
+$('pool').appendChild(scanV);
+const QW = 64, QH = 36, qcv = document.createElement('canvas'); qcv.width = QW; qcv.height = QH;
+const qctx = qcv.getContext('2d', {willReadFrequently:true});
+function scanSource(src, onProg){
+  return new Promise(res => {
+    const v = scanV, data = []; let prev = null, lastT = -1, lastWall = performance.now(), done = false, timer = 0;
+    const fin = () => { if(done) return; done = true; clearInterval(timer); try{ v.pause(); v.removeAttribute('src'); v.load(); }catch(e){} src.scan = data; res(); };
+    const take = () => {
+      let d; try{ qctx.drawImage(v, 0, 0, QW, QH); d = qctx.getImageData(0,0,QW,QH).data; }catch(e){ return; }
+      const n = QW*QH, L = new Float32Array(n); let sum = 0, sum2 = 0, colr = 0;
+      for(let i=0, j=0; j<n; i+=4, j++){ const r = d[i], g = d[i+1], b = d[i+2], l = r*.3 + g*.6 + b*.1; L[j] = l; sum += l; sum2 += l*l; colr += Math.abs(r-g) + Math.abs(g-b); }
+      const mean = sum/n, std = Math.sqrt(Math.max(0, sum2/n - mean*mean));
+      let sharp = 0, motion = 0;
+      for(let y=0; y<QH-1; y++){ for(let x=0; x<QW-1; x++){ const j = y*QW + x; sharp += Math.abs(L[j+1]-L[j]) + Math.abs(L[j+QW]-L[j]); } }
+      if(prev){ for(let j=0; j<n; j++) motion += Math.abs(L[j]-prev[j]); }
+      data.push({ t:v.currentTime, sharp:sharp/n, motion: prev ? motion/n : -1, mean, std, color:colr/n });
+      prev = L;
+    };
+    v.onerror = fin;
+    v.onloadeddata = () => {
+      try{ v.playbackRate = src.dur > 120 ? 8 : 4; }catch(e){}
+      const pr = v.play(); if(pr && pr.catch) pr.catch(fin);
+      timer = setInterval(() => {
+        const now = performance.now();
+        if(v.currentTime - lastT >= .25){ take(); lastT = v.currentTime; lastWall = now; if(onProg) onProg(clamp(v.currentTime/src.dur, 0, 1)); }
+        if(v.ended || v.currentTime >= src.dur - .15 || now - lastWall > 5000) fin();
+      }, 30);
+    };
+    setTimeout(() => { if(!data.length) fin(); }, 9000);
+    v.src = src.url; v.load();
+  });
+}
+function scoreSources(srcs){
+  const sh = [], mo = [], co = [];
+  srcs.forEach(s => s.scan.forEach(x => { sh.push(x.sharp); co.push(x.color); if(x.motion >= 0) mo.push(x.motion); }));
+  sh.sort((a,b)=>a-b); mo.sort((a,b)=>a-b); co.sort((a,b)=>a-b);
+  const rank = (arr, v) => { if(!arr.length) return .5; let lo = 0, hi = arr.length; while(lo < hi){ const m = (lo+hi)>>1; if(arr[m] < v) lo = m+1; else hi = m; } return lo/arr.length; };
+  srcs.forEach(s => s.scan.forEach(x => {
+    const sr = rank(sh, x.sharp); let mr = x.motion < 0 ? .5 : rank(mo, x.motion); if(mr > .96) mr = .45;
+    const ok = (x.mean > 30 && x.mean < 228 && x.std > 9) ? 1 : .35, edge = (x.t < .6 || x.t > s.dur - .6) ? .45 : 1;
+    x.score = (.5*sr + .4*mr + .1*rank(co, x.color))*ok*edge;
+  }));
+}
+function windowScore(src, a, b){ let s = 0, n = 0; for(const x of src.scan){ if(x.t >= a && x.t <= b){ s += x.score; n++; } } return n ? s/n : 0; }
+async function smartCut(){
+  if(busy || running) return;
+  const srcs = sources.filter(s => !s.bad && clips.some(c => c.src === s));
+  if(!srcs.length) return;
+  const todo = srcs.filter(s => !s.scan);
+  if(todo.length){
+    busy = true; stillNext = null; $('main').inert = true; $('play').disabled = true; $('save').disabled = true;
+    for(let i=0; i<todo.length; i++){
+      setMsg('Смотрю видео ' + (i+1) + ' из ' + todo.length + ' и ищу лучшие моменты…');
+      await scanSource(todo[i], f => { $('gauge').style.width = ((i + f)/todo.length*100) + '%'; });
+    }
+    busy = false; $('main').inert = false;
+  }
+  if(!srcs.some(s => s.scan && s.scan.length)){ setMsg('Не получилось просмотреть видео. Попробуйте случайный монтаж.', true); updateTotal(); return; }
+  scoreSources(srcs.filter(s => s.scan));
+  const X = srcs.length > 1 || S.target > 6 ? transLen() : 0;
+  const T = S.target, segLen = T <= 20 ? 2.5 : T <= 45 ? 3.5 : T <= 90 ? 4.5 : T <= 240 ? 6 : 8;
+  const n = Math.max(1, Math.round((T - X)/(segLen - X)));
+  const cands = [];
+  srcs.forEach(s => {
+    if(!s.scan || !s.scan.length) return;
+    const len = Math.min(segLen, s.dur);
+    for(let a=0; a <= s.dur - len + 1e-6; a += .5) cands.push({ src:s, s:a, len, score: windowScore(s, a, a+len)*(.92 + Math.random()*.16) });
+  });
+  const picked = [], count = new Map();
+  const clash = c => picked.some(p => p.src === c.src && c.s < p.s + p.len + .4 && p.s < c.s + c.len + .4);
+  while(picked.length < n){
+    let best = null, bestE = -1;
+    for(const c of cands){ if(clash(c)) continue; const e = c.score*Math.pow(.7, count.get(c.src) || 0); if(e > bestE){ bestE = e; best = c; } }
+    if(!best) break;
+    picked.push(best); count.set(best.src, (count.get(best.src) || 0) + 1);
+  }
+  picked.sort((a,b) => (sources.indexOf(a.src) - sources.indexOf(b.src)) || (a.s - b.s));
+  const made = picked.map(p => { const c = newClip(p.src, floor1(p.s), p.len); c.w = Math.max(.05, p.score); return c; });
+  const room = c => { let end = c.src.dur; for(const o of made){ if(o !== c && o.src === c.src && o.start > c.start) end = Math.min(end, o.start - .2); } return Math.max(Math.min(MIN_LEN, c.src.dur), Math.min(MAX_LEN, end - c.start)); };
+  if(made.length) distribute(made, T + (made.length-1)*(made.length > 1 ? transLen() : 0), c => c.w, room);
+  clips = made.concat(clips.filter(c => c.src.bad));
+  touched = false; mode = 'smart'; openId = null; lastShown = null; stillTitle = null;
+  renderClips(); refreshStill();
+  const t = totalLen();
+  setMsg(t < T - 1 ? 'Собрал ' + made.length + ' лучших моментов. На всю длину видео не хватило: добавьте ещё или выберите ролик короче.' : 'Собрал ' + made.length + ' лучших моментов. Нажмите «Смотреть». Ещё раз — будет другой вариант.');
+}
+$('smart').addEventListener('click', smartCut);
+function refit(){ if(touched){ updateTotal(); return; } if(mode === 'smart' && sources.every(s => s.bad || s.scan)) smartCut(); else evenFit(); }
+
+/* ---------- clip list ---------- */
+function cutText(c){
+  if(c.src.bad) return 'Не открывается';
+  let s = 'с ' + fmt(c.start) + ', длится ' + sec(c.len);
+  if(c.rate !== 1) s += ', ' + (c.rate < 1 ? 'замедленно' : 'ускоренно');
+  if(c.mute) s += ', без звука';
+  return s;
+}
+function slider(label, min, max, step, value, show, onInput){
+  const l = document.createElement('label'); l.className = 'sl'; const b = document.createElement('b'); b.textContent = show(value);
+  l.append(label + ' ', b);
+  const r = document.createElement('input'); r.type = 'range'; r.min = min; r.max = max; r.step = step; r.value = value; l.append(r);
+  r.addEventListener('input', () => { const v = parseFloat(r.value); b.textContent = show(v); onInput(v, r, b); });
+  return {l, r, b};
+}
+function chips(label, options, current, onPick){
+  const box = document.createElement('div'); box.className = 'mini';
+  const sl = document.createElement('span'); sl.className = 'lbl'; sl.textContent = label; box.append(sl);
+  options.forEach(([val, text]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = text; b.setAttribute('aria-pressed', String(current === val));
+    b.addEventListener('click', () => onPick(val)); box.append(b);
+  });
+  return box;
+}
+function renderClips(){
+  const ol = $('clips'); ol.textContent = '';
+  let n = 0;
+  clips.forEach((c, i) => {
+    const bad = c.src.bad;
+    const li = document.createElement('li'); li.className = 'clip' + (c.id === openId ? ' open' : '') + (bad ? ' bad' : '');
+    const head = document.createElement('button'); head.className = 'clip-head'; head.type = 'button';
+    head.setAttribute('aria-expanded', c.id === openId ? 'true' : 'false');
+    const num = document.createElement('span'); num.className = 'num'; num.textContent = bad ? '!' : String(++n);
+    let pic;
+    if(c.src.thumb){ pic = document.createElement('img'); pic.src = c.src.thumb; pic.alt = ''; } else { pic = document.createElement('span'); pic.className = 'ph'; }
+    const meta = document.createElement('span'); meta.className = 'meta';
+    const cut = document.createElement('span'); cut.className = 'cut'; cut.textContent = cutText(c);
+    const name = document.createElement('span'); name.className = 'name'; name.textContent = c.src.name;
+    meta.append(cut, name);
+    const chev = document.createElement('span'); chev.className = 'chev'; chev.textContent = '▾'; chev.setAttribute('aria-hidden','true');
+    head.append(num, pic, meta, chev);
+    head.addEventListener('click', () => { setMsg(''); openId = (openId === c.id ? null : c.id); stillTitle = null; renderClips(); if(openId === c.id && !bad) showStill(c, c.start); });
+    li.append(head);
+
+    const body = document.createElement('div'); body.className = 'clip-body';
+    if(c.id === openId){
+      if(!bad){
+        let s1, s2;
+        s1 = slider('Начать с момента', 0, Math.max(0, c.src.dur - MIN_LEN*c.rate).toFixed(1), .1, c.start, fmt, v => {
+          touched = true; stillTitle = null; c.start = v;
+          if(c.start + c.len*c.rate > c.src.dur){ c.len = Math.max(Math.min(MIN_LEN, avail(c)), floor1((c.src.dur - c.start)/c.rate)); s2.r.value = c.len; s2.b.textContent = sec(c.len); }
+          cut.textContent = cutText(c); updateTotal(); showStill(c, c.start);
+        });
+        s2 = slider('Сколько показывать:', Math.min(MIN_LEN, avail(c)), avail(c).toFixed(1), .1, c.len, sec, v => {
+          touched = true; stillTitle = null; c.len = v;
+          if(c.start + c.len*c.rate > c.src.dur){ c.start = Math.max(0, floor1(c.src.dur - c.len*c.rate)); s1.r.value = c.start; s1.b.textContent = fmt(c.start); }
+          cut.textContent = cutText(c); updateTotal(); showStill(c, Math.max(c.start, c.start + c.len*c.rate - .1));
+        });
+        body.append(s1.l, s2.l);
+        body.append(chips('Как вписать в кадр', [['auto','Авто'],['fill','Заполнить кадр'],['fit','Показать целиком']], c.fit, v => { c.fit = v; renderClips(); showStill(c, c.start); }));
+        const pos = document.createElement('details'); const sum = document.createElement('summary'); sum.textContent = 'Размер и положение в кадре'; pos.append(sum);
+        if(c.zoom !== 1 || c.px || c.py) pos.open = true;
+        const pct = v => Math.round(v*100) + '%', shift = v => v === 0 ? 'по центру' : (v > 0 ? '+' : '') + Math.round(v*100);
+        const still = () => showStill(c, lastShown && lastShown.id === c.id ? lastShown.time : c.start);
+        pos.append(slider('Приближение:', 1, 3, .05, c.zoom, pct, v => { c.zoom = v; still(); }).l);
+        pos.append(slider('Сдвиг влево и вправо:', -1, 1, .05, c.px, shift, v => { c.px = v; still(); }).l);
+        pos.append(slider('Сдвиг вверх и вниз:', -1, 1, .05, c.py, shift, v => { c.py = v; still(); }).l);
+        const rs = document.createElement('button'); rs.type = 'button'; rs.className = 'linkbtn'; rs.textContent = 'Вернуть как было';
+        rs.addEventListener('click', () => { c.zoom = 1; c.px = 0; c.py = 0; c.fit = 'auto'; renderClips(); showStill(c, c.start); });
+        pos.append(rs); body.append(pos);
+        const sp = chips('Скорость и звук', [[.5,'Замедлить'],[1,'Обычная'],[2,'Ускорить']], c.rate, r => {
+          touched = true; c.rate = r;
+          c.len = clamp(c.len, Math.min(MIN_LEN, avail(c)), floor1(avail(c)));
+          if(c.start + c.len*c.rate > c.src.dur) c.start = Math.max(0, floor1(c.src.dur - c.len*c.rate));
+          renderClips(); showStill(c, c.start);
+        });
+        const mu = document.createElement('button'); mu.type = 'button'; mu.className = 'chip'; mu.textContent = 'Без звука'; mu.setAttribute('aria-pressed', String(c.mute));
+        mu.addEventListener('click', () => { c.mute = !c.mute; renderClips(); });
+        sp.append(mu); body.append(sp);
+      }
+      const tools = document.createElement('div'); tools.className = 'tools';
+      const up = document.createElement('button'); up.type = 'button'; up.textContent = '↑ Раньше'; up.disabled = i === 0;
+      const down = document.createElement('button'); down.type = 'button'; down.textContent = '↓ Позже'; down.disabled = i === clips.length-1;
+      const dup = document.createElement('button'); dup.type = 'button'; dup.textContent = 'Взять ещё момент'; dup.disabled = bad;
+      const del = document.createElement('button'); del.type = 'button'; del.className = 'del'; del.textContent = 'Убрать';
+      up.addEventListener('click', () => { touched = true; clips.splice(i-1, 0, clips.splice(i,1)[0]); renderClips(); });
+      down.addEventListener('click', () => { touched = true; clips.splice(i+1, 0, clips.splice(i,1)[0]); renderClips(); });
+      dup.addEventListener('click', () => {
+        touched = true;
+        const copy = Object.assign({}, c, { id: nextId++, fresh:false });
+        copy.start = floor1(Math.min(Math.max(0, c.src.dur - copy.len*copy.rate), c.start + c.len*c.rate));
+        clips.splice(i+1, 0, copy); openId = copy.id; renderClips(); showStill(copy, copy.start);
+      });
+      del.addEventListener('click', () => {
+        clips.splice(i,1);
+        if(!clips.some(x => x.src === c.src)){ sources = sources.filter(s => s !== c.src); try{ URL.revokeObjectURL(c.src.url); }catch(e){} }
+        if(openId === c.id) openId = null; renderClips(); refreshStill();
+      });
+      tools.append(up, down, dup, del); body.append(tools);
+    }
+    li.append(body); ol.append(li);
+  });
+  const any = good().length > 0;
+  $('empty').hidden = any; $('auto').hidden = !any; $('autoNote').hidden = !any;
+  updateTotal();
+}
+function bitrate(){ let b = BITRATE[S.quality] || 12e6; if(S.fps >= 50) b *= 1.4; if(S.frame === 'square') b *= .6; if(S.target > 120) b *= .75; return b; }
+function updateTotal(){
+  const g = good(), t = totalLen();
+  $('totalNum').textContent = fmt(t) + ' из ' + fmt(S.target);
+  const gi = $('gauge'); gi.style.width = clamp(t/S.target*100, 0, 100) + '%';
+  const hit = Math.abs(t - S.target) <= Math.max(.6, S.target*.01); gi.classList.toggle('hit', hit && g.length > 0);
+  let hint = 'Пока нет видео';
+  if(g.length){
+    if(hit) hint = 'Ровно по длине';
+    else if(t < S.target) hint = 'Короче на ' + sec(S.target - t);
+    else hint = 'Длиннее на ' + sec(t - S.target);
+  }
+  $('totalHint').textContent = hint;
+  const mb = bitrate()*(g.length ? t : S.target)/8/1e6, sn = $('sizeNote');
+  sn.textContent = 'Примерный размер готового файла: ' + (mb < 1000 ? Math.max(1, Math.round(mb)) + ' МБ' : (mb/1000).toFixed(1).replace('.', ',') + ' ГБ') + '.'
+    + (S.target >= 180 ? ' Длинный ролик записывается столько же, сколько длится, и всё это время страницу нельзя сворачивать.' : '')
+    + (mb > 700 ? ' Файл очень большой, телефон может не справиться: выберите разрешение меньше.' : '');
+  sn.classList.toggle('warn', mb > 700);
+  if(!running && !busy){ $('play').disabled = !g.length; $('save').disabled = !g.length; }
+}
+
+/* ---------- settings ---------- */
+(function buildLooks(){
+  const row = $('looks');
+  Object.keys(LOOKS).forEach(k => { const b = document.createElement('button'); b.className = 'chip'; b.dataset.v = k; b.textContent = LOOKS[k].name; row.append(b); });
+})();
+function rangeText(k, v){ return (k === 'power' || k === 'volVideo' || k === 'volMusic') ? v + '%' : (v > 0 ? '+' + v : String(v)); }
+function syncControls(){
+  document.querySelectorAll('[data-set]').forEach(row => {
+    const k = row.dataset.set;
+    row.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', String(String(S[k]) === b.dataset.v)));
+  });
+  document.querySelectorAll('[data-toggle]').forEach(b => b.setAttribute('aria-pressed', String(!!S[b.dataset.toggle])));
+  document.querySelectorAll('[data-range]').forEach(i => { const k = i.dataset.range; i.value = S[k]; $('o-' + k).textContent = rangeText(k, S[k]); });
+  document.querySelectorAll('[data-preset]').forEach(b => { const p = PRESETS[b.dataset.preset]; b.setAttribute('aria-pressed', String(p.frame === S.frame && p.quality === S.quality && p.fps === S.fps)); });
+  $('title').value = S.title; $('outro').value = S.outro;
+}
+function applied(k){
+  syncControls(); saveSettings(); stillTitle = null;
+  if(k === 'target' || k === 'trans') refit(); else updateTotal();
+  refreshStill();
+}
+document.querySelectorAll('[data-set] .chip').forEach(b => b.addEventListener('click', () => {
+  const k = b.parentElement.dataset.set; S[k] = NUMERIC[k] ? parseInt(b.dataset.v, 10) : b.dataset.v; applied(k);
+}));
+document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => { Object.assign(S, PRESETS[b.dataset.preset]); applied('frame'); }));
+document.querySelectorAll('[data-toggle]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.toggle; S[k] = !S[k]; applied(k); }));
+document.querySelectorAll('[data-range]').forEach(i => i.addEventListener('input', () => {
+  const k = i.dataset.range; S[k] = parseInt(i.value, 10); $('o-' + k).textContent = rangeText(k, S[k]); saveSettings();
+  if(k !== 'volVideo' && k !== 'volMusic') refreshStill();
+}));
+$('resetFine').addEventListener('click', () => { S.bright = 0; S.contrast = 0; S.sat = 0; S.temp = 0; applied('bright'); });
+$('title').addEventListener('input', e => { S.title = e.target.value; stillTitle = 'title'; saveSettings(); refreshStill(); });
+$('outro').addEventListener('input', e => { S.outro = e.target.value; stillTitle = 'outro'; saveSettings(); refreshStill(); });
+$('title').addEventListener('blur', () => { stillTitle = null; }); $('outro').addEventListener('blur', () => { stillTitle = null; });
+
+$('musicFile').addEventListener('change', e => {
+  const f = (e.target.files || [])[0]; e.target.value = ''; if(!f) return;
+  if(musicUrl) URL.revokeObjectURL(musicUrl);
+  musicUrl = URL.createObjectURL(f); music.src = musicUrl; music.load();
+  $('musicName').textContent = f.name; $('musicDel').hidden = false;
+});
+music.addEventListener('error', () => { if(!musicUrl) return; $('musicName').textContent = 'Телефон не смог открыть этот файл. Выберите MP3 или M4A.'; });
+$('musicDel').addEventListener('click', () => {
+  try{ music.pause(); }catch(e){}
+  if(musicUrl) URL.revokeObjectURL(musicUrl); musicUrl = null; music.removeAttribute('src'); music.load();
+  $('musicName').textContent = 'Музыка не выбрана'; $('musicDel').hidden = true;
+});
+
+/* ---------- playback / recording engine ---------- */
+function pickMime(){
+  if(!window.MediaRecorder) return null;
+  const big = Math.max(cv.width, cv.height) > 1920 || S.fps > 30;
+  const list = big
+    ? ['video/mp4;codecs=avc1.640033,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']
+    : ['video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+  for(const m of list){ try{ if(MediaRecorder.isTypeSupported(m)) return m; }catch(e){} }
+  return '';
+}
+let wake = null;
+async function start(record){
+  if(running || busy) return;
+  const g = good(); if(!g.length) return;
+  if(!glOK){ setMsg('Этот браузер не смог включить графику. Откройте страницу в Chrome.', true); return; }
+  sizeCanvas(record);
+  let mime = null;
+  if(record){ mime = pickMime(); if(mime === null){ sizeCanvas(false); setMsg('Этот браузер не умеет записывать видео. Откройте страницу в Chrome.', true); return; } }
+  initAudio();
+  if(actx){ try{ await actx.resume(); }catch(e){} }
+  const X = xf(); let T = 0;
+  const plan = g.map(c => { const o = {T, L:c.len, s:c.start, url:c.src.url, rate:c.rate, mute:c.mute, clip:c}; T += c.len - X; return o; });
+  const total = T + X;
+  const cuts = plan.map(() => S.trans === 'rand' ? RAND_TRANS[Math.floor(Math.random()*RAND_TRANS.length)] : S.trans);
+  stillNext = null; stillTitle = null;
+  for(const p of players){ p.idx = -1; p.ready = false; p.tok++; p.stab = null; p.clip = null; try{ p.v.pause(); }catch(e){} setVol(p,0); }
+  setMusicVol(0);
+  if(musicUrl){ try{ music.pause(); music.currentTime = 0; }catch(e){} }
+  const now = performance.now();
+  running = { record, plan, cuts, total, t:0, last:now, nextDraw:now, stalled:true, stallSince:now, rec:null, chunks:[], mime, raf:0, started:false, X, frames:0 };
+  $('main').inert = true;
+  $('play').textContent = record ? 'Отменить' : 'Остановить'; $('save').disabled = true;
+  setMsg(record ? 'Готовлю запись…' : '');
+  try{ if(record && navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); }catch(e){}
+  if(running) running.raf = requestAnimationFrame(tick);
+}
+function assign(p, i){ const R = running; p.idx = i; p.clip = R.plan[i].clip; load(p, R.plan[i].url, R.plan[i].s); }
+function tick(now){
+  const R = running; if(!R) return;
+  const dt = Math.min(2, (now - R.last)/1000); R.last = now;
+  const plan = R.plan, end = i => plan[i].T + plan[i].L;
+  for(let i=0;i<plan.length;i++){
+    const p = players[i%2];
+    if(p.idx === i || R.t >= end(i)) continue;
+    if(R.t >= plan[i].T - 1.5 && (p.idx === -1 || (p.idx < i && R.t >= end(p.idx)))) assign(p, i);
+  }
+  const need = []; for(let i=0;i<plan.length;i++) if(R.t >= plan[i].T && R.t < end(i)) need.push(i);
+  const ok = need.length > 0 && need.every(i => { const p = players[i%2]; return p.idx === i && p.ready && p.v.readyState >= 2; });
+  if(ok){
+    if(R.stalled){
+      R.stalled = false;
+      if(R.record){
+        if(!R.started){ if(!startRecorder(R)) return; R.started = true; }
+        else { try{ R.rec.resume(); }catch(e){} }
+      }
+    }
+    for(const i of need){
+      const p = players[i%2];
+      if(p.v.playbackRate !== plan[i].rate){ try{ p.v.playbackRate = plan[i].rate; }catch(e){} }
+      if(p.v.paused && !p.v.ended){ const pr = p.v.play(); if(pr && pr.catch) pr.catch(()=>{}); }
+    }
+    if(musicUrl && music.paused){ const pr = music.play(); if(pr && pr.catch) pr.catch(()=>{}); }
+    R.t += dt;
+  } else if(!R.stalled){
+    R.stalled = true; R.stallSince = now;
+    for(const p of players){ try{ p.v.pause(); }catch(e){} }
+    try{ music.pause(); }catch(e){}
+    if(R.record && R.started){ try{ R.rec.pause(); }catch(e){} }
+  } else if(now - R.stallSince > 10000){
+    stop('Не получилось открыть одно из видео. Выберите разрешение меньше или уберите этот файл.', true); return;
+  }
+  for(const p of players){ if(p.idx >= 0 && R.t >= end(p.idx) && !p.v.paused){ try{ p.v.pause(); }catch(e){} } }
+
+  const fade = clamp(Math.min(R.t/0.8, (R.total - R.t)/1.2), 0, 1);
+  const zoomOf = i => { if(!S.push) return 1; const q = clamp((R.t - plan[i].T)/plan[i].L, 0, 1); return i % 2 ? 1.07 - .07*q : 1 + .07*q; };
+  const vol = [0,0]; let prog = 0;
+  need.forEach((i, k) => {
+    const a = (i > 0 && R.X > 0) ? clamp((R.t - plan[i].T)/R.X, 0, 1) : 1;
+    vol[i%2] = a * fade * (plan[i].mute ? 0 : 1) * S.volVideo/100;
+    if(k > 0){ vol[need[k-1]%2] *= (1 - a); prog = a; }
+  });
+  if(ok && now >= R.nextDraw - 4){
+    const step = 1000/S.fps; R.nextDraw += step; if(now - R.nextDraw > 120) R.nextDraw = now + step;
+    frameNo++;
+    let layers, o = { fade, time:R.t, prog:0, trans:0, dip:null };
+    for(const i of need){ const p = players[i%2]; upload(p); if(STAB[S.stab].k) stabUpdate(p); }
+    const L = i => ({ p:players[i%2], clip:plan[i].clip, z:zoomOf(i) });
+    if(need.length >= 2){
+      const kind = R.cuts[need[1]];
+      if(kind === 'black' || kind === 'white'){ layers = [L(prog < .5 ? need[0] : need[1])]; o.dip = { c: kind === 'black' ? 0 : 1, a: prog < .5 ? prog*2 : (1-prog)*2 }; }
+      else { layers = [L(need[0]), L(need[1])]; o.prog = prog; o.trans = TRANS_ID[kind] || 0; }
+    } else layers = [L(need[0])];
+    if(S.title.trim() && R.t < 3.8){ o.titleText = S.title; o.titleA = clamp(Math.min((R.t - .3)/.8, (3.6 - R.t)/.8), 0, 1); }
+    else if(S.outro.trim() && R.t > R.total - 3.6 && R.total > 6){ o.titleText = S.outro; o.titleA = clamp((R.t - (R.total - 3.4))/.8, 0, 1) * fade; }
+    draw(layers, o);
+    R.frames++;
+  }
+  players.forEach((p, k) => setVol(p, ok ? vol[k] : 0));
+  setMusicVol(ok && musicUrl ? fade * S.volMusic/100 : 0);
+  if(R.record && R.started) setMsg('Записываю: ' + fmt(R.t) + ' из ' + fmt(R.total) + '. Не сворачивайте страницу.');
+  $('gauge').style.width = clamp(R.t/R.total*100,0,100) + '%';
+  if(R.t >= R.total){ finish(); return; }
+  R.raf = requestAnimationFrame(tick);
+}
+function startRecorder(R){
+  try{
+    const stream = cv.captureStream(S.fps);
+    if(recDest) recDest.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
+    const opt = { videoBitsPerSecond: bitrate(), audioBitsPerSecond: 160000 };
+    if(R.mime) opt.mimeType = R.mime;
+    R.rec = new MediaRecorder(stream, opt);
+    R.rec.ondataavailable = e => { if(e.data && e.data.size) R.chunks.push(e.data); };
+    R.rec.onerror = () => { stop('Телефон не справился с записью в этом разрешении. Выберите разрешение меньше.', true); };
+    R.rec.start(1000);
+    return true;
+  }catch(e){
+    stop('Телефон не смог начать запись в этом разрешении. Выберите разрешение меньше или откройте страницу в Chrome.', true);
+    return false;
+  }
+}
+function cleanup(){
+  const R = running; running = null;
+  if(R) cancelAnimationFrame(R.raf);
+  for(const p of players){ try{ p.v.pause(); }catch(e){} setVol(p,0); p.idx = -1; p.stab = null; }
+  try{ music.pause(); }catch(e){} setMusicVol(0);
+  try{ if(wake){ wake.release(); wake = null; } }catch(e){}
+  $('main').inert = false;
+  $('play').textContent = 'Смотреть';
+  updateTotal();
+  return R;
+}
+function stop(text, err){
+  const R = cleanup();
+  if(R && R.rec && R.rec.state !== 'inactive'){ R.rec.onstop = null; R.rec.onerror = null; try{ R.rec.stop(); }catch(e){} }
+  setMsg(text || '', err);
+  refreshStill();
+}
+function finish(){
+  const R = cleanup();
+  if(!R.record || !R.rec){ setMsg(''); refreshStill(); return; }
+  setMsg('Сохраняю запись…');
+  R.rec.onstop = () => {
+    const type = (R.rec.mimeType || R.mime || 'video/webm').split(';')[0];
+    const blob = new Blob(R.chunks, {type});
+    if(!blob.size){ setMsg('Запись получилась пустой. Выберите разрешение меньше.', true); refreshStill(); return; }
+    setMsg('');
+    showResult(blob, type.indexOf('mp4') >= 0 ? 'mp4' : 'webm', R.frames/Math.max(1, R.total) < S.fps*.6);
+  };
+  try{ R.rec.stop(); }catch(e){ setMsg('Запись не удалась. Попробуйте ещё раз.', true); }
+}
+$('play').addEventListener('click', () => { if(running) stop(running.record ? 'Запись отменена.' : ''); else start(false); });
+$('save').addEventListener('click', () => start(true));
+document.addEventListener('visibilitychange', () => { if(document.hidden && running){ stop(running.record ? 'Запись прервалась, потому что страница была свёрнута. Запустите ещё раз и держите её открытой.' : '', true); } });
+
+/* ---------- result ---------- */
+let resBlob = null, resExt = 'mp4', resUrl = null, resName = '', dl;
+function showResult(blob, ext, slow){
+  resBlob = blob; resExt = ext;
+  const d = new Date(), pad = n => String(n).padStart(2,'0');
+  resName = 'sklejka-' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + '.' + ext;
+  if(resUrl) URL.revokeObjectURL(resUrl);
+  resUrl = URL.createObjectURL(blob);
+  $('resVideo').src = resUrl;
+  $('resMsg').textContent = slow ? 'Телефон не успевал за этими настройками, ролик может идти рывками. Посмотрите его и, если так, выберите разрешение или число кадров меньше.' : '';
+  $('resMsg').classList.remove('err');
+  $('result').hidden = false;
+}
+$('back').addEventListener('click', () => { try{ $('resVideo').pause(); }catch(e){} $('result').hidden = true; refreshStill(); });
+$('share').addEventListener('click', async () => {
+  if(!resBlob) return;
+  const m = $('resMsg'); m.classList.remove('err');
+  let file = null; try{ file = new File([resBlob], resName, {type: resBlob.type}); }catch(e){}
+  if(file && navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file], title:'Мой ролик'}); m.textContent = resExt === 'webm' ? 'Если соцсеть не приняла файл: телефон записал его в формате WebM. Обновите Chrome, тогда запись будет в MP4.' : ''; }
+    catch(e){ if(!e || e.name !== 'AbortError'){ m.textContent = 'Отправить не получилось. Сохраните ролик на телефон и загрузите его в соцсеть из галереи.'; m.classList.add('err'); } }
+  } else {
+    m.textContent = 'Отсюда отправить напрямую нельзя. Откройте программу по своей ссылке в Chrome — там эта кнопка открывает Instagram, TikTok, Telegram и другие приложения. Или сохраните ролик и загрузите его из галереи.';
+  }
+});
+$('download').addEventListener('click', async () => {
+  if(!resBlob) return;
+  const m = $('resMsg'); m.classList.remove('err');
+  const filename = resName;
+  m.textContent = 'Сохраняю…';
+  if(dl === undefined){ try{ dl = (window.claude && window.claude.use) ? await window.claude.use('downloads') : null; }catch(e){ dl = null; } }
+  if(dl){
+    try{ await dl.save({filename, data: resBlob}); m.textContent = 'Сохранено: ' + filename; }
+    catch(e){
+      const code = e && e.code;
+      if(code === 'declined'){ m.textContent = 'Сохранение отменено. Ролик остался здесь — можно нажать ещё раз.'; }
+      else if(code === 'rate_limited'){ m.textContent = 'Подождите несколько секунд и нажмите ещё раз.'; }
+      else if(code === 'too_large'){ m.textContent = 'Файл слишком большой для сохранения отсюда. Соберите ролик короче или в разрешении меньше, либо откройте программу по своей ссылке в Chrome.'; m.classList.add('err'); }
+      else { m.textContent = 'Сохранить не получилось. Зажмите пальцем видео выше и выберите «Скачать видео».'; m.classList.add('err'); }
+    }
+    return;
+  }
+  try{
+    const a = document.createElement('a'); a.href = resUrl; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    m.textContent = 'Если загрузка не началась, зажмите пальцем видео выше и выберите «Скачать видео».';
+  }catch(e){ m.textContent = 'Зажмите пальцем видео выше и выберите «Скачать видео».'; }
+});
+
+/* ---------- boot ---------- */
+sizeCanvas(false);
+if(!initGL()){ $('empty').textContent = 'Этот браузер не смог включить графику. Откройте страницу в Chrome.'; }
+syncControls(); renderClips(); blank();
+try{ if(document.fonts && document.fonts.load) document.fonts.load('500 40px Unbounded').catch(()=>{}); }catch(e){}
+window.__sklejka = { err: () => glError };
+})();
+</script>
+</body>
+</html>
