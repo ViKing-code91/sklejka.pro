@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1a22">
+<title>Склейка — монтаж ролика на телефоне</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3f4; --surface:#ffffff; --line:#cddbe0; --text:#10222c; --muted:#557080;
+  --accent:#b3660a; --accent-ink:#ffffff; --sea:#1f7f8c; --danger:#b23a2e;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1a22; --surface:#162733; --line:#27414f; --text:#e9f0f2; --muted:#8fa6b1;
+    --accent:#f2b35d; --accent-ink:#1d1408; --sea:#5fc0cb; --danger:#ff8a7a;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1a22; --surface:#162733; --line:#27414f; --text:#e9f0f2; --muted:#8fa6b1;
+  --accent:#f2b35d; --accent-ink:#1d1408; --sea:#5fc0cb; --danger:#ff8a7a;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--sea);outline-offset:2px}
+
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 200px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbtns{display:flex;align-items:center;gap:8px}
+.iconbtn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.iconbtn svg,.lang svg{width:20px;height:20px;flex:none}
+.lang{position:relative;display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-weight:600;font-size:.85rem}
+.lang select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+.lang:focus-within{outline:2px solid var(--sea);outline-offset:2px}
+.tabs{display:flex;gap:2px;overflow-x:auto;padding:6px 10px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;min-height:42px;padding:6px 10px;border:0;border-bottom:3px solid transparent;background:none;color:var(--muted);font-weight:600;font-size:.95rem;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+.panel[hidden]{display:none}
+.panel > h2:first-child{border-top:0;padding-top:0;margin-top:16px}
+.panel > .row:first-child,.panel > label.sl:first-child{margin-top:16px}
+header{padding:20px 0 12px}
+h1{font-family:var(--display);font-weight:700;font-size:1.75rem;line-height:1.1;margin:0;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--muted);max-width:34em}
+
+.stage{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:6px 0 0;margin:0 -16px;border-bottom:1px solid var(--line)}
+.screen{position:relative;background:#000;display:flex;justify-content:center}
+canvas#cv{display:block;max-width:100%;max-height:34vh;width:auto;height:auto}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#c9d6db;padding:16px;font-size:.95rem}
+.empty[hidden]{display:none}
+
+h2{font-family:var(--display);font-weight:500;font-size:1rem;margin:30px 0 4px;padding-top:14px;border-top:1px solid var(--line)}
+h2.first{border-top:0;padding-top:0;margin-top:18px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.row > span.lbl{flex:0 0 100%;color:var(--muted);font-size:.9rem;margin-bottom:-2px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;min-height:40px;font-size:.95rem}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.note{color:var(--muted);font-size:.88rem;margin:4px 0 0}
+.note.warn{color:var(--danger)}
+
+.add{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border:1.5px dashed var(--sea);border-radius:12px;background:transparent;color:var(--sea);font-weight:600;margin-top:10px;cursor:pointer}
+.add input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.add:focus-within{outline:2px solid var(--sea);outline-offset:2px}
+.auto{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.auto[hidden]{display:none}
+.auto button{min-height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:.92rem;padding:6px 8px}
+.auto button.smart{grid-column:1 / -1;background:var(--text);color:var(--bg);border-color:var(--text);min-height:50px}
+
+ol.clips{list-style:none;margin:0;padding:0}
+.clip{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:8px 0;overflow:hidden}
+.clip.bad{border-color:var(--danger)}
+.clip-head{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:8px;text-align:start}
+.clip-head img,.clip-head .ph{width:72px;height:40px;border-radius:6px;object-fit:cover;background:#000;flex:none}
+.clip-head .num{font-family:var(--display);font-size:.8rem;width:1.6em;text-align:center;color:var(--muted);flex:none}
+.clip-head .meta{min-width:0;flex:1}
+.clip-head .name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.85rem;color:var(--muted)}
+.clip-head .cut{display:block;font-weight:600;font-size:.95rem}
+.clip-head .chev{flex:none;color:var(--muted);transition:transform .15s}
+.clip.open .chev{transform:rotate(180deg)}
+.clip-body{display:none;padding:4px 12px 12px;border-top:1px solid var(--line)}
+.clip.open .clip-body{display:block}
+label.sl{display:block;margin-top:12px;font-size:.9rem;color:var(--muted)}
+label.sl b{color:var(--text);font-weight:600}
+input[type=range]{width:100%;height:36px;accent-color:var(--accent);margin:0;display:block}
+.mini{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}
+.mini .lbl{color:var(--muted);font-size:.9rem;flex:0 0 100%}
+.mini .chip{min-height:38px;padding:6px 12px;font-size:.9rem}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.tools button{min-height:42px;border:1px solid var(--line);background:transparent;border-radius:10px;font-size:.9rem}
+.tools button.del{color:var(--danger)}
+.tools button:disabled{opacity:.35}
+
+input[type=text]{width:100%;min-height:46px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:8px 12px}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--sea);font-weight:600;padding:8px 0}
+.linkbtn{background:none;border:0;padding:8px 0;color:var(--sea);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.music{display:flex;gap:8px;align-items:center;margin:10px 0}
+.music .pick{position:relative;display:inline-flex;align-items:center;min-height:42px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 14px;font-weight:600;cursor:pointer;flex:none}
+.music .pick input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.music .pick:focus-within{outline:2px solid var(--sea);outline-offset:2px}
+.music .mname{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:.9rem}
+.colors{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0}
+.colors[hidden]{display:none}
+.colors label{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.9rem}
+.colors input[type=color]{width:52px;height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:3px}
+.add[hidden]{display:none}
+.ver{color:var(--muted);font-size:.8rem;margin-top:28px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.bar-in{max-width:560px;margin:0 auto}
+.total{display:flex;justify-content:space-between;align-items:baseline;font-size:.9rem;color:var(--muted)}
+.total b{font-family:var(--display);font-weight:500;color:var(--text);font-size:1rem}
+.gauge{height:6px;background:var(--line);border-radius:3px;margin:6px 0 10px;overflow:hidden}
+.gauge i{display:block;height:100%;width:0;background:var(--sea);border-radius:3px}
+.gauge i.hit{background:var(--accent)}
+.acts{display:flex;gap:8px}
+.acts button{flex:1;min-height:50px;border-radius:12px;font-weight:600;border:1.5px solid var(--text);background:transparent}
+.acts button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.acts button:disabled{opacity:.4}
+.msg{margin:8px 0 0;font-size:.9rem;color:var(--muted);min-height:1.3em}
+.msg.err{color:var(--danger)}
+
+.result{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px))}
+.result[hidden]{display:none}
+.result-in{max-width:560px;margin:0 auto}
+.result video{display:block;width:100%;max-height:52vh;background:#000;border-radius:8px;margin:14px 0}
+.result .acts{flex-direction:column}
+#pool{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none;overflow:hidden}
+#pool video{width:2px;height:2px}
+main[inert]{opacity:.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <h1>Склейка</h1>
+      <div class="topbtns">
+        <button type="button" class="iconbtn" id="themeBtn" data-i-aria="theme">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>
+        </button>
+        <label class="lang" data-i-aria="lang">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.9 5.2 3.9 8.5s-1.3 6.1-3.9 8.5c-2.6-2.4-3.9-5.2-3.9-8.5S9.4 5.9 12 3.5z"/></svg>
+          <span id="langCode">RU</span>
+          <select id="langSel"></select>
+        </label>
+      </div>
+    </div>
+    <p data-i="sub"></p>
+  </header>
+
+  <div class="stage">
+    <div class="screen">
+      <canvas id="cv" width="1280" height="720"></canvas>
+      <div class="empty" id="empty" data-i="empty"></div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="clips" data-i="tab_clips"></button>
+      <button type="button" role="tab" data-tab="format" data-i="h_format"></button>
+      <button type="button" role="tab" data-tab="pic" data-i="h_pic"></button>
+      <button type="button" role="tab" data-tab="edit" data-i="h_edit"></button>
+      <button type="button" role="tab" data-tab="sound" data-i="h_sound"></button>
+      <button type="button" role="tab" data-tab="more" data-i="tab_more"></button>
+    </nav>
+  </div>
+
+  <main id="main">
+    <section class="panel" data-panel="clips">
+      <h2 data-i="h_clips"></h2>
+      <ol class="clips" id="clips"></ol>
+      <label class="add">
+        <input type="file" id="file" accept="video/*,image/*" multiple>
+        <span aria-hidden="true">＋</span> <span data-i="add"></span>
+      </label>
+      <div class="auto" id="auto" hidden>
+        <button type="button" id="smart" class="smart" data-i="smart"></button>
+        <button type="button" id="random" data-i="random"></button>
+        <button type="button" id="fit" data-i="even"></button>
+      </div>
+      <p class="note" id="autoNote" hidden data-i="autoNote"></p>
+    </section>
+
+    <section class="panel" data-panel="format" hidden>
+      <h2 data-i="h_where"></h2>
+      <div class="row" id="presets"><span class="lbl" data-i="presets"></span>
+        <button class="chip" data-preset="reels">Reels, TikTok, Shorts</button>
+        <button class="chip" data-preset="youtube">YouTube</button>
+        <button class="chip" data-preset="post" data-i="p_post"></button>
+        <button class="chip" data-preset="cinema" data-i="p_cinema"></button>
+      </div>
+      <h2 data-i="h_format"></h2>
+      <div class="row" data-set="target"><span class="lbl" data-i="length"></span>
+        <button class="chip" data-v="15"></button>
+        <button class="chip" data-v="30"></button>
+        <button class="chip" data-v="60"></button>
+        <button class="chip" data-v="180"></button>
+        <button class="chip" data-v="300"></button>
+        <button class="chip" data-v="600"></button>
+      </div>
+      <div class="row" data-set="frame"><span class="lbl" data-i="frame"></span>
+        <button class="chip" data-v="cinema" data-i="f_cinema"></button>
+        <button class="chip" data-v="wide" data-i="f_wide"></button>
+        <button class="chip" data-v="vertical" data-i="f_vert"></button>
+        <button class="chip" data-v="four5" data-i="f_45"></button>
+        <button class="chip" data-v="square" data-i="f_sq"></button>
+      </div>
+      <div class="row" data-set="quality"><span class="lbl" data-i="res"></span>
+        <button class="chip" data-v="360">360p</button>
+        <button class="chip" data-v="480">480p</button>
+        <button class="chip" data-v="720">720p</button>
+        <button class="chip" data-v="1080">1080p</button>
+        <button class="chip" data-v="1440">2K</button>
+        <button class="chip" data-v="2160">4K</button>
+      </div>
+      <div class="row" data-set="fps"><span class="lbl" data-i="fps"></span>
+        <button class="chip" data-v="24" data-i="fps24"></button>
+        <button class="chip" data-v="25">25</button>
+        <button class="chip" data-v="30">30</button>
+        <button class="chip" data-v="60" data-i="fps60"></button>
+      </div>
+      <p class="note" id="sizeNote"></p>
+    </section>
+
+    <section class="panel" data-panel="pic" hidden>
+      <div class="row" data-set="look" id="looks"><span class="lbl" data-i="look"></span></div>
+      <label class="sl"><span data-i="power"></span> <b id="o-power"></b><input type="range" data-range="power" min="0" max="100" step="5"></label>
+      <h2 data-i="fx"></h2>
+      <div class="row">
+        <button class="chip" data-toggle="grain" data-i="fx_grain"></button>
+        <button class="chip" data-toggle="vig" data-i="fx_vig"></button>
+        <button class="chip" data-toggle="push" data-i="fx_push"></button>
+        <button class="chip" data-toggle="leak" data-i="fx_leak"></button>
+        <button class="chip" data-toggle="glow" data-i="fx_glow"></button>
+        <button class="chip" data-toggle="ca" data-i="fx_ca"></button>
+        <button class="chip" data-toggle="old" data-i="fx_old"></button>
+      </div>
+      <h2 data-i="weather"></h2>
+      <div class="row" data-set="weather">
+        <button class="chip" data-v="none" data-i="w_none"></button>
+        <button class="chip" data-v="rain" data-i="w_rain"></button>
+        <button class="chip" data-v="snow" data-i="w_snow"></button>
+        <button class="chip" data-v="fog" data-i="w_fog"></button>
+        <button class="chip" data-v="rays" data-i="w_rays"></button>
+        <button class="chip" data-v="dust" data-i="w_dust"></button>
+        <button class="chip" data-v="heat" data-i="w_heat"></button>
+      </div>
+      <label class="sl"><span data-i="wxPower"></span> <b id="o-wx"></b><input type="range" data-range="wx" min="10" max="100" step="5"></label>
+      <h2 data-i="stab"></h2>
+      <div class="row" data-set="stab">
+        <button class="chip" data-v="off" data-i="off"></button>
+        <button class="chip" data-v="light" data-i="s_light"></button>
+        <button class="chip" data-v="strong" data-i="s_strong"></button>
+      </div>
+      <p class="note" data-i="stabNote"></p>
+      <details>
+        <summary data-i="fine"></summary>
+        <label class="sl"><span data-i="bright"></span> <b id="o-bright"></b><input type="range" data-range="bright" min="-50" max="50" step="5"></label>
+        <label class="sl"><span data-i="contrast"></span> <b id="o-contrast"></b><input type="range" data-range="contrast" min="-50" max="50" step="5"></label>
+        <label class="sl"><span data-i="sat"></span> <b id="o-sat"></b><input type="range" data-range="sat" min="-50" max="50" step="5"></label>
+        <label class="sl"><span data-i="temp"></span> <b id="o-temp"></b><input type="range" data-range="temp" min="-50" max="50" step="5"></label>
+        <button type="button" class="linkbtn" id="resetFine" data-i="resetFine"></button>
+      </details>
+    </section>
+
+    <section class="panel" data-panel="edit" hidden>
+      <div class="row" data-set="trans"><span class="lbl" data-i="trans"></span>
+        <button class="chip" data-v="mix" data-i="t_mix"></button>
+        <button class="chip" data-v="blur" data-i="t_blur"></button>
+        <button class="chip" data-v="zoom" data-i="t_zoom"></button>
+        <button class="chip" data-v="slide" data-i="t_slide"></button>
+        <button class="chip" data-v="wipe" data-i="t_wipe"></button>
+        <button class="chip" data-v="iris" data-i="t_iris"></button>
+        <button class="chip" data-v="black" data-i="t_black"></button>
+        <button class="chip" data-v="white" data-i="t_white"></button>
+        <button class="chip" data-v="rand" data-i="t_rand"></button>
+        <button class="chip" data-v="cut" data-i="t_cut"></button>
+      </div>
+      <label class="sl" for="title" data-i="title"></label>
+      <input type="text" id="title" maxlength="60" data-i-ph="titlePh" autocomplete="off">
+      <label class="sl" for="outro" data-i="outro"></label>
+      <input type="text" id="outro" maxlength="60" data-i-ph="outroPh" autocomplete="off">
+    </section>
+
+    <section class="panel" data-panel="sound" hidden>
+      <label class="sl"><span data-i="volVideo"></span> <b id="o-volVideo"></b><input type="range" data-range="volVideo" min="0" max="100" step="5"></label>
+      <div class="music">
+        <label class="pick"><input type="file" id="musicFile" accept="audio/*"><span data-i="pickMusic"></span></label>
+        <span class="mname" id="musicName"></span>
+        <button type="button" class="linkbtn" id="musicDel" hidden data-i="remove"></button>
+      </div>
+      <label class="sl"><span data-i="volMusic"></span> <b id="o-volMusic"></b><input type="range" data-range="volMusic" min="0" max="100" step="5"></label>
+    </section>
+
+    <section class="panel" data-panel="more" hidden>
+      <h2 data-i="h_theme"></h2>
+      <div class="row" data-set="theme"><span class="lbl" data-i="theme"></span>
+        <button class="chip" data-v="auto" data-i="th_auto"></button>
+        <button class="chip" data-v="light" data-i="th_light"></button>
+        <button class="chip" data-v="dark" data-i="th_dark"></button>
+        <button class="chip" data-v="custom" data-i="th_custom"></button>
+      </div>
+      <div class="colors" id="customTheme" hidden>
+        <label><span data-i="thBg"></span> <input type="color" id="thBg"></label>
+        <label><span data-i="thAc"></span> <input type="color" id="thAc"></label>
+      </div>
+      <h2 data-i="h_slow"></h2>
+      <div class="row">
+        <button class="chip" data-toggle="turbo" data-i="turbo"></button>
+      </div>
+      <p class="note" data-i="turboNote"></p>
+      <h2 data-i="h_install"></h2>
+      <button type="button" class="add" id="install" hidden data-i="install"></button>
+      <p class="note" id="installNote" data-i="installNote"></p>
+      <p class="ver">Склейка 5</p>
+    </section>
+  </main>
+</div>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="total"><span id="totalHint"></span><b id="totalNum"></b></div>
+    <div class="gauge"><i id="gauge"></i></div>
+    <div class="acts">
+      <button id="play" disabled></button>
+      <button id="save" class="primary" disabled data-i="build"></button>
+    </div>
+    <p class="msg" id="msg" role="status"></p>
+  </div>
+</div>
+
+<section class="result" id="result" hidden>
+  <div class="result-in">
+    <h1 data-i="ready"></h1>
+    <video id="resVideo" controls playsinline></video>
+    <div class="acts">
+      <button class="primary" id="share" data-i="share"></button>
+      <button id="download" data-i="save"></button>
+      <button id="back" data-i="back"></button>
+    </div>
+    <p class="msg" id="resMsg" role="status"></p>
+  </div>
+</section>
+
+<div id="pool" aria-hidden="true"></div>
+
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+const cv = $('cv');
+const MIN_LEN = 1, MAX_LEN = 600, PREVIEW_Q = 540, PHOTO_MAX = 30, PHOTO_AUTO = 5;
+const I18N = {"en":{"sub":"Make a short film from your videos and photos: smart, random or manual editing, cinema color, effects and music.","empty":"Add videos or photos — your film will appear here","h_clips":"Clips in order","add":"Add videos or photos","smart":"Smart edit: pick the best moments","random":"Random edit","even":"Equal parts in order","autoNote":"Smart edit watches each video and picks moments that are sharper and have more motion. It is a calculation on your phone, not a neural network, so check the result. Tap any clip to adjust it by hand.","h_where":"Where the film goes","presets":"Quick setup for a social network","p_post":"Instagram post","p_cinema":"Cinema","h_format":"Format","length":"Film length","u_s":"s","u_min":"min","frame":"Frame","f_cinema":"Cinema with bars","f_wide":"Standard 16:9","f_vert":"Vertical 9:16","f_45":"Post 4:5","f_sq":"Square 1:1","res":"Resolution","fps":"Frames per second","fps24":"24, like cinema","fps60":"60, smooth","size":"Estimated file size: {0}.","sizeLong":"A long film records in real time; keep the page open the whole time.","sizeBig":"The file is very large; choose a lower resolution.","MB":"MB","GB":"GB","h_pic":"Picture","look":"Cinema filter","l_none":"As shot","l_kino":"Cinema","l_block":"Blockbuster","l_dune":"Desert","l_gold":"Golden hour","l_north":"Cold north","l_dusk":"Dusk","l_neon":"Neon","l_film70":"70s film","l_faded":"Faded film","l_retro":"Retro","l_noir":"Noir","l_harsh":"Gritty","l_matrix":"Green code","l_soft":"Soft","l_vivid":"Vivid","power":"Filter strength:","stab":"Stabilization","off":"Off","s_light":"Light","s_strong":"Strong","stabNote":"Smooths hand shake and zooms in slightly. It cannot fix heavy shaking.","fx":"Effects","fx_grain":"Film grain","fx_vig":"Dark edges","fx_push":"Slow camera zoom","fx_leak":"Light leaks","fx_glow":"Soft glow","fx_ca":"Lens color fringes","fx_old":"Old film","weather":"Weather","w_none":"None","w_rain":"Rain","w_snow":"Snow","w_fog":"Fog","w_rays":"Sun rays","w_dust":"Dust in the air","w_heat":"Heat haze","wxPower":"Weather strength:","fine":"Fine color tuning","bright":"Brightness:","contrast":"Contrast:","sat":"Saturation:","temp":"Warmth:","resetFine":"Reset color tuning","h_edit":"Editing","trans":"Transition between clips","t_mix":"Dissolve","t_blur":"Blur","t_zoom":"Zoom","t_slide":"Slide","t_wipe":"Wipe","t_iris":"Circle","t_black":"Through black","t_white":"Flash","t_rand":"Mixed","t_cut":"Hard cut","title":"Title at the start","titlePh":"For example: Sea. November","outro":"Caption at the end","outroPh":"For example: your Instagram name","h_sound":"Sound","volVideo":"Video sound:","pickMusic":"Choose music","noMusic":"No music chosen","remove":"Remove","volMusic":"Music volume:","musicErr":"The phone could not open this file. Choose MP3 or M4A.","h_slow":"If it lags","turbo":"Fast mode","turboNote":"Fast mode takes some load off the phone. If colors change or the picture flips, turn it off. A lower resolution, 24 or 30 frames, hard cuts and no stabilization also help.","h_theme":"Appearance","theme":"Theme","th_auto":"Same as phone","th_light":"Light","th_dark":"Dark","th_custom":"Custom","thBg":"Background color","thAc":"Button color","h_install":"Install on phone","install":"Install as an app","installNote":"Open the app by its own link in Chrome, tap the three dots and choose “Install app” or “Add to Home screen”.","installed":"The app is installed.","lang":"Language","noClips":"No clips yet","watch":"Watch","build":"Build film","stopBtn":"Stop","cancel":"Cancel","of":"{0} of {1}","exact":"Exact length","shorter":"Shorter by {0}","longer":"Longer by {0}","ready":"Your film is ready","share":"Send to a social network","save":"Save to phone","back":"Back to editing","c_bad":"Cannot open","c_cut":"from {0}, lasts {1}","c_photo":"photo, lasts {0}","c_slow":"slowed","c_fast":"sped up","c_mute":"No sound","c_start":"Start at","c_len":"Show for:","c_fit":"How to fit the frame","c_auto":"Auto","c_fill":"Fill frame","c_whole":"Show whole","c_pos":"Size and position","c_zoom":"Zoom:","c_px":"Shift left / right:","c_py":"Shift up / down:","c_center":"centered","c_reset":"Reset","c_speed":"Speed and sound","c_slower":"Slow down","c_normal":"Normal","c_faster":"Speed up","c_cam":"Camera move","cam_none":"Still","cam_in":"Zoom in","cam_out":"Zoom out","cam_left":"Pan left","cam_right":"Pan right","cam_up":"Pan up","cam_down":"Pan down","cam_punch":"Fast zoom","cam_shake":"Handheld shake","c_up":"↑ Earlier","c_down":"↓ Later","c_dup":"Take another moment","m_opening":"Opening files…","m_bad":"The phone could not open {0} of {1} files.","m_random":"A new random version. Tap again for another.","m_even":"All clips go in order with equal length.","m_scan":"Watching video {0} of {1}, looking for the best moments…","m_smart":"Picked {0} best moments. Tap “Watch”. Tap again for another version.","m_smartShort":"Picked {0} best moments. Not enough footage for the full length.","m_smartFail":"Could not analyze the videos. Try the random edit.","m_noGL":"This browser could not start graphics. Open the page in Chrome.","m_noRec":"This browser cannot record video. Open the page in Chrome.","m_prep":"Preparing to record…","m_rec":"Recording: {0} of {1}. Keep this page open.","m_openFail":"Could not open one of the clips. Choose a lower resolution or remove that file.","m_recFail":"The phone could not record at this resolution. Choose a lower one.","m_glLost":"The phone’s graphics gave up under the load. Choose a lower resolution.","m_saving":"Saving…","m_cancelled":"Recording cancelled.","m_hidden":"Recording stopped because the page was hidden. Start again and keep it open.","m_slow":"The phone could not keep up, the film may stutter. If so, lower the resolution or frame rate.","m_shareFail":"Could not send. Save the film and upload it from your gallery.","m_shareNo":"Sending from here is not possible. Open the app by its own link in Chrome, or save the film and upload it from your gallery.","m_webm":"If the network rejects the file: it was recorded as WebM. Update Chrome to record MP4.","m_saved":"Saved: {0}","m_declined":"Saving cancelled. You can tap again.","m_wait":"Wait a few seconds and tap again.","m_tooBig":"The file is too large to save from here. Make it shorter or lower the resolution.","m_saveFail":"Could not save. Press and hold the video above and choose “Download video”.","m_hold":"If the download did not start, press and hold the video above and choose “Download video”.","tab_clips":"Clips","tab_more":"Settings"},"ru":{"sub":"Соберите ролик из своих видео и фото: умный, случайный или ручной монтаж, киноцвет, эффекты и музыка.","empty":"Добавьте видео или фото — здесь появится ваш ролик","h_clips":"Видео и фото по порядку","add":"Добавить видео или фото","smart":"Умный монтаж: выбрать лучшие моменты","random":"Случайный монтаж","even":"Поровну по порядку","autoNote":"Умный монтаж просматривает каждое видео и берёт моменты, где картинка резче и больше движения. Это расчёт на телефоне, а не нейросеть, поэтому результат стоит проверить. Любой кусок можно поправить вручную: нажмите на него.","h_where":"Куда пойдёт ролик","presets":"Быстрая настройка под соцсеть","p_post":"Пост в Instagram","p_cinema":"Кино","h_format":"Формат","length":"Длина ролика","u_s":"с","u_min":"мин","frame":"Кадр","f_cinema":"Кино с полосами","f_wide":"Обычный 16:9","f_vert":"Вертикальный 9:16","f_45":"Пост 4:5","f_sq":"Квадрат 1:1","res":"Разрешение","fps":"Кадров в секунду","fps24":"24, как в кино","fps60":"60, плавно","size":"Примерный размер готового файла: {0}.","sizeLong":"Длинный ролик записывается столько же, сколько длится; всё это время страницу нельзя сворачивать.","sizeBig":"Файл очень большой, выберите разрешение меньше.","MB":"МБ","GB":"ГБ","h_pic":"Картинка","look":"Кинофильтр","l_none":"Как снято","l_kino":"Кино","l_block":"Блокбастер","l_dune":"Пустыня","l_gold":"Золотой час","l_north":"Холодный север","l_dusk":"Сумерки","l_neon":"Неон","l_film70":"Плёнка семидесятых","l_faded":"Выцветшая плёнка","l_retro":"Ретро","l_noir":"Нуар","l_harsh":"Суровый","l_matrix":"Зелёный код","l_soft":"Мягкий","l_vivid":"Сочный","power":"Сила фильтра:","stab":"Стабилизация","off":"Выключена","s_light":"Лёгкая","s_strong":"Сильная","stabNote":"Сглаживает дрожание рук и немного приближает кадр. Сильную тряску не уберёт.","fx":"Эффекты","fx_grain":"Плёночное зерно","fx_vig":"Затемнение по краям","fx_push":"Медленный наезд камеры","fx_leak":"Засветы плёнки","fx_glow":"Мягкое свечение","fx_ca":"Цветные края объектива","fx_old":"Старая киноплёнка","weather":"Погода","w_none":"Нет","w_rain":"Дождь","w_snow":"Снег","w_fog":"Туман","w_rays":"Лучи солнца","w_dust":"Пыль в воздухе","w_heat":"Марево от жары","wxPower":"Сила погоды:","fine":"Тонкая настройка цвета","bright":"Яркость:","contrast":"Контраст:","sat":"Насыщенность:","temp":"Теплота:","resetFine":"Сбросить настройку цвета","h_edit":"Монтаж","trans":"Переход между кусками","t_mix":"Наплыв","t_blur":"Через размытие","t_zoom":"Наезд","t_slide":"Сдвиг","t_wipe":"Шторка","t_iris":"Круг","t_black":"Через чёрное","t_white":"Вспышка","t_rand":"Разные","t_cut":"Резкая склейка","title":"Титр в начале ролика","titlePh":"Например: Море. Ноябрь","outro":"Подпись в конце ролика","outroPh":"Например: ваш ник в Instagram","h_sound":"Звук","volVideo":"Звук из видео:","pickMusic":"Выбрать музыку","noMusic":"Музыка не выбрана","remove":"Убрать","volMusic":"Громкость музыки:","musicErr":"Телефон не смог открыть этот файл. Выберите MP3 или M4A.","h_slow":"Если тормозит","turbo":"Ускоренный режим","turboNote":"Ускоренный режим снимает часть нагрузки с телефона. Если в нём меняются цвета или переворачивается картинка, выключите его. Ещё помогают: разрешение меньше, 24 или 30 кадров, резкая склейка и выключенная стабилизация.","h_theme":"Оформление","theme":"Тема","th_auto":"Как в телефоне","th_light":"Светлая","th_dark":"Тёмная","th_custom":"Своя","thBg":"Цвет фона","thAc":"Цвет кнопок","h_install":"Установка на телефон","install":"Установить как приложение","installNote":"Откройте программу по своей ссылке в Chrome, нажмите три точки и выберите «Установить приложение» или «Добавить на главный экран».","installed":"Программа установлена.","lang":"Язык","noClips":"Пока ничего не добавлено","watch":"Смотреть","build":"Собрать ролик","stopBtn":"Остановить","cancel":"Отменить","of":"{0} из {1}","exact":"Ровно по длине","shorter":"Короче на {0}","longer":"Длиннее на {0}","ready":"Ролик готов","share":"Отправить в соцсеть","save":"Сохранить на телефон","back":"Вернуться к монтажу","c_bad":"Не открывается","c_cut":"с {0}, длится {1}","c_photo":"фото, длится {0}","c_slow":"замедленно","c_fast":"ускоренно","c_mute":"Без звука","c_start":"Начать с момента","c_len":"Сколько показывать:","c_fit":"Как вписать в кадр","c_auto":"Авто","c_fill":"Заполнить кадр","c_whole":"Показать целиком","c_pos":"Размер и положение в кадре","c_zoom":"Приближение:","c_px":"Сдвиг влево и вправо:","c_py":"Сдвиг вверх и вниз:","c_center":"по центру","c_reset":"Вернуть как было","c_speed":"Скорость и звук","c_slower":"Замедлить","c_normal":"Обычная","c_faster":"Ускорить","c_cam":"Движение камеры","cam_none":"Без движения","cam_in":"Наезд","cam_out":"Отъезд","cam_left":"Панорама влево","cam_right":"Панорама вправо","cam_up":"Панорама вверх","cam_down":"Панорама вниз","cam_punch":"Резкий наезд","cam_shake":"Камера с рук","c_up":"↑ Раньше","c_down":"↓ Позже","c_dup":"Взять ещё момент","m_opening":"Открываю файлы…","m_bad":"Телефон не смог открыть {0} из {1} файлов.","m_random":"Новый случайный вариант. Не нравится — нажмите ещё раз.","m_even":"Всё идёт по порядку, длина поделена поровну.","m_scan":"Смотрю видео {0} из {1} и ищу лучшие моменты…","m_smart":"Собрал {0} лучших моментов. Нажмите «Смотреть». Ещё раз — будет другой вариант.","m_smartShort":"Собрал {0} лучших моментов. На всю длину материала не хватило.","m_smartFail":"Не получилось просмотреть видео. Попробуйте случайный монтаж.","m_noGL":"Этот браузер не смог включить графику. Откройте страницу в Chrome.","m_noRec":"Этот браузер не умеет записывать видео. Откройте страницу в Chrome.","m_prep":"Готовлю запись…","m_rec":"Записываю: {0} из {1}. Не сворачивайте страницу.","m_openFail":"Не получилось открыть один из кусков. Выберите разрешение меньше или уберите этот файл.","m_recFail":"Телефон не справился с записью в этом разрешении. Выберите разрешение меньше.","m_glLost":"Графика телефона не справилась с нагрузкой. Выберите разрешение меньше.","m_saving":"Сохраняю…","m_cancelled":"Запись отменена.","m_hidden":"Запись прервалась, потому что страница была свёрнута. Запустите ещё раз и держите её открытой.","m_slow":"Телефон не успевал, ролик может идти рывками. Если так, выберите разрешение или число кадров меньше.","m_shareFail":"Отправить не получилось. Сохраните ролик и загрузите его из галереи.","m_shareNo":"Отсюда отправить нельзя. Откройте программу по своей ссылке в Chrome или сохраните ролик и загрузите его из галереи.","m_webm":"Если соцсеть не приняла файл: он записан в формате WebM. Обновите Chrome, тогда запись будет в MP4.","m_saved":"Сохранено: {0}","m_declined":"Сохранение отменено. Можно нажать ещё раз.","m_wait":"Подождите несколько секунд и нажмите ещё раз.","m_tooBig":"Файл слишком большой для сохранения отсюда. Сделайте ролик короче или выберите разрешение меньше.","m_saveFail":"Сохранить не получилось. Зажмите пальцем видео выше и выберите «Скачать видео».","m_hold":"Если загрузка не началась, зажмите пальцем видео выше и выберите «Скачать видео».","tab_clips":"Клипы","tab_more":"Настройки"},"uk":{"sub":"Зберіть ролик зі своїх відео та фото: розумний, випадковий або ручний монтаж, кіноколір, ефекти й музика.","empty":"Додайте відео або фото — тут з’явиться ваш ролик","h_clips":"Відео й фото по порядку","add":"Додати відео або фото","smart":"Розумний монтаж: вибрати найкращі моменти","random":"Випадковий монтаж","even":"Порівну по порядку","autoNote":"Розумний монтаж переглядає кожне відео й бере моменти, де картинка різкіша і більше руху. Це розрахунок на телефоні, а не нейромережа, тож результат варто перевірити. Будь-який шматок можна поправити вручну: натисніть на нього.","h_where":"Куди піде ролик","presets":"Швидке налаштування під соцмережу","p_post":"Допис в Instagram","p_cinema":"Кіно","h_format":"Формат","length":"Тривалість ролика","u_s":"с","u_min":"хв","frame":"Кадр","f_cinema":"Кіно зі смугами","f_wide":"Звичайний 16:9","f_vert":"Вертикальний 9:16","f_45":"Допис 4:5","f_sq":"Квадрат 1:1","res":"Роздільна здатність","fps":"Кадрів за секунду","fps24":"24, як у кіно","fps60":"60, плавно","size":"Приблизний розмір готового файлу: {0}.","sizeLong":"Довгий ролик записується стільки ж, скільки триває; увесь цей час сторінку не можна згортати.","sizeBig":"Файл дуже великий, виберіть меншу роздільну здатність.","MB":"МБ","GB":"ГБ","h_pic":"Картинка","look":"Кінофільтр","l_none":"Як знято","l_kino":"Кіно","l_block":"Блокбастер","l_dune":"Пустеля","l_gold":"Золота година","l_north":"Холодна північ","l_dusk":"Сутінки","l_neon":"Неон","l_film70":"Плівка сімдесятих","l_faded":"Вицвіла плівка","l_retro":"Ретро","l_noir":"Нуар","l_harsh":"Суворий","l_matrix":"Зелений код","l_soft":"М’який","l_vivid":"Соковитий","power":"Сила фільтра:","stab":"Стабілізація","off":"Вимкнена","s_light":"Легка","s_strong":"Сильна","stabNote":"Згладжує тремтіння рук і трохи наближає кадр. Сильну тряску не прибере.","fx":"Ефекти","fx_grain":"Плівкове зерно","fx_vig":"Затемнення по краях","fx_push":"Повільний наїзд камери","fx_leak":"Засвіти плівки","fx_glow":"М’яке світіння","fx_ca":"Кольорові краї об’єктива","fx_old":"Стара кіноплівка","weather":"Погода","w_none":"Немає","w_rain":"Дощ","w_snow":"Сніг","w_fog":"Туман","w_rays":"Промені сонця","w_dust":"Пил у повітрі","w_heat":"Марево від спеки","wxPower":"Сила погоди:","fine":"Тонке налаштування кольору","bright":"Яскравість:","contrast":"Контраст:","sat":"Насиченість:","temp":"Теплота:","resetFine":"Скинути налаштування кольору","h_edit":"Монтаж","trans":"Перехід між шматками","t_mix":"Наплив","t_blur":"Через розмиття","t_zoom":"Наїзд","t_slide":"Зсув","t_wipe":"Шторка","t_iris":"Коло","t_black":"Через чорне","t_white":"Спалах","t_rand":"Різні","t_cut":"Різка склейка","title":"Титр на початку ролика","titlePh":"Наприклад: Море. Листопад","outro":"Підпис у кінці ролика","outroPh":"Наприклад: ваш нік в Instagram","h_sound":"Звук","volVideo":"Звук із відео:","pickMusic":"Вибрати музику","noMusic":"Музику не вибрано","remove":"Прибрати","volMusic":"Гучність музики:","musicErr":"Телефон не зміг відкрити цей файл. Виберіть MP3 або M4A.","h_slow":"Якщо гальмує","turbo":"Прискорений режим","turboNote":"Прискорений режим знімає частину навантаження з телефона. Якщо в ньому змінюються кольори або перевертається картинка, вимкніть його. Ще допомагають: менша роздільна здатність, 24 або 30 кадрів, різка склейка та вимкнена стабілізація.","h_theme":"Оформлення","theme":"Тема","th_auto":"Як у телефоні","th_light":"Світла","th_dark":"Темна","th_custom":"Своя","thBg":"Колір тла","thAc":"Колір кнопок","h_install":"Встановлення на телефон","install":"Встановити як застосунок","installNote":"Відкрийте програму за своїм посиланням у Chrome, натисніть три крапки й виберіть «Встановити застосунок» або «Додати на головний екран».","installed":"Програму встановлено.","lang":"Мова","noClips":"Поки нічого не додано","watch":"Дивитися","build":"Зібрати ролик","stopBtn":"Зупинити","cancel":"Скасувати","of":"{0} із {1}","exact":"Рівно за тривалістю","shorter":"Коротше на {0}","longer":"Довше на {0}","ready":"Ролик готовий","share":"Надіслати в соцмережу","save":"Зберегти на телефон","back":"Повернутися до монтажу","c_bad":"Не відкривається","c_cut":"з {0}, триває {1}","c_photo":"фото, триває {0}","c_slow":"сповільнено","c_fast":"прискорено","c_mute":"Без звуку","c_start":"Почати з моменту","c_len":"Скільки показувати:","c_fit":"Як вписати в кадр","c_auto":"Авто","c_fill":"Заповнити кадр","c_whole":"Показати повністю","c_pos":"Розмір і положення в кадрі","c_zoom":"Наближення:","c_px":"Зсув ліворуч і праворуч:","c_py":"Зсув угору і вниз:","c_center":"по центру","c_reset":"Повернути як було","c_speed":"Швидкість і звук","c_slower":"Сповільнити","c_normal":"Звичайна","c_faster":"Прискорити","c_cam":"Рух камери","cam_none":"Без руху","cam_in":"Наїзд","cam_out":"Від’їзд","cam_left":"Панорама ліворуч","cam_right":"Панорама праворуч","cam_up":"Панорама вгору","cam_down":"Панорама вниз","cam_punch":"Різкий наїзд","cam_shake":"Камера з рук","c_up":"↑ Раніше","c_down":"↓ Пізніше","c_dup":"Взяти ще момент","m_opening":"Відкриваю файли…","m_bad":"Телефон не зміг відкрити {0} із {1} файлів.","m_random":"Новий випадковий варіант. Не подобається — натисніть ще раз.","m_even":"Усе йде по порядку, тривалість поділено порівну.","m_scan":"Дивлюся відео {0} із {1} і шукаю найкращі моменти…","m_smart":"Зібрав {0} найкращих моментів. Натисніть «Дивитися». Ще раз — буде інший варіант.","m_smartShort":"Зібрав {0} найкращих моментів. На всю тривалість матеріалу не вистачило.","m_smartFail":"Не вдалося переглянути відео. Спробуйте випадковий монтаж.","m_noGL":"Цей браузер не зміг увімкнути графіку. Відкрийте сторінку в Chrome.","m_noRec":"Цей браузер не вміє записувати відео. Відкрийте сторінку в Chrome.","m_prep":"Готую запис…","m_rec":"Записую: {0} із {1}. Не згортайте сторінку.","m_openFail":"Не вдалося відкрити один зі шматків. Виберіть меншу роздільну здатність або приберіть цей файл.","m_recFail":"Телефон не впорався із записом у цій роздільній здатності. Виберіть меншу.","m_glLost":"Графіка телефона не впоралася з навантаженням. Виберіть меншу роздільну здатність.","m_saving":"Зберігаю…","m_cancelled":"Запис скасовано.","m_hidden":"Запис перервався, бо сторінку було згорнуто. Запустіть ще раз і тримайте її відкритою.","m_slow":"Телефон не встигав, ролик може йти ривками. Якщо так, виберіть меншу роздільну здатність або кількість кадрів.","m_shareFail":"Надіслати не вдалося. Збережіть ролик і завантажте його з галереї.","m_shareNo":"Звідси надіслати не можна. Відкрийте програму за своїм посиланням у Chrome або збережіть ролик і завантажте його з галереї.","m_webm":"Якщо соцмережа не прийняла файл: його записано у форматі WebM. Оновіть Chrome, тоді запис буде в MP4.","m_saved":"Збережено: {0}","m_declined":"Збереження скасовано. Можна натиснути ще раз.","m_wait":"Зачекайте кілька секунд і натисніть ще раз.","m_tooBig":"Файл завеликий, щоб зберегти звідси. Зробіть ролик коротшим або виберіть меншу роздільну здатність.","m_saveFail":"Зберегти не вдалося. Затисніть пальцем відео вище й виберіть «Завантажити відео».","m_hold":"Якщо завантаження не почалося, затисніть пальцем відео вище й виберіть «Завантажити відео».","tab_clips":"Кліпи","tab_more":"Налаштування"},"pl":{"sub":"Zmontuj krótki film ze swoich wideo i zdjęć: montaż inteligentny, losowy lub ręczny, filmowe kolory, efekty i muzyka.","empty":"Dodaj wideo lub zdjęcia — tutaj pojawi się Twój film","h_clips":"Klipy po kolei","add":"Dodaj wideo lub zdjęcia","smart":"Inteligentny montaż: wybierz najlepsze momenty","random":"Montaż losowy","even":"Po równo, po kolei","autoNote":"Inteligentny montaż ogląda każde wideo i wybiera momenty ostrzejsze i z większym ruchem. To obliczenia w telefonie, a nie sieć neuronowa, więc sprawdź wynik. Dotknij klipu, aby poprawić go ręcznie.","h_where":"Dokąd trafi film","presets":"Szybkie ustawienie pod serwis","p_post":"Post na Instagramie","p_cinema":"Kino","h_format":"Format","length":"Długość filmu","u_s":"s","u_min":"min","frame":"Kadr","f_cinema":"Kino z pasami","f_wide":"Zwykły 16:9","f_vert":"Pionowy 9:16","f_45":"Post 4:5","f_sq":"Kwadrat 1:1","res":"Rozdzielczość","fps":"Klatki na sekundę","fps24":"24, jak w kinie","fps60":"60, płynnie","size":"Szacowany rozmiar pliku: {0}.","sizeLong":"Długi film nagrywa się w czasie rzeczywistym; nie zamykaj strony przez cały czas.","sizeBig":"Plik jest bardzo duży; wybierz niższą rozdzielczość.","MB":"MB","GB":"GB","h_pic":"Obraz","look":"Filtr filmowy","l_none":"Jak nagrano","l_kino":"Kino","l_block":"Hit kinowy","l_dune":"Pustynia","l_gold":"Złota godzina","l_north":"Zimna północ","l_dusk":"Zmierzch","l_neon":"Neon","l_film70":"Taśma lat 70.","l_faded":"Wyblakła taśma","l_retro":"Retro","l_noir":"Noir","l_harsh":"Surowy","l_matrix":"Zielony kod","l_soft":"Miękki","l_vivid":"Soczysty","power":"Siła filtra:","stab":"Stabilizacja","off":"Wyłączona","s_light":"Lekka","s_strong":"Mocna","stabNote":"Wygładza drżenie rąk i lekko przybliża kadr. Nie usunie mocnych wstrząsów.","fx":"Efekty","fx_grain":"Ziarno filmowe","fx_vig":"Ciemne brzegi","fx_push":"Powolny najazd kamery","fx_leak":"Prześwietlenia taśmy","fx_glow":"Miękka poświata","fx_ca":"Kolorowe obwódki obiektywu","fx_old":"Stara taśma","weather":"Pogoda","w_none":"Brak","w_rain":"Deszcz","w_snow":"Śnieg","w_fog":"Mgła","w_rays":"Promienie słońca","w_dust":"Pył w powietrzu","w_heat":"Drganie upału","wxPower":"Siła pogody:","fine":"Dokładne ustawienie koloru","bright":"Jasność:","contrast":"Kontrast:","sat":"Nasycenie:","temp":"Ciepło:","resetFine":"Wyzeruj ustawienia koloru","h_edit":"Montaż","trans":"Przejście między klipami","t_mix":"Przenikanie","t_blur":"Przez rozmycie","t_zoom":"Najazd","t_slide":"Przesunięcie","t_wipe":"Kurtyna","t_iris":"Koło","t_black":"Przez czerń","t_white":"Błysk","t_rand":"Różne","t_cut":"Ostre cięcie","title":"Tytuł na początku","titlePh":"Na przykład: Morze. Listopad","outro":"Podpis na końcu","outroPh":"Na przykład: Twój nick na Instagramie","h_sound":"Dźwięk","volVideo":"Dźwięk z wideo:","pickMusic":"Wybierz muzykę","noMusic":"Nie wybrano muzyki","remove":"Usuń","volMusic":"Głośność muzyki:","musicErr":"Telefon nie mógł otworzyć tego pliku. Wybierz MP3 lub M4A.","h_slow":"Jeśli się zacina","turbo":"Tryb szybki","turboNote":"Tryb szybki odciąża telefon. Jeśli zmienią się kolory lub obraz się odwróci, wyłącz go. Pomagają też: niższa rozdzielczość, 24 lub 30 klatek, ostre cięcia i wyłączona stabilizacja.","h_theme":"Wygląd","theme":"Motyw","th_auto":"Jak w telefonie","th_light":"Jasny","th_dark":"Ciemny","th_custom":"Własny","thBg":"Kolor tła","thAc":"Kolor przycisków","h_install":"Instalacja w telefonie","install":"Zainstaluj jako aplikację","installNote":"Otwórz aplikację przez jej własny link w Chrome, dotknij trzech kropek i wybierz „Zainstaluj aplikację” lub „Dodaj do ekranu głównego”.","installed":"Aplikacja jest zainstalowana.","lang":"Język","noClips":"Nic jeszcze nie dodano","watch":"Oglądaj","build":"Złóż film","stopBtn":"Zatrzymaj","cancel":"Anuluj","of":"{0} z {1}","exact":"Dokładna długość","shorter":"Krótszy o {0}","longer":"Dłuższy o {0}","ready":"Film gotowy","share":"Wyślij do serwisu","save":"Zapisz w telefonie","back":"Wróć do montażu","c_bad":"Nie da się otworzyć","c_cut":"od {0}, trwa {1}","c_photo":"zdjęcie, trwa {0}","c_slow":"zwolnione","c_fast":"przyspieszone","c_mute":"Bez dźwięku","c_start":"Zacznij od","c_len":"Jak długo pokazywać:","c_fit":"Jak dopasować do kadru","c_auto":"Auto","c_fill":"Wypełnij kadr","c_whole":"Pokaż w całości","c_pos":"Rozmiar i położenie","c_zoom":"Przybliżenie:","c_px":"Przesuń w lewo / w prawo:","c_py":"Przesuń w górę / w dół:","c_center":"na środku","c_reset":"Przywróć","c_speed":"Prędkość i dźwięk","c_slower":"Zwolnij","c_normal":"Zwykła","c_faster":"Przyspiesz","c_cam":"Ruch kamery","cam_none":"Bez ruchu","cam_in":"Najazd","cam_out":"Odjazd","cam_left":"Panorama w lewo","cam_right":"Panorama w prawo","cam_up":"Panorama w górę","cam_down":"Panorama w dół","cam_punch":"Szybki najazd","cam_shake":"Kamera z ręki","c_up":"↑ Wcześniej","c_down":"↓ Później","c_dup":"Weź jeszcze jeden moment","m_opening":"Otwieram pliki…","m_bad":"Telefon nie mógł otworzyć {0} z {1} plików.","m_random":"Nowa losowa wersja. Dotknij ponownie, aby zobaczyć inną.","m_even":"Wszystko idzie po kolei, długość podzielona po równo.","m_scan":"Oglądam wideo {0} z {1} i szukam najlepszych momentów…","m_smart":"Wybrano {0} najlepszych momentów. Dotknij „Oglądaj”. Dotknij ponownie, aby zobaczyć inną wersję.","m_smartShort":"Wybrano {0} najlepszych momentów. Materiału nie starczyło na całą długość.","m_smartFail":"Nie udało się przeanalizować wideo. Spróbuj montażu losowego.","m_noGL":"Ta przeglądarka nie uruchomiła grafiki. Otwórz stronę w Chrome.","m_noRec":"Ta przeglądarka nie potrafi nagrywać wideo. Otwórz stronę w Chrome.","m_prep":"Przygotowuję nagranie…","m_rec":"Nagrywam: {0} z {1}. Nie zamykaj tej strony.","m_openFail":"Nie udało się otworzyć jednego z klipów. Wybierz niższą rozdzielczość lub usuń ten plik.","m_recFail":"Telefon nie poradził sobie z nagraniem w tej rozdzielczości. Wybierz niższą.","m_glLost":"Grafika telefonu nie wytrzymała obciążenia. Wybierz niższą rozdzielczość.","m_saving":"Zapisuję…","m_cancelled":"Nagrywanie anulowane.","m_hidden":"Nagrywanie przerwane, bo strona została ukryta. Uruchom ponownie i nie zamykaj jej.","m_slow":"Telefon nie nadążał, film może się zacinać. Jeśli tak, obniż rozdzielczość lub liczbę klatek.","m_shareFail":"Nie udało się wysłać. Zapisz film i wgraj go z galerii.","m_shareNo":"Stąd nie da się wysłać. Otwórz aplikację przez jej własny link w Chrome albo zapisz film i wgraj go z galerii.","m_webm":"Jeśli serwis odrzuci plik: został nagrany jako WebM. Zaktualizuj Chrome, aby nagrywać MP4.","m_saved":"Zapisano: {0}","m_declined":"Zapisywanie anulowane. Możesz dotknąć ponownie.","m_wait":"Poczekaj kilka sekund i dotknij ponownie.","m_tooBig":"Plik jest za duży, aby zapisać go stąd. Skróć film lub obniż rozdzielczość.","m_saveFail":"Nie udało się zapisać. Przytrzymaj wideo powyżej i wybierz „Pobierz wideo”.","m_hold":"Jeśli pobieranie się nie zaczęło, przytrzymaj wideo powyżej i wybierz „Pobierz wideo”.","tab_clips":"Klipy","tab_more":"Ustawienia"},"de":{"sub":"Erstelle einen kurzen Film aus deinen Videos und Fotos: smarter, zufälliger oder manueller Schnitt, Kinofarben, Effekte und Musik.","empty":"Füge Videos oder Fotos hinzu — hier erscheint dein Film","h_clips":"Clips der Reihe nach","add":"Videos oder Fotos hinzufügen","smart":"Smarter Schnitt: beste Momente wählen","random":"Zufälliger Schnitt","even":"Gleich lang, der Reihe nach","autoNote":"Der smarte Schnitt sieht sich jedes Video an und wählt Momente, die schärfer sind und mehr Bewegung haben. Das ist eine Berechnung auf dem Handy, kein neuronales Netz, also prüfe das Ergebnis. Tippe auf einen Clip, um ihn von Hand anzupassen.","h_where":"Wohin der Film geht","presets":"Schnelleinstellung für ein Netzwerk","p_post":"Instagram-Beitrag","p_cinema":"Kino","h_format":"Format","length":"Filmlänge","u_s":"s","u_min":"Min","frame":"Bildformat","f_cinema":"Kino mit Balken","f_wide":"Normal 16:9","f_vert":"Hochformat 9:16","f_45":"Beitrag 4:5","f_sq":"Quadrat 1:1","res":"Auflösung","fps":"Bilder pro Sekunde","fps24":"24, wie im Kino","fps60":"60, flüssig","size":"Geschätzte Dateigröße: {0}.","sizeLong":"Ein langer Film wird in Echtzeit aufgenommen; lass die Seite die ganze Zeit geöffnet.","sizeBig":"Die Datei ist sehr groß; wähle eine niedrigere Auflösung.","MB":"MB","GB":"GB","h_pic":"Bild","look":"Kinofilter","l_none":"Wie gefilmt","l_kino":"Kino","l_block":"Blockbuster","l_dune":"Wüste","l_gold":"Goldene Stunde","l_north":"Kalter Norden","l_dusk":"Dämmerung","l_neon":"Neon","l_film70":"Film der 70er","l_faded":"Verblasster Film","l_retro":"Retro","l_noir":"Noir","l_harsh":"Rau","l_matrix":"Grüner Code","l_soft":"Weich","l_vivid":"Kräftig","power":"Filterstärke:","stab":"Stabilisierung","off":"Aus","s_light":"Leicht","s_strong":"Stark","stabNote":"Glättet Händezittern und zoomt leicht hinein. Starkes Wackeln kann sie nicht beheben.","fx":"Effekte","fx_grain":"Filmkorn","fx_vig":"Dunkle Ränder","fx_push":"Langsamer Kamerazoom","fx_leak":"Lichtlecks","fx_glow":"Weiches Leuchten","fx_ca":"Farbsäume der Linse","fx_old":"Alter Film","weather":"Wetter","w_none":"Keins","w_rain":"Regen","w_snow":"Schnee","w_fog":"Nebel","w_rays":"Sonnenstrahlen","w_dust":"Staub in der Luft","w_heat":"Hitzeflimmern","wxPower":"Wetterstärke:","fine":"Farbe fein einstellen","bright":"Helligkeit:","contrast":"Kontrast:","sat":"Sättigung:","temp":"Wärme:","resetFine":"Farbeinstellung zurücksetzen","h_edit":"Schnitt","trans":"Übergang zwischen Clips","t_mix":"Überblendung","t_blur":"Unschärfe","t_zoom":"Zoom","t_slide":"Schieben","t_wipe":"Wischen","t_iris":"Kreis","t_black":"Über Schwarz","t_white":"Blitz","t_rand":"Gemischt","t_cut":"Harter Schnitt","title":"Titel am Anfang","titlePh":"Zum Beispiel: Meer. November","outro":"Schriftzug am Ende","outroPh":"Zum Beispiel: dein Instagram-Name","h_sound":"Ton","volVideo":"Videoton:","pickMusic":"Musik wählen","noMusic":"Keine Musik gewählt","remove":"Entfernen","volMusic":"Musiklautstärke:","musicErr":"Das Handy konnte diese Datei nicht öffnen. Wähle MP3 oder M4A.","h_slow":"Wenn es ruckelt","turbo":"Schnellmodus","turboNote":"Der Schnellmodus entlastet das Handy. Wenn sich Farben ändern oder das Bild kippt, schalte ihn aus. Es helfen auch: niedrigere Auflösung, 24 oder 30 Bilder, harte Schnitte und keine Stabilisierung.","h_theme":"Aussehen","theme":"Design","th_auto":"Wie das Handy","th_light":"Hell","th_dark":"Dunkel","th_custom":"Eigenes","thBg":"Hintergrundfarbe","thAc":"Farbe der Tasten","h_install":"Auf dem Handy installieren","install":"Als App installieren","installNote":"Öffne die App über ihren eigenen Link in Chrome, tippe auf die drei Punkte und wähle „App installieren“ oder „Zum Startbildschirm hinzufügen“.","installed":"Die App ist installiert.","lang":"Sprache","noClips":"Noch nichts hinzugefügt","watch":"Ansehen","build":"Film erstellen","stopBtn":"Stopp","cancel":"Abbrechen","of":"{0} von {1}","exact":"Genaue Länge","shorter":"Um {0} kürzer","longer":"Um {0} länger","ready":"Dein Film ist fertig","share":"An ein Netzwerk senden","save":"Auf dem Handy speichern","back":"Zurück zum Schnitt","c_bad":"Lässt sich nicht öffnen","c_cut":"ab {0}, dauert {1}","c_photo":"Foto, dauert {0}","c_slow":"verlangsamt","c_fast":"beschleunigt","c_mute":"Ohne Ton","c_start":"Starten bei","c_len":"Anzeigedauer:","c_fit":"Ans Bildformat anpassen","c_auto":"Auto","c_fill":"Bild füllen","c_whole":"Ganz zeigen","c_pos":"Größe und Position","c_zoom":"Zoom:","c_px":"Nach links / rechts:","c_py":"Nach oben / unten:","c_center":"mittig","c_reset":"Zurücksetzen","c_speed":"Tempo und Ton","c_slower":"Verlangsamen","c_normal":"Normal","c_faster":"Beschleunigen","c_cam":"Kamerabewegung","cam_none":"Ruhig","cam_in":"Hineinzoomen","cam_out":"Herauszoomen","cam_left":"Schwenk nach links","cam_right":"Schwenk nach rechts","cam_up":"Schwenk nach oben","cam_down":"Schwenk nach unten","cam_punch":"Schneller Zoom","cam_shake":"Handkamera","c_up":"↑ Früher","c_down":"↓ Später","c_dup":"Weiteren Moment nehmen","m_opening":"Dateien werden geöffnet…","m_bad":"Das Handy konnte {0} von {1} Dateien nicht öffnen.","m_random":"Eine neue Zufallsversion. Tippe erneut für eine andere.","m_even":"Alles läuft der Reihe nach, gleich lang.","m_scan":"Sehe Video {0} von {1} an und suche die besten Momente…","m_smart":"{0} beste Momente gewählt. Tippe auf „Ansehen“. Erneut tippen für eine andere Version.","m_smartShort":"{0} beste Momente gewählt. Das Material reicht nicht für die volle Länge.","m_smartFail":"Die Videos konnten nicht analysiert werden. Versuche den zufälligen Schnitt.","m_noGL":"Dieser Browser konnte die Grafik nicht starten. Öffne die Seite in Chrome.","m_noRec":"Dieser Browser kann kein Video aufnehmen. Öffne die Seite in Chrome.","m_prep":"Aufnahme wird vorbereitet…","m_rec":"Aufnahme: {0} von {1}. Lass diese Seite geöffnet.","m_openFail":"Einer der Clips ließ sich nicht öffnen. Wähle eine niedrigere Auflösung oder entferne die Datei.","m_recFail":"Das Handy konnte in dieser Auflösung nicht aufnehmen. Wähle eine niedrigere.","m_glLost":"Die Grafik des Handys war überlastet. Wähle eine niedrigere Auflösung.","m_saving":"Wird gespeichert…","m_cancelled":"Aufnahme abgebrochen.","m_hidden":"Die Aufnahme wurde gestoppt, weil die Seite verdeckt war. Starte erneut und lass sie geöffnet.","m_slow":"Das Handy kam nicht hinterher, der Film kann ruckeln. Dann Auflösung oder Bildrate senken.","m_shareFail":"Senden fehlgeschlagen. Speichere den Film und lade ihn aus der Galerie hoch.","m_shareNo":"Von hier aus ist Senden nicht möglich. Öffne die App über ihren eigenen Link in Chrome oder speichere den Film und lade ihn aus der Galerie hoch.","m_webm":"Falls das Netzwerk die Datei ablehnt: Sie wurde als WebM aufgenommen. Aktualisiere Chrome, um MP4 aufzunehmen.","m_saved":"Gespeichert: {0}","m_declined":"Speichern abgebrochen. Du kannst erneut tippen.","m_wait":"Warte ein paar Sekunden und tippe erneut.","m_tooBig":"Die Datei ist zu groß, um sie von hier zu speichern. Kürze den Film oder senke die Auflösung.","m_saveFail":"Speichern fehlgeschlagen. Halte das Video oben gedrückt und wähle „Video herunterladen“.","m_hold":"Falls der Download nicht startet, halte das Video oben gedrückt und wähle „Video herunterladen“.","tab_clips":"Clips","tab_more":"Einstellungen"},"es":{"sub":"Crea una película corta con tus vídeos y fotos: montaje inteligente, aleatorio o manual, color de cine, efectos y música.","empty":"Añade vídeos o fotos — aquí aparecerá tu película","h_clips":"Clips en orden","add":"Añadir vídeos o fotos","smart":"Montaje inteligente: elegir los mejores momentos","random":"Montaje aleatorio","even":"Partes iguales en orden","autoNote":"El montaje inteligente mira cada vídeo y elige los momentos más nítidos y con más movimiento. Es un cálculo en tu teléfono, no una red neuronal, así que revisa el resultado. Toca cualquier clip para ajustarlo a mano.","h_where":"Adónde va la película","presets":"Ajuste rápido para una red social","p_post":"Publicación de Instagram","p_cinema":"Cine","h_format":"Formato","length":"Duración","u_s":"s","u_min":"min","frame":"Encuadre","f_cinema":"Cine con franjas","f_wide":"Normal 16:9","f_vert":"Vertical 9:16","f_45":"Publicación 4:5","f_sq":"Cuadrado 1:1","res":"Resolución","fps":"Fotogramas por segundo","fps24":"24, como en el cine","fps60":"60, fluido","size":"Tamaño estimado del archivo: {0}.","sizeLong":"Una película larga se graba en tiempo real; mantén la página abierta todo el tiempo.","sizeBig":"El archivo es muy grande; elige una resolución menor.","MB":"MB","GB":"GB","h_pic":"Imagen","look":"Filtro de cine","l_none":"Como se grabó","l_kino":"Cine","l_block":"Superproducción","l_dune":"Desierto","l_gold":"Hora dorada","l_north":"Norte frío","l_dusk":"Crepúsculo","l_neon":"Neón","l_film70":"Película de los 70","l_faded":"Película desteñida","l_retro":"Retro","l_noir":"Noir","l_harsh":"Crudo","l_matrix":"Código verde","l_soft":"Suave","l_vivid":"Vivo","power":"Fuerza del filtro:","stab":"Estabilización","off":"Apagada","s_light":"Ligera","s_strong":"Fuerte","stabNote":"Suaviza el temblor de las manos y acerca un poco la imagen. No corrige sacudidas fuertes.","fx":"Efectos","fx_grain":"Grano de película","fx_vig":"Bordes oscuros","fx_push":"Zoom lento de cámara","fx_leak":"Fugas de luz","fx_glow":"Brillo suave","fx_ca":"Bordes de color de la lente","fx_old":"Película antigua","weather":"Clima","w_none":"Ninguno","w_rain":"Lluvia","w_snow":"Nieve","w_fog":"Niebla","w_rays":"Rayos de sol","w_dust":"Polvo en el aire","w_heat":"Calima","wxPower":"Fuerza del clima:","fine":"Ajuste fino del color","bright":"Brillo:","contrast":"Contraste:","sat":"Saturación:","temp":"Calidez:","resetFine":"Restablecer el color","h_edit":"Montaje","trans":"Transición entre clips","t_mix":"Fundido","t_blur":"Desenfoque","t_zoom":"Zoom","t_slide":"Deslizar","t_wipe":"Cortinilla","t_iris":"Círculo","t_black":"A negro","t_white":"Destello","t_rand":"Variadas","t_cut":"Corte seco","title":"Título al principio","titlePh":"Por ejemplo: Mar. Noviembre","outro":"Texto al final","outroPh":"Por ejemplo: tu nombre de Instagram","h_sound":"Sonido","volVideo":"Sonido del vídeo:","pickMusic":"Elegir música","noMusic":"Sin música","remove":"Quitar","volMusic":"Volumen de la música:","musicErr":"El teléfono no pudo abrir este archivo. Elige MP3 o M4A.","h_slow":"Si va lento","turbo":"Modo rápido","turboNote":"El modo rápido alivia la carga del teléfono. Si cambian los colores o la imagen se voltea, apágalo. También ayudan: menor resolución, 24 o 30 fotogramas, cortes secos y sin estabilización.","h_theme":"Apariencia","theme":"Tema","th_auto":"Como el teléfono","th_light":"Claro","th_dark":"Oscuro","th_custom":"Propio","thBg":"Color de fondo","thAc":"Color de los botones","h_install":"Instalar en el teléfono","install":"Instalar como aplicación","installNote":"Abre la aplicación con su propio enlace en Chrome, toca los tres puntos y elige «Instalar aplicación» o «Añadir a pantalla de inicio».","installed":"La aplicación está instalada.","lang":"Idioma","noClips":"Aún no hay clips","watch":"Ver","build":"Crear película","stopBtn":"Detener","cancel":"Cancelar","of":"{0} de {1}","exact":"Duración exacta","shorter":"{0} más corta","longer":"{0} más larga","ready":"Tu película está lista","share":"Enviar a una red social","save":"Guardar en el teléfono","back":"Volver al montaje","c_bad":"No se puede abrir","c_cut":"desde {0}, dura {1}","c_photo":"foto, dura {0}","c_slow":"lento","c_fast":"rápido","c_mute":"Sin sonido","c_start":"Empezar en","c_len":"Mostrar durante:","c_fit":"Cómo encajar en el encuadre","c_auto":"Auto","c_fill":"Llenar el encuadre","c_whole":"Mostrar entero","c_pos":"Tamaño y posición","c_zoom":"Zoom:","c_px":"Mover izquierda / derecha:","c_py":"Mover arriba / abajo:","c_center":"centrado","c_reset":"Restablecer","c_speed":"Velocidad y sonido","c_slower":"Ralentizar","c_normal":"Normal","c_faster":"Acelerar","c_cam":"Movimiento de cámara","cam_none":"Fija","cam_in":"Acercar","cam_out":"Alejar","cam_left":"Paneo a la izquierda","cam_right":"Paneo a la derecha","cam_up":"Paneo arriba","cam_down":"Paneo abajo","cam_punch":"Zoom rápido","cam_shake":"Cámara en mano","c_up":"↑ Antes","c_down":"↓ Después","c_dup":"Tomar otro momento","m_opening":"Abriendo archivos…","m_bad":"El teléfono no pudo abrir {0} de {1} archivos.","m_random":"Nueva versión aleatoria. Toca otra vez para ver otra.","m_even":"Todo va en orden y con la misma duración.","m_scan":"Viendo el vídeo {0} de {1} y buscando los mejores momentos…","m_smart":"Elegidos {0} mejores momentos. Toca «Ver». Toca otra vez para otra versión.","m_smartShort":"Elegidos {0} mejores momentos. No hay material suficiente para toda la duración.","m_smartFail":"No se pudieron analizar los vídeos. Prueba el montaje aleatorio.","m_noGL":"Este navegador no pudo iniciar los gráficos. Abre la página en Chrome.","m_noRec":"Este navegador no puede grabar vídeo. Abre la página en Chrome.","m_prep":"Preparando la grabación…","m_rec":"Grabando: {0} de {1}. Mantén esta página abierta.","m_openFail":"No se pudo abrir uno de los clips. Elige una resolución menor o quita ese archivo.","m_recFail":"El teléfono no pudo grabar con esta resolución. Elige una menor.","m_glLost":"Los gráficos del teléfono no aguantaron la carga. Elige una resolución menor.","m_saving":"Guardando…","m_cancelled":"Grabación cancelada.","m_hidden":"La grabación se detuvo porque la página se ocultó. Empieza de nuevo y mantenla abierta.","m_slow":"El teléfono no dio abasto y la película puede ir a saltos. Si es así, baja la resolución o los fotogramas.","m_shareFail":"No se pudo enviar. Guarda la película y súbela desde tu galería.","m_shareNo":"Desde aquí no se puede enviar. Abre la aplicación con su propio enlace en Chrome o guarda la película y súbela desde tu galería.","m_webm":"Si la red rechaza el archivo: se grabó como WebM. Actualiza Chrome para grabar en MP4.","m_saved":"Guardado: {0}","m_declined":"Guardado cancelado. Puedes tocar otra vez.","m_wait":"Espera unos segundos y toca otra vez.","m_tooBig":"El archivo es demasiado grande para guardarlo desde aquí. Acórtalo o baja la resolución.","m_saveFail":"No se pudo guardar. Mantén pulsado el vídeo de arriba y elige «Descargar vídeo».","m_hold":"Si la descarga no empezó, mantén pulsado el vídeo de arriba y elige «Descargar vídeo».","tab_clips":"Clips","tab_more":"Ajustes"},"fr":{"sub":"Créez un court film avec vos vidéos et photos : montage intelligent, aléatoire ou manuel, couleurs de cinéma, effets et musique.","empty":"Ajoutez des vidéos ou des photos — votre film apparaîtra ici","h_clips":"Clips dans l’ordre","add":"Ajouter des vidéos ou des photos","smart":"Montage intelligent : choisir les meilleurs moments","random":"Montage aléatoire","even":"Parts égales dans l’ordre","autoNote":"Le montage intelligent regarde chaque vidéo et choisit les moments les plus nets et les plus animés. C’est un calcul sur votre téléphone, pas un réseau de neurones, alors vérifiez le résultat. Touchez un clip pour l’ajuster à la main.","h_where":"Où ira le film","presets":"Réglage rapide pour un réseau social","p_post":"Publication Instagram","p_cinema":"Cinéma","h_format":"Format","length":"Durée du film","u_s":"s","u_min":"min","frame":"Cadre","f_cinema":"Cinéma avec bandes","f_wide":"Standard 16:9","f_vert":"Vertical 9:16","f_45":"Publication 4:5","f_sq":"Carré 1:1","res":"Résolution","fps":"Images par seconde","fps24":"24, comme au cinéma","fps60":"60, fluide","size":"Taille estimée du fichier : {0}.","sizeLong":"Un long film s’enregistre en temps réel ; gardez la page ouverte tout du long.","sizeBig":"Le fichier est très volumineux ; choisissez une résolution plus basse.","MB":"Mo","GB":"Go","h_pic":"Image","look":"Filtre cinéma","l_none":"Tel que filmé","l_kino":"Cinéma","l_block":"Blockbuster","l_dune":"Désert","l_gold":"Heure dorée","l_north":"Nord froid","l_dusk":"Crépuscule","l_neon":"Néon","l_film70":"Pellicule années 70","l_faded":"Pellicule délavée","l_retro":"Rétro","l_noir":"Noir","l_harsh":"Brut","l_matrix":"Code vert","l_soft":"Doux","l_vivid":"Éclatant","power":"Force du filtre :","stab":"Stabilisation","off":"Désactivée","s_light":"Légère","s_strong":"Forte","stabNote":"Atténue le tremblement des mains et zoome légèrement. Ne corrige pas les fortes secousses.","fx":"Effets","fx_grain":"Grain de pellicule","fx_vig":"Bords sombres","fx_push":"Zoom lent de caméra","fx_leak":"Fuites de lumière","fx_glow":"Lueur douce","fx_ca":"Franges colorées de l’objectif","fx_old":"Vieille pellicule","weather":"Météo","w_none":"Aucune","w_rain":"Pluie","w_snow":"Neige","w_fog":"Brouillard","w_rays":"Rayons de soleil","w_dust":"Poussière dans l’air","w_heat":"Brume de chaleur","wxPower":"Force de la météo :","fine":"Réglage fin des couleurs","bright":"Luminosité :","contrast":"Contraste :","sat":"Saturation :","temp":"Chaleur :","resetFine":"Réinitialiser les couleurs","h_edit":"Montage","trans":"Transition entre les clips","t_mix":"Fondu","t_blur":"Flou","t_zoom":"Zoom","t_slide":"Glissement","t_wipe":"Volet","t_iris":"Cercle","t_black":"Par le noir","t_white":"Flash","t_rand":"Variées","t_cut":"Coupe franche","title":"Titre au début","titlePh":"Par exemple : Mer. Novembre","outro":"Texte à la fin","outroPh":"Par exemple : votre nom Instagram","h_sound":"Son","volVideo":"Son de la vidéo :","pickMusic":"Choisir une musique","noMusic":"Aucune musique choisie","remove":"Retirer","volMusic":"Volume de la musique :","musicErr":"Le téléphone n’a pas pu ouvrir ce fichier. Choisissez un MP3 ou un M4A.","h_slow":"Si ça rame","turbo":"Mode rapide","turboNote":"Le mode rapide soulage le téléphone. Si les couleurs changent ou si l’image se retourne, désactivez-le. Aident aussi : une résolution plus basse, 24 ou 30 images, des coupes franches et pas de stabilisation.","h_theme":"Apparence","theme":"Thème","th_auto":"Comme le téléphone","th_light":"Clair","th_dark":"Sombre","th_custom":"Personnalisé","thBg":"Couleur du fond","thAc":"Couleur des boutons","h_install":"Installer sur le téléphone","install":"Installer comme application","installNote":"Ouvrez l’application par son propre lien dans Chrome, touchez les trois points et choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ».","installed":"L’application est installée.","lang":"Langue","noClips":"Rien n’a encore été ajouté","watch":"Regarder","build":"Créer le film","stopBtn":"Arrêter","cancel":"Annuler","of":"{0} sur {1}","exact":"Durée exacte","shorter":"Plus court de {0}","longer":"Plus long de {0}","ready":"Votre film est prêt","share":"Envoyer sur un réseau social","save":"Enregistrer sur le téléphone","back":"Retour au montage","c_bad":"Impossible à ouvrir","c_cut":"à partir de {0}, dure {1}","c_photo":"photo, dure {0}","c_slow":"ralenti","c_fast":"accéléré","c_mute":"Sans le son","c_start":"Commencer à","c_len":"Durée d’affichage :","c_fit":"Comment adapter au cadre","c_auto":"Auto","c_fill":"Remplir le cadre","c_whole":"Montrer en entier","c_pos":"Taille et position","c_zoom":"Zoom :","c_px":"Décaler à gauche / à droite :","c_py":"Décaler en haut / en bas :","c_center":"centré","c_reset":"Réinitialiser","c_speed":"Vitesse et son","c_slower":"Ralentir","c_normal":"Normale","c_faster":"Accélérer","c_cam":"Mouvement de caméra","cam_none":"Fixe","cam_in":"Zoom avant","cam_out":"Zoom arrière","cam_left":"Panoramique à gauche","cam_right":"Panoramique à droite","cam_up":"Panoramique vers le haut","cam_down":"Panoramique vers le bas","cam_punch":"Zoom rapide","cam_shake":"Caméra à l’épaule","c_up":"↑ Plus tôt","c_down":"↓ Plus tard","c_dup":"Prendre un autre moment","m_opening":"Ouverture des fichiers…","m_bad":"Le téléphone n’a pas pu ouvrir {0} fichiers sur {1}.","m_random":"Nouvelle version aléatoire. Touchez encore pour une autre.","m_even":"Tout est dans l’ordre, avec la même durée.","m_scan":"Visionnage de la vidéo {0} sur {1}, recherche des meilleurs moments…","m_smart":"{0} meilleurs moments choisis. Touchez « Regarder ». Touchez encore pour une autre version.","m_smartShort":"{0} meilleurs moments choisis. Pas assez d’images pour toute la durée.","m_smartFail":"Impossible d’analyser les vidéos. Essayez le montage aléatoire.","m_noGL":"Ce navigateur n’a pas pu démarrer l’affichage graphique. Ouvrez la page dans Chrome.","m_noRec":"Ce navigateur ne peut pas enregistrer de vidéo. Ouvrez la page dans Chrome.","m_prep":"Préparation de l’enregistrement…","m_rec":"Enregistrement : {0} sur {1}. Gardez cette page ouverte.","m_openFail":"Impossible d’ouvrir l’un des clips. Choisissez une résolution plus basse ou retirez ce fichier.","m_recFail":"Le téléphone n’a pas pu enregistrer à cette résolution. Choisissez-en une plus basse.","m_glLost":"Le processeur graphique du téléphone n’a pas tenu la charge. Choisissez une résolution plus basse.","m_saving":"Enregistrement…","m_cancelled":"Enregistrement annulé.","m_hidden":"L’enregistrement s’est arrêté car la page a été masquée. Relancez-le et gardez-la ouverte.","m_slow":"Le téléphone n’a pas suivi, le film peut saccader. Dans ce cas, baissez la résolution ou le nombre d’images.","m_shareFail":"Envoi impossible. Enregistrez le film et importez-le depuis votre galerie.","m_shareNo":"L’envoi n’est pas possible d’ici. Ouvrez l’application par son propre lien dans Chrome, ou enregistrez le film et importez-le depuis votre galerie.","m_webm":"Si le réseau refuse le fichier : il a été enregistré en WebM. Mettez Chrome à jour pour enregistrer en MP4.","m_saved":"Enregistré : {0}","m_declined":"Enregistrement annulé. Vous pouvez toucher à nouveau.","m_wait":"Attendez quelques secondes et touchez à nouveau.","m_tooBig":"Le fichier est trop volumineux pour être enregistré d’ici. Raccourcissez le film ou baissez la résolution.","m_saveFail":"Enregistrement impossible. Appuyez longuement sur la vidéo ci-dessus et choisissez « Télécharger la vidéo ».","m_hold":"Si le téléchargement n’a pas commencé, appuyez longuement sur la vidéo ci-dessus et choisissez « Télécharger la vidéo ».","tab_clips":"Clips","tab_more":"Réglages"},"it":{"sub":"Crea un breve film con i tuoi video e le tue foto: montaggio intelligente, casuale o manuale, colori da cinema, effetti e musica.","empty":"Aggiungi video o foto — qui apparirà il tuo film","h_clips":"Clip in ordine","add":"Aggiungi video o foto","smart":"Montaggio intelligente: scegli i momenti migliori","random":"Montaggio casuale","even":"Parti uguali in ordine","autoNote":"Il montaggio intelligente guarda ogni video e sceglie i momenti più nitidi e con più movimento. È un calcolo sul telefono, non una rete neurale, quindi controlla il risultato. Tocca una clip per regolarla a mano.","h_where":"Dove andrà il film","presets":"Impostazione rapida per un social","p_post":"Post di Instagram","p_cinema":"Cinema","h_format":"Formato","length":"Durata del film","u_s":"s","u_min":"min","frame":"Inquadratura","f_cinema":"Cinema con bande","f_wide":"Normale 16:9","f_vert":"Verticale 9:16","f_45":"Post 4:5","f_sq":"Quadrato 1:1","res":"Risoluzione","fps":"Fotogrammi al secondo","fps24":"24, come al cinema","fps60":"60, fluido","size":"Dimensione stimata del file: {0}.","sizeLong":"Un film lungo si registra in tempo reale; tieni la pagina aperta per tutto il tempo.","sizeBig":"Il file è molto grande; scegli una risoluzione più bassa.","MB":"MB","GB":"GB","h_pic":"Immagine","look":"Filtro cinema","l_none":"Come girato","l_kino":"Cinema","l_block":"Kolossal","l_dune":"Deserto","l_gold":"Ora dorata","l_north":"Nord freddo","l_dusk":"Crepuscolo","l_neon":"Neon","l_film70":"Pellicola anni 70","l_faded":"Pellicola sbiadita","l_retro":"Retrò","l_noir":"Noir","l_harsh":"Crudo","l_matrix":"Codice verde","l_soft":"Morbido","l_vivid":"Vivace","power":"Intensità del filtro:","stab":"Stabilizzazione","off":"Spenta","s_light":"Leggera","s_strong":"Forte","stabNote":"Attenua il tremolio delle mani e avvicina leggermente l’immagine. Non corregge scosse forti.","fx":"Effetti","fx_grain":"Grana della pellicola","fx_vig":"Bordi scuri","fx_push":"Zoom lento della camera","fx_leak":"Infiltrazioni di luce","fx_glow":"Bagliore morbido","fx_ca":"Bordi colorati dell’obiettivo","fx_old":"Vecchia pellicola","weather":"Meteo","w_none":"Nessuno","w_rain":"Pioggia","w_snow":"Neve","w_fog":"Nebbia","w_rays":"Raggi di sole","w_dust":"Polvere nell’aria","w_heat":"Foschia da caldo","wxPower":"Intensità del meteo:","fine":"Regolazione fine del colore","bright":"Luminosità:","contrast":"Contrasto:","sat":"Saturazione:","temp":"Calore:","resetFine":"Ripristina il colore","h_edit":"Montaggio","trans":"Transizione tra le clip","t_mix":"Dissolvenza","t_blur":"Sfocatura","t_zoom":"Zoom","t_slide":"Scorrimento","t_wipe":"Tendina","t_iris":"Cerchio","t_black":"Dal nero","t_white":"Lampo","t_rand":"Miste","t_cut":"Stacco netto","title":"Titolo all’inizio","titlePh":"Per esempio: Mare. Novembre","outro":"Scritta alla fine","outroPh":"Per esempio: il tuo nome Instagram","h_sound":"Audio","volVideo":"Audio del video:","pickMusic":"Scegli la musica","noMusic":"Nessuna musica scelta","remove":"Rimuovi","volMusic":"Volume della musica:","musicErr":"Il telefono non è riuscito ad aprire questo file. Scegli un MP3 o un M4A.","h_slow":"Se va a scatti","turbo":"Modalità veloce","turboNote":"La modalità veloce alleggerisce il carico sul telefono. Se cambiano i colori o l’immagine si capovolge, disattivala. Aiutano anche: risoluzione più bassa, 24 o 30 fotogrammi, stacchi netti e nessuna stabilizzazione.","h_theme":"Aspetto","theme":"Tema","th_auto":"Come il telefono","th_light":"Chiaro","th_dark":"Scuro","th_custom":"Personale","thBg":"Colore di sfondo","thAc":"Colore dei pulsanti","h_install":"Installa sul telefono","install":"Installa come app","installNote":"Apri l’app dal suo link in Chrome, tocca i tre puntini e scegli «Installa app» o «Aggiungi a schermata Home».","installed":"L’app è installata.","lang":"Lingua","noClips":"Ancora nessuna clip","watch":"Guarda","build":"Crea il film","stopBtn":"Ferma","cancel":"Annulla","of":"{0} di {1}","exact":"Durata esatta","shorter":"Più corto di {0}","longer":"Più lungo di {0}","ready":"Il tuo film è pronto","share":"Invia a un social","save":"Salva sul telefono","back":"Torna al montaggio","c_bad":"Impossibile aprire","c_cut":"da {0}, dura {1}","c_photo":"foto, dura {0}","c_slow":"rallentato","c_fast":"accelerato","c_mute":"Senza audio","c_start":"Inizia da","c_len":"Mostra per:","c_fit":"Come adattare all’inquadratura","c_auto":"Auto","c_fill":"Riempi l’inquadratura","c_whole":"Mostra per intero","c_pos":"Dimensione e posizione","c_zoom":"Zoom:","c_px":"Sposta a sinistra / destra:","c_py":"Sposta in alto / basso:","c_center":"al centro","c_reset":"Ripristina","c_speed":"Velocità e audio","c_slower":"Rallenta","c_normal":"Normale","c_faster":"Accelera","c_cam":"Movimento di camera","cam_none":"Ferma","cam_in":"Zoom in avanti","cam_out":"Zoom indietro","cam_left":"Panoramica a sinistra","cam_right":"Panoramica a destra","cam_up":"Panoramica in alto","cam_down":"Panoramica in basso","cam_punch":"Zoom rapido","cam_shake":"Camera a mano","c_up":"↑ Prima","c_down":"↓ Dopo","c_dup":"Prendi un altro momento","m_opening":"Apertura dei file…","m_bad":"Il telefono non è riuscito ad aprire {0} file su {1}.","m_random":"Nuova versione casuale. Tocca di nuovo per un’altra.","m_even":"Tutto va in ordine, con la stessa durata.","m_scan":"Guardo il video {0} di {1} e cerco i momenti migliori…","m_smart":"Scelti {0} momenti migliori. Tocca «Guarda». Tocca di nuovo per un’altra versione.","m_smartShort":"Scelti {0} momenti migliori. Il materiale non basta per l’intera durata.","m_smartFail":"Impossibile analizzare i video. Prova il montaggio casuale.","m_noGL":"Questo browser non è riuscito ad avviare la grafica. Apri la pagina in Chrome.","m_noRec":"Questo browser non può registrare video. Apri la pagina in Chrome.","m_prep":"Preparo la registrazione…","m_rec":"Registrazione: {0} di {1}. Tieni aperta questa pagina.","m_openFail":"Impossibile aprire una delle clip. Scegli una risoluzione più bassa o rimuovi quel file.","m_recFail":"Il telefono non è riuscito a registrare a questa risoluzione. Scegline una più bassa.","m_glLost":"La grafica del telefono non ha retto il carico. Scegli una risoluzione più bassa.","m_saving":"Salvataggio…","m_cancelled":"Registrazione annullata.","m_hidden":"La registrazione si è fermata perché la pagina è stata nascosta. Riavviala e tienila aperta.","m_slow":"Il telefono non teneva il passo, il film può andare a scatti. In tal caso abbassa la risoluzione o i fotogrammi.","m_shareFail":"Invio non riuscito. Salva il film e caricalo dalla galleria.","m_shareNo":"Da qui non è possibile inviare. Apri l’app dal suo link in Chrome, oppure salva il film e caricalo dalla galleria.","m_webm":"Se il social rifiuta il file: è stato registrato in WebM. Aggiorna Chrome per registrare in MP4.","m_saved":"Salvato: {0}","m_declined":"Salvataggio annullato. Puoi toccare di nuovo.","m_wait":"Attendi qualche secondo e tocca di nuovo.","m_tooBig":"Il file è troppo grande per salvarlo da qui. Accorcia il film o abbassa la risoluzione.","m_saveFail":"Salvataggio non riuscito. Tieni premuto il video qui sopra e scegli «Scarica video».","m_hold":"Se il download non è partito, tieni premuto il video qui sopra e scegli «Scarica video».","tab_clips":"Clip","tab_more":"Impostazioni"},"pt":{"sub":"Crie um filme curto com seus vídeos e fotos: edição inteligente, aleatória ou manual, cores de cinema, efeitos e música.","empty":"Adicione vídeos ou fotos — seu filme aparecerá aqui","h_clips":"Clipes em ordem","add":"Adicionar vídeos ou fotos","smart":"Edição inteligente: escolher os melhores momentos","random":"Edição aleatória","even":"Partes iguais em ordem","autoNote":"A edição inteligente assiste a cada vídeo e escolhe os momentos mais nítidos e com mais movimento. É um cálculo no seu celular, não uma rede neural, então confira o resultado. Toque em qualquer clipe para ajustá-lo à mão.","h_where":"Para onde vai o filme","presets":"Ajuste rápido para uma rede social","p_post":"Publicação do Instagram","p_cinema":"Cinema","h_format":"Formato","length":"Duração do filme","u_s":"s","u_min":"min","frame":"Quadro","f_cinema":"Cinema com faixas","f_wide":"Padrão 16:9","f_vert":"Vertical 9:16","f_45":"Publicação 4:5","f_sq":"Quadrado 1:1","res":"Resolução","fps":"Quadros por segundo","fps24":"24, como no cinema","fps60":"60, suave","size":"Tamanho estimado do arquivo: {0}.","sizeLong":"Um filme longo é gravado em tempo real; mantenha a página aberta o tempo todo.","sizeBig":"O arquivo é muito grande; escolha uma resolução menor.","MB":"MB","GB":"GB","h_pic":"Imagem","look":"Filtro de cinema","l_none":"Como gravado","l_kino":"Cinema","l_block":"Superprodução","l_dune":"Deserto","l_gold":"Hora dourada","l_north":"Norte frio","l_dusk":"Crepúsculo","l_neon":"Neon","l_film70":"Película dos anos 70","l_faded":"Película desbotada","l_retro":"Retrô","l_noir":"Noir","l_harsh":"Cru","l_matrix":"Código verde","l_soft":"Suave","l_vivid":"Vivo","power":"Força do filtro:","stab":"Estabilização","off":"Desligada","s_light":"Leve","s_strong":"Forte","stabNote":"Suaviza o tremor das mãos e aproxima um pouco a imagem. Não corrige tremores fortes.","fx":"Efeitos","fx_grain":"Grão de película","fx_vig":"Bordas escuras","fx_push":"Zoom lento da câmera","fx_leak":"Vazamentos de luz","fx_glow":"Brilho suave","fx_ca":"Bordas coloridas da lente","fx_old":"Película antiga","weather":"Clima","w_none":"Nenhum","w_rain":"Chuva","w_snow":"Neve","w_fog":"Neblina","w_rays":"Raios de sol","w_dust":"Poeira no ar","w_heat":"Ondas de calor","wxPower":"Força do clima:","fine":"Ajuste fino de cor","bright":"Brilho:","contrast":"Contraste:","sat":"Saturação:","temp":"Calor:","resetFine":"Redefinir a cor","h_edit":"Edição","trans":"Transição entre clipes","t_mix":"Fusão","t_blur":"Desfoque","t_zoom":"Zoom","t_slide":"Deslizar","t_wipe":"Cortina","t_iris":"Círculo","t_black":"Pelo preto","t_white":"Clarão","t_rand":"Variadas","t_cut":"Corte seco","title":"Título no início","titlePh":"Por exemplo: Mar. Novembro","outro":"Texto no final","outroPh":"Por exemplo: seu nome no Instagram","h_sound":"Som","volVideo":"Som do vídeo:","pickMusic":"Escolher música","noMusic":"Nenhuma música escolhida","remove":"Remover","volMusic":"Volume da música:","musicErr":"O celular não conseguiu abrir este arquivo. Escolha MP3 ou M4A.","h_slow":"Se travar","turbo":"Modo rápido","turboNote":"O modo rápido alivia a carga do celular. Se as cores mudarem ou a imagem virar, desligue-o. Também ajudam: resolução menor, 24 ou 30 quadros, cortes secos e sem estabilização.","h_theme":"Aparência","theme":"Tema","th_auto":"Igual ao celular","th_light":"Claro","th_dark":"Escuro","th_custom":"Próprio","thBg":"Cor do fundo","thAc":"Cor dos botões","h_install":"Instalar no celular","install":"Instalar como aplicativo","installNote":"Abra o aplicativo pelo link dele no Chrome, toque nos três pontos e escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.","installed":"O aplicativo está instalado.","lang":"Idioma","noClips":"Ainda não há clipes","watch":"Assistir","build":"Criar filme","stopBtn":"Parar","cancel":"Cancelar","of":"{0} de {1}","exact":"Duração exata","shorter":"{0} mais curto","longer":"{0} mais longo","ready":"Seu filme está pronto","share":"Enviar para uma rede social","save":"Salvar no celular","back":"Voltar à edição","c_bad":"Não abre","c_cut":"a partir de {0}, dura {1}","c_photo":"foto, dura {0}","c_slow":"em câmera lenta","c_fast":"acelerado","c_mute":"Sem som","c_start":"Começar em","c_len":"Mostrar por:","c_fit":"Como encaixar no quadro","c_auto":"Auto","c_fill":"Preencher o quadro","c_whole":"Mostrar inteiro","c_pos":"Tamanho e posição","c_zoom":"Zoom:","c_px":"Mover para esquerda / direita:","c_py":"Mover para cima / baixo:","c_center":"centralizado","c_reset":"Redefinir","c_speed":"Velocidade e som","c_slower":"Desacelerar","c_normal":"Normal","c_faster":"Acelerar","c_cam":"Movimento de câmera","cam_none":"Parada","cam_in":"Aproximar","cam_out":"Afastar","cam_left":"Panorâmica à esquerda","cam_right":"Panorâmica à direita","cam_up":"Panorâmica para cima","cam_down":"Panorâmica para baixo","cam_punch":"Zoom rápido","cam_shake":"Câmera na mão","c_up":"↑ Antes","c_down":"↓ Depois","c_dup":"Pegar outro momento","m_opening":"Abrindo arquivos…","m_bad":"O celular não conseguiu abrir {0} de {1} arquivos.","m_random":"Nova versão aleatória. Toque de novo para outra.","m_even":"Tudo segue em ordem, com a mesma duração.","m_scan":"Assistindo ao vídeo {0} de {1} e procurando os melhores momentos…","m_smart":"{0} melhores momentos escolhidos. Toque em “Assistir”. Toque de novo para outra versão.","m_smartShort":"{0} melhores momentos escolhidos. Não há material suficiente para a duração toda.","m_smartFail":"Não foi possível analisar os vídeos. Tente a edição aleatória.","m_noGL":"Este navegador não conseguiu iniciar os gráficos. Abra a página no Chrome.","m_noRec":"Este navegador não grava vídeo. Abra a página no Chrome.","m_prep":"Preparando a gravação…","m_rec":"Gravando: {0} de {1}. Mantenha esta página aberta.","m_openFail":"Não foi possível abrir um dos clipes. Escolha uma resolução menor ou remova esse arquivo.","m_recFail":"O celular não conseguiu gravar nesta resolução. Escolha uma menor.","m_glLost":"Os gráficos do celular não aguentaram a carga. Escolha uma resolução menor.","m_saving":"Salvando…","m_cancelled":"Gravação cancelada.","m_hidden":"A gravação parou porque a página foi ocultada. Comece de novo e mantenha-a aberta.","m_slow":"O celular não acompanhou e o filme pode engasgar. Nesse caso, reduza a resolução ou os quadros.","m_shareFail":"Não foi possível enviar. Salve o filme e envie pela galeria.","m_shareNo":"Não é possível enviar daqui. Abra o aplicativo pelo link dele no Chrome ou salve o filme e envie pela galeria.","m_webm":"Se a rede recusar o arquivo: ele foi gravado em WebM. Atualize o Chrome para gravar em MP4.","m_saved":"Salvo: {0}","m_declined":"Salvamento cancelado. Você pode tocar de novo.","m_wait":"Aguarde alguns segundos e toque de novo.","m_tooBig":"O arquivo é grande demais para salvar daqui. Encurte o filme ou reduza a resolução.","m_saveFail":"Não foi possível salvar. Toque e segure o vídeo acima e escolha “Baixar vídeo”.","m_hold":"Se o download não começou, toque e segure o vídeo acima e escolha “Baixar vídeo”.","tab_clips":"Clipes","tab_more":"Ajustes"},"tr":{"sub":"Videolarınızdan ve fotoğraflarınızdan kısa bir film yapın: akıllı, rastgele veya elle kurgu, sinema renkleri, efektler ve müzik.","empty":"Video veya fotoğraf ekleyin — filminiz burada görünecek","h_clips":"Sırayla klipler","add":"Video veya fotoğraf ekle","smart":"Akıllı kurgu: en iyi anları seç","random":"Rastgele kurgu","even":"Sırayla eşit parçalar","autoNote":"Akıllı kurgu her videoyu izler ve daha net, daha hareketli anları seçer. Bu, telefonunuzda yapılan bir hesaplamadır, yapay sinir ağı değildir; bu yüzden sonucu kontrol edin. Elle düzeltmek için herhangi bir klibe dokunun.","h_where":"Film nereye gidecek","presets":"Sosyal ağ için hızlı ayar","p_post":"Instagram gönderisi","p_cinema":"Sinema","h_format":"Biçim","length":"Film süresi","u_s":"sn","u_min":"dk","frame":"Kadraj","f_cinema":"Bantlı sinema","f_wide":"Standart 16:9","f_vert":"Dikey 9:16","f_45":"Gönderi 4:5","f_sq":"Kare 1:1","res":"Çözünürlük","fps":"Saniyedeki kare","fps24":"24, sinemadaki gibi","fps60":"60, akıcı","size":"Tahmini dosya boyutu: {0}.","sizeLong":"Uzun film gerçek zamanlı kaydedilir; sayfayı bu süre boyunca açık tutun.","sizeBig":"Dosya çok büyük; daha düşük bir çözünürlük seçin.","MB":"MB","GB":"GB","h_pic":"Görüntü","look":"Sinema filtresi","l_none":"Çekildiği gibi","l_kino":"Sinema","l_block":"Gişe filmi","l_dune":"Çöl","l_gold":"Altın saat","l_north":"Soğuk kuzey","l_dusk":"Alacakaranlık","l_neon":"Neon","l_film70":"70’ler filmi","l_faded":"Solmuş film","l_retro":"Retro","l_noir":"Noir","l_harsh":"Sert","l_matrix":"Yeşil kod","l_soft":"Yumuşak","l_vivid":"Canlı","power":"Filtre gücü:","stab":"Sabitleme","off":"Kapalı","s_light":"Hafif","s_strong":"Güçlü","stabNote":"El titremesini yumuşatır ve görüntüyü biraz yaklaştırır. Şiddetli sarsıntıyı düzeltemez.","fx":"Efektler","fx_grain":"Film greni","fx_vig":"Koyu kenarlar","fx_push":"Yavaş kamera yaklaşması","fx_leak":"Işık sızıntıları","fx_glow":"Yumuşak parıltı","fx_ca":"Mercek renk saçakları","fx_old":"Eski film","weather":"Hava","w_none":"Yok","w_rain":"Yağmur","w_snow":"Kar","w_fog":"Sis","w_rays":"Güneş ışınları","w_dust":"Havada toz","w_heat":"Sıcak dalgalanması","wxPower":"Hava gücü:","fine":"İnce renk ayarı","bright":"Parlaklık:","contrast":"Kontrast:","sat":"Doygunluk:","temp":"Sıcaklık:","resetFine":"Renk ayarını sıfırla","h_edit":"Kurgu","trans":"Klipler arası geçiş","t_mix":"Çözülme","t_blur":"Bulanıklık","t_zoom":"Yaklaşma","t_slide":"Kaydırma","t_wipe":"Perde","t_iris":"Daire","t_black":"Siyahtan","t_white":"Parlama","t_rand":"Karışık","t_cut":"Sert kesme","title":"Baştaki başlık","titlePh":"Örneğin: Deniz. Kasım","outro":"Sondaki yazı","outroPh":"Örneğin: Instagram adınız","h_sound":"Ses","volVideo":"Video sesi:","pickMusic":"Müzik seç","noMusic":"Müzik seçilmedi","remove":"Kaldır","volMusic":"Müzik sesi:","musicErr":"Telefon bu dosyayı açamadı. MP3 veya M4A seçin.","h_slow":"Takılıyorsa","turbo":"Hızlı mod","turboNote":"Hızlı mod telefonun yükünü azaltır. Renkler değişirse veya görüntü ters dönerse kapatın. Şunlar da yardımcı olur: daha düşük çözünürlük, 24 veya 30 kare, sert kesmeler ve sabitlemeyi kapatmak.","h_theme":"Görünüm","theme":"Tema","th_auto":"Telefonla aynı","th_light":"Açık","th_dark":"Koyu","th_custom":"Özel","thBg":"Arka plan rengi","thAc":"Düğme rengi","h_install":"Telefona yükle","install":"Uygulama olarak yükle","installNote":"Uygulamayı kendi bağlantısından Chrome’da açın, üç noktaya dokunun ve “Uygulamayı yükle” veya “Ana ekrana ekle”yi seçin.","installed":"Uygulama yüklendi.","lang":"Dil","noClips":"Henüz klip yok","watch":"İzle","build":"Filmi oluştur","stopBtn":"Durdur","cancel":"İptal","of":"{0} / {1}","exact":"Tam süre","shorter":"{0} daha kısa","longer":"{0} daha uzun","ready":"Filminiz hazır","share":"Sosyal ağa gönder","save":"Telefona kaydet","back":"Kurguya dön","c_bad":"Açılamıyor","c_cut":"{0} anından, {1} sürer","c_photo":"fotoğraf, {0} sürer","c_slow":"yavaşlatılmış","c_fast":"hızlandırılmış","c_mute":"Sessiz","c_start":"Başlangıç anı","c_len":"Gösterim süresi:","c_fit":"Kadraja nasıl sığsın","c_auto":"Otomatik","c_fill":"Kadrajı doldur","c_whole":"Tamamını göster","c_pos":"Boyut ve konum","c_zoom":"Yakınlaştırma:","c_px":"Sola / sağa kaydır:","c_py":"Yukarı / aşağı kaydır:","c_center":"ortada","c_reset":"Sıfırla","c_speed":"Hız ve ses","c_slower":"Yavaşlat","c_normal":"Normal","c_faster":"Hızlandır","c_cam":"Kamera hareketi","cam_none":"Sabit","cam_in":"Yaklaş","cam_out":"Uzaklaş","cam_left":"Sola çevir","cam_right":"Sağa çevir","cam_up":"Yukarı çevir","cam_down":"Aşağı çevir","cam_punch":"Hızlı yaklaşma","cam_shake":"El kamerası","c_up":"↑ Daha önce","c_down":"↓ Daha sonra","c_dup":"Bir an daha al","m_opening":"Dosyalar açılıyor…","m_bad":"Telefon {1} dosyadan {0} tanesini açamadı.","m_random":"Yeni rastgele sürüm. Başka biri için tekrar dokunun.","m_even":"Her şey sırayla ve eşit sürede.","m_scan":"{1} videodan {0}. izleniyor, en iyi anlar aranıyor…","m_smart":"En iyi {0} an seçildi. “İzle”ye dokunun. Başka sürüm için tekrar dokunun.","m_smartShort":"En iyi {0} an seçildi. Tam süre için yeterli görüntü yok.","m_smartFail":"Videolar incelenemedi. Rastgele kurguyu deneyin.","m_noGL":"Bu tarayıcı grafikleri başlatamadı. Sayfayı Chrome’da açın.","m_noRec":"Bu tarayıcı video kaydedemiyor. Sayfayı Chrome’da açın.","m_prep":"Kayıt hazırlanıyor…","m_rec":"Kaydediliyor: {0} / {1}. Bu sayfayı açık tutun.","m_openFail":"Kliplerden biri açılamadı. Daha düşük çözünürlük seçin veya o dosyayı kaldırın.","m_recFail":"Telefon bu çözünürlükte kayıt yapamadı. Daha düşük birini seçin.","m_glLost":"Telefonun grafik birimi yüke dayanamadı. Daha düşük çözünürlük seçin.","m_saving":"Kaydediliyor…","m_cancelled":"Kayıt iptal edildi.","m_hidden":"Sayfa gizlendiği için kayıt durdu. Yeniden başlatın ve açık tutun.","m_slow":"Telefon yetişemedi, film takılabilir. Öyleyse çözünürlüğü veya kare sayısını düşürün.","m_shareFail":"Gönderilemedi. Filmi kaydedip galeriden yükleyin.","m_shareNo":"Buradan gönderilemez. Uygulamayı kendi bağlantısından Chrome’da açın veya filmi kaydedip galeriden yükleyin.","m_webm":"Ağ dosyayı kabul etmezse: WebM olarak kaydedildi. MP4 kaydı için Chrome’u güncelleyin.","m_saved":"Kaydedildi: {0}","m_declined":"Kaydetme iptal edildi. Tekrar dokunabilirsiniz.","m_wait":"Birkaç saniye bekleyip tekrar dokunun.","m_tooBig":"Dosya buradan kaydetmek için çok büyük. Filmi kısaltın veya çözünürlüğü düşürün.","m_saveFail":"Kaydedilemedi. Yukarıdaki videoya basılı tutun ve “Videoyu indir”i seçin.","m_hold":"İndirme başlamadıysa yukarıdaki videoya basılı tutun ve “Videoyu indir”i seçin.","tab_clips":"Klipler","tab_more":"Ayarlar"},"ar":{"sub":"اصنع فيلمًا قصيرًا من مقاطعك وصورك: مونتاج ذكي أو عشوائي أو يدوي، ألوان سينمائية، مؤثرات وموسيقى.","empty":"أضف مقاطع فيديو أو صورًا — سيظهر فيلمك هنا","h_clips":"المقاطع بالترتيب","add":"إضافة فيديو أو صور","smart":"مونتاج ذكي: اختيار أفضل اللحظات","random":"مونتاج عشوائي","even":"أجزاء متساوية بالترتيب","autoNote":"المونتاج الذكي يشاهد كل فيديو ويختار اللحظات الأوضح والأكثر حركة. هذا حساب يجري على هاتفك وليس شبكة عصبية، لذا راجع النتيجة. اضغط على أي مقطع لتعديله يدويًا.","h_where":"أين سيُنشر الفيلم","presets":"إعداد سريع لشبكة اجتماعية","p_post":"منشور إنستغرام","p_cinema":"سينما","h_format":"الصيغة","length":"مدة الفيلم","u_s":"ث","u_min":"د","frame":"الإطار","f_cinema":"سينما بشريطين","f_wide":"عادي 16:9","f_vert":"عمودي 9:16","f_45":"منشور 4:5","f_sq":"مربع 1:1","res":"الدقة","fps":"إطارات في الثانية","fps24":"24، كالسينما","fps60":"60، سلس","size":"الحجم التقريبي للملف: {0}.","sizeLong":"الفيلم الطويل يُسجَّل بالزمن الحقيقي؛ أبقِ الصفحة مفتوحة طوال الوقت.","sizeBig":"الملف كبير جدًا؛ اختر دقة أقل.","MB":"م.ب","GB":"ج.ب","h_pic":"الصورة","look":"فلتر سينمائي","l_none":"كما صُوِّر","l_kino":"سينما","l_block":"فيلم ضخم","l_dune":"صحراء","l_gold":"الساعة الذهبية","l_north":"شمال بارد","l_dusk":"غسق","l_neon":"نيون","l_film70":"فيلم السبعينيات","l_faded":"فيلم باهت","l_retro":"ريترو","l_noir":"نوار","l_harsh":"قاسٍ","l_matrix":"الشيفرة الخضراء","l_soft":"ناعم","l_vivid":"زاهٍ","power":"قوة الفلتر:","stab":"التثبيت","off":"متوقف","s_light":"خفيف","s_strong":"قوي","stabNote":"يخفف اهتزاز اليد ويقرّب الصورة قليلًا. لا يعالج الاهتزاز الشديد.","fx":"المؤثرات","fx_grain":"حبيبات الفيلم","fx_vig":"حواف داكنة","fx_push":"تقريب بطيء للكاميرا","fx_leak":"تسرب الضوء","fx_glow":"توهج ناعم","fx_ca":"حواف ملونة للعدسة","fx_old":"فيلم قديم","weather":"الطقس","w_none":"بدون","w_rain":"مطر","w_snow":"ثلج","w_fog":"ضباب","w_rays":"أشعة الشمس","w_dust":"غبار في الهواء","w_heat":"سراب الحرارة","wxPower":"قوة الطقس:","fine":"ضبط دقيق للألوان","bright":"السطوع:","contrast":"التباين:","sat":"التشبع:","temp":"الدفء:","resetFine":"إعادة ضبط الألوان","h_edit":"المونتاج","trans":"الانتقال بين المقاطع","t_mix":"تلاشٍ","t_blur":"تمويه","t_zoom":"تقريب","t_slide":"انزلاق","t_wipe":"ستارة","t_iris":"دائرة","t_black":"عبر الأسود","t_white":"وميض","t_rand":"منوّع","t_cut":"قطع حاد","title":"عنوان في البداية","titlePh":"مثال: البحر. نوفمبر","outro":"نص في النهاية","outroPh":"مثال: اسمك في إنستغرام","h_sound":"الصوت","volVideo":"صوت الفيديو:","pickMusic":"اختيار موسيقى","noMusic":"لم تُختر موسيقى","remove":"إزالة","volMusic":"مستوى الموسيقى:","musicErr":"تعذّر على الهاتف فتح هذا الملف. اختر MP3 أو M4A.","h_slow":"إذا كان بطيئًا","turbo":"الوضع السريع","turboNote":"الوضع السريع يخفف الحمل عن الهاتف. إذا تغيّرت الألوان أو انقلبت الصورة فأوقفه. يساعد أيضًا: دقة أقل، 24 أو 30 إطارًا، قطع حاد وإيقاف التثبيت.","h_theme":"المظهر","theme":"السمة","th_auto":"مثل الهاتف","th_light":"فاتحة","th_dark":"داكنة","th_custom":"خاصة","thBg":"لون الخلفية","thAc":"لون الأزرار","h_install":"التثبيت على الهاتف","install":"تثبيت كتطبيق","installNote":"افتح التطبيق من رابطه الخاص في Chrome، اضغط على النقاط الثلاث واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».","installed":"التطبيق مثبَّت.","lang":"اللغة","noClips":"لا توجد مقاطع بعد","watch":"مشاهدة","build":"إنشاء الفيلم","stopBtn":"إيقاف","cancel":"إلغاء","of":"{0} من {1}","exact":"المدة مطابقة","shorter":"أقصر بمقدار {0}","longer":"أطول بمقدار {0}","ready":"فيلمك جاهز","share":"إرسال إلى شبكة اجتماعية","save":"حفظ على الهاتف","back":"العودة إلى المونتاج","c_bad":"تعذّر الفتح","c_cut":"من {0}، يستمر {1}","c_photo":"صورة، تستمر {0}","c_slow":"مُبطَّأ","c_fast":"مُسرَّع","c_mute":"بدون صوت","c_start":"البدء من","c_len":"مدة العرض:","c_fit":"كيفية الملاءمة للإطار","c_auto":"تلقائي","c_fill":"ملء الإطار","c_whole":"عرض كامل","c_pos":"الحجم والموضع","c_zoom":"التقريب:","c_px":"إزاحة يسارًا / يمينًا:","c_py":"إزاحة أعلى / أسفل:","c_center":"في المنتصف","c_reset":"إعادة ضبط","c_speed":"السرعة والصوت","c_slower":"إبطاء","c_normal":"عادية","c_faster":"تسريع","c_cam":"حركة الكاميرا","cam_none":"ثابتة","cam_in":"تقريب","cam_out":"إبعاد","cam_left":"تحريك يسارًا","cam_right":"تحريك يمينًا","cam_up":"تحريك لأعلى","cam_down":"تحريك لأسفل","cam_punch":"تقريب سريع","cam_shake":"كاميرا محمولة","c_up":"↑ أبكر","c_down":"↓ لاحقًا","c_dup":"أخذ لحظة أخرى","m_opening":"جارٍ فتح الملفات…","m_bad":"تعذّر على الهاتف فتح {0} من {1} ملفات.","m_random":"نسخة عشوائية جديدة. اضغط مجددًا لنسخة أخرى.","m_even":"كل شيء بالترتيب وبمدة متساوية.","m_scan":"أشاهد الفيديو {0} من {1} وأبحث عن أفضل اللحظات…","m_smart":"اختيرت أفضل {0} لحظات. اضغط «مشاهدة». اضغط مجددًا لنسخة أخرى.","m_smartShort":"اختيرت أفضل {0} لحظات. المادة لا تكفي للمدة كاملة.","m_smartFail":"تعذّر تحليل المقاطع. جرّب المونتاج العشوائي.","m_noGL":"تعذّر على هذا المتصفح تشغيل الرسوميات. افتح الصفحة في Chrome.","m_noRec":"هذا المتصفح لا يستطيع تسجيل الفيديو. افتح الصفحة في Chrome.","m_prep":"جارٍ التحضير للتسجيل…","m_rec":"جارٍ التسجيل: {0} من {1}. أبقِ هذه الصفحة مفتوحة.","m_openFail":"تعذّر فتح أحد المقاطع. اختر دقة أقل أو أزل ذلك الملف.","m_recFail":"تعذّر على الهاتف التسجيل بهذه الدقة. اختر دقة أقل.","m_glLost":"لم تتحمل رسوميات الهاتف الحمل. اختر دقة أقل.","m_saving":"جارٍ الحفظ…","m_cancelled":"أُلغي التسجيل.","m_hidden":"توقف التسجيل لأن الصفحة أُخفيت. ابدأ من جديد وأبقِها مفتوحة.","m_slow":"لم يستطع الهاتف المواكبة وقد يتقطع الفيلم. إن حدث ذلك فاخفض الدقة أو عدد الإطارات.","m_shareFail":"تعذّر الإرسال. احفظ الفيلم وارفعه من المعرض.","m_shareNo":"الإرسال من هنا غير ممكن. افتح التطبيق من رابطه الخاص في Chrome أو احفظ الفيلم وارفعه من المعرض.","m_webm":"إذا رفضت الشبكة الملف: فقد سُجّل بصيغة WebM. حدّث Chrome للتسجيل بصيغة MP4.","m_saved":"تم الحفظ: {0}","m_declined":"أُلغي الحفظ. يمكنك الضغط مجددًا.","m_wait":"انتظر بضع ثوانٍ ثم اضغط مجددًا.","m_tooBig":"الملف أكبر من أن يُحفظ من هنا. قصّر الفيلم أو اخفض الدقة.","m_saveFail":"تعذّر الحفظ. اضغط مطولًا على الفيديو أعلاه واختر «تنزيل الفيديو».","m_hold":"إذا لم يبدأ التنزيل، اضغط مطولًا على الفيديو أعلاه واختر «تنزيل الفيديو».","tab_clips":"المقاطع","tab_more":"الإعدادات"},"hi":{"sub":"अपने वीडियो और फ़ोटो से छोटी फ़िल्म बनाएँ: स्मार्ट, रैंडम या मैनुअल एडिटिंग, सिनेमा जैसे रंग, इफ़ेक्ट और संगीत।","empty":"वीडियो या फ़ोटो जोड़ें — आपकी फ़िल्म यहाँ दिखेगी","h_clips":"क्लिप क्रम में","add":"वीडियो या फ़ोटो जोड़ें","smart":"स्मार्ट एडिट: सबसे अच्छे पल चुनें","random":"रैंडम एडिट","even":"क्रम में बराबर हिस्से","autoNote":"स्मार्ट एडिट हर वीडियो देखता है और वे पल चुनता है जो ज़्यादा साफ़ हैं और जिनमें ज़्यादा हलचल है। यह आपके फ़ोन पर होने वाली गणना है, न्यूरल नेटवर्क नहीं, इसलिए नतीजा जाँच लें। किसी भी क्लिप को हाथ से ठीक करने के लिए उस पर टैप करें।","h_where":"फ़िल्म कहाँ जाएगी","presets":"सोशल नेटवर्क के लिए झटपट सेटिंग","p_post":"Instagram पोस्ट","p_cinema":"सिनेमा","h_format":"फ़ॉर्मैट","length":"फ़िल्म की लंबाई","u_s":"से","u_min":"मि","frame":"फ़्रेम","f_cinema":"पट्टियों वाला सिनेमा","f_wide":"सामान्य 16:9","f_vert":"वर्टिकल 9:16","f_45":"पोस्ट 4:5","f_sq":"चौकोर 1:1","res":"रिज़ॉल्यूशन","fps":"फ़्रेम प्रति सेकंड","fps24":"24, सिनेमा जैसा","fps60":"60, स्मूद","size":"फ़ाइल का अनुमानित आकार: {0}।","sizeLong":"लंबी फ़िल्म रीयल टाइम में रिकॉर्ड होती है; पूरे समय पेज खुला रखें।","sizeBig":"फ़ाइल बहुत बड़ी है; कम रिज़ॉल्यूशन चुनें।","MB":"MB","GB":"GB","h_pic":"तस्वीर","look":"सिनेमा फ़िल्टर","l_none":"जैसा शूट हुआ","l_kino":"सिनेमा","l_block":"ब्लॉकबस्टर","l_dune":"रेगिस्तान","l_gold":"सुनहरा समय","l_north":"ठंडा उत्तर","l_dusk":"गोधूलि","l_neon":"नियॉन","l_film70":"70 के दशक की फ़िल्म","l_faded":"फीकी फ़िल्म","l_retro":"रेट्रो","l_noir":"नॉयर","l_harsh":"कठोर","l_matrix":"हरा कोड","l_soft":"नरम","l_vivid":"चटख","power":"फ़िल्टर की ताक़त:","stab":"स्टेबलाइज़ेशन","off":"बंद","s_light":"हल्का","s_strong":"तेज़","stabNote":"हाथ की कंपन कम करता है और थोड़ा ज़ूम करता है। ज़्यादा हिलना ठीक नहीं कर सकता।","fx":"इफ़ेक्ट","fx_grain":"फ़िल्म ग्रेन","fx_vig":"गहरे किनारे","fx_push":"धीमा कैमरा ज़ूम","fx_leak":"लाइट लीक","fx_glow":"नरम चमक","fx_ca":"लेंस के रंगीन किनारे","fx_old":"पुरानी फ़िल्म","weather":"मौसम","w_none":"कोई नहीं","w_rain":"बारिश","w_snow":"बर्फ़","w_fog":"कोहरा","w_rays":"सूरज की किरणें","w_dust":"हवा में धूल","w_heat":"गर्मी की लहर","wxPower":"मौसम की ताक़त:","fine":"रंग की बारीक सेटिंग","bright":"चमक:","contrast":"कंट्रास्ट:","sat":"सैचुरेशन:","temp":"गर्माहट:","resetFine":"रंग सेटिंग रीसेट करें","h_edit":"एडिटिंग","trans":"क्लिप के बीच ट्रांज़िशन","t_mix":"डिज़ॉल्व","t_blur":"ब्लर","t_zoom":"ज़ूम","t_slide":"स्लाइड","t_wipe":"वाइप","t_iris":"गोला","t_black":"काले से होकर","t_white":"फ़्लैश","t_rand":"मिले-जुले","t_cut":"सीधा कट","title":"शुरू में शीर्षक","titlePh":"जैसे: समुद्र। नवंबर","outro":"अंत में कैप्शन","outroPh":"जैसे: आपका Instagram नाम","h_sound":"आवाज़","volVideo":"वीडियो की आवाज़:","pickMusic":"संगीत चुनें","noMusic":"कोई संगीत नहीं चुना","remove":"हटाएँ","volMusic":"संगीत की आवाज़:","musicErr":"फ़ोन यह फ़ाइल नहीं खोल सका। MP3 या M4A चुनें।","h_slow":"अगर अटक रहा हो","turbo":"तेज़ मोड","turboNote":"तेज़ मोड फ़ोन का बोझ कम करता है। अगर रंग बदलें या तस्वीर उलट जाए तो इसे बंद कर दें। ये भी मदद करते हैं: कम रिज़ॉल्यूशन, 24 या 30 फ़्रेम, सीधे कट और स्टेबलाइज़ेशन बंद।","h_theme":"रूप","theme":"थीम","th_auto":"फ़ोन जैसा","th_light":"हल्का","th_dark":"गहरा","th_custom":"अपना","thBg":"बैकग्राउंड का रंग","thAc":"बटन का रंग","h_install":"फ़ोन पर इंस्टॉल","install":"ऐप की तरह इंस्टॉल करें","installNote":"ऐप को उसके अपने लिंक से Chrome में खोलें, तीन बिंदुओं पर टैप करें और “ऐप इंस्टॉल करें” या “होम स्क्रीन पर जोड़ें” चुनें।","installed":"ऐप इंस्टॉल हो गया है।","lang":"भाषा","noClips":"अभी कोई क्लिप नहीं","watch":"देखें","build":"फ़िल्म बनाएँ","stopBtn":"रोकें","cancel":"रद्द करें","of":"{1} में से {0}","exact":"लंबाई बिल्कुल सही","shorter":"{0} छोटी","longer":"{0} लंबी","ready":"आपकी फ़िल्म तैयार है","share":"सोशल नेटवर्क पर भेजें","save":"फ़ोन में सेव करें","back":"एडिटिंग पर वापस","c_bad":"खुल नहीं रहा","c_cut":"{0} से, अवधि {1}","c_photo":"फ़ोटो, अवधि {0}","c_slow":"धीमा","c_fast":"तेज़","c_mute":"बिना आवाज़","c_start":"यहाँ से शुरू","c_len":"कितनी देर दिखाएँ:","c_fit":"फ़्रेम में कैसे बैठाएँ","c_auto":"ऑटो","c_fill":"फ़्रेम भरें","c_whole":"पूरा दिखाएँ","c_pos":"आकार और स्थिति","c_zoom":"ज़ूम:","c_px":"बाएँ / दाएँ खिसकाएँ:","c_py":"ऊपर / नीचे खिसकाएँ:","c_center":"बीच में","c_reset":"रीसेट","c_speed":"गति और आवाज़","c_slower":"धीमा करें","c_normal":"सामान्य","c_faster":"तेज़ करें","c_cam":"कैमरा मूवमेंट","cam_none":"स्थिर","cam_in":"ज़ूम इन","cam_out":"ज़ूम आउट","cam_left":"बाएँ पैन","cam_right":"दाएँ पैन","cam_up":"ऊपर पैन","cam_down":"नीचे पैन","cam_punch":"तेज़ ज़ूम","cam_shake":"हाथ का कैमरा","c_up":"↑ पहले","c_down":"↓ बाद में","c_dup":"एक और पल लें","m_opening":"फ़ाइलें खुल रही हैं…","m_bad":"फ़ोन {1} में से {0} फ़ाइलें नहीं खोल सका।","m_random":"नया रैंडम वर्शन। दूसरे के लिए फिर टैप करें।","m_even":"सब कुछ क्रम में और बराबर लंबाई का है।","m_scan":"{1} में से वीडियो {0} देख रहा हूँ, सबसे अच्छे पल ढूँढ रहा हूँ…","m_smart":"{0} सबसे अच्छे पल चुने गए। “देखें” पर टैप करें। दूसरे वर्शन के लिए फिर टैप करें।","m_smartShort":"{0} सबसे अच्छे पल चुने गए। पूरी लंबाई के लिए फ़ुटेज कम है।","m_smartFail":"वीडियो का विश्लेषण नहीं हो सका। रैंडम एडिट आज़माएँ।","m_noGL":"यह ब्राउज़र ग्राफ़िक्स शुरू नहीं कर सका। पेज Chrome में खोलें।","m_noRec":"यह ब्राउज़र वीडियो रिकॉर्ड नहीं कर सकता। पेज Chrome में खोलें।","m_prep":"रिकॉर्डिंग की तैयारी…","m_rec":"रिकॉर्डिंग: {1} में से {0}। यह पेज खुला रखें।","m_openFail":"एक क्लिप नहीं खुल सकी। कम रिज़ॉल्यूशन चुनें या वह फ़ाइल हटाएँ।","m_recFail":"फ़ोन इस रिज़ॉल्यूशन पर रिकॉर्ड नहीं कर सका। कम वाला चुनें।","m_glLost":"फ़ोन का ग्राफ़िक्स यह बोझ नहीं सँभाल सका। कम रिज़ॉल्यूशन चुनें।","m_saving":"सेव हो रहा है…","m_cancelled":"रिकॉर्डिंग रद्द की गई।","m_hidden":"पेज छिप जाने से रिकॉर्डिंग रुक गई। फिर शुरू करें और पेज खुला रखें।","m_slow":"फ़ोन साथ नहीं दे पाया, फ़िल्म अटक सकती है। ऐसा हो तो रिज़ॉल्यूशन या फ़्रेम रेट कम करें।","m_shareFail":"भेजा नहीं जा सका। फ़िल्म सेव करें और गैलरी से अपलोड करें।","m_shareNo":"यहाँ से भेजना संभव नहीं है। ऐप को उसके अपने लिंक से Chrome में खोलें, या फ़िल्म सेव करके गैलरी से अपलोड करें।","m_webm":"अगर नेटवर्क फ़ाइल न ले: यह WebM में रिकॉर्ड हुई है। MP4 में रिकॉर्ड करने के लिए Chrome अपडेट करें।","m_saved":"सेव हुआ: {0}","m_declined":"सेव करना रद्द हुआ। आप फिर टैप कर सकते हैं।","m_wait":"कुछ सेकंड रुकें और फिर टैप करें।","m_tooBig":"फ़ाइल यहाँ से सेव करने के लिए बहुत बड़ी है। फ़िल्म छोटी करें या रिज़ॉल्यूशन कम करें।","m_saveFail":"सेव नहीं हो सका। ऊपर के वीडियो को दबाकर रखें और “वीडियो डाउनलोड करें” चुनें।","m_hold":"अगर डाउनलोड शुरू नहीं हुआ, तो ऊपर के वीडियो को दबाकर रखें और “वीडियो डाउनलोड करें” चुनें।","tab_clips":"क्लिप","tab_more":"सेटिंग"},"zh":{"sub":"用你的视频和照片制作短片：智能、随机或手动剪辑，电影色调、特效和音乐。","empty":"添加视频或照片——你的短片会显示在这里","h_clips":"片段顺序","add":"添加视频或照片","smart":"智能剪辑：挑选最佳片段","random":"随机剪辑","even":"按顺序平均分配","autoNote":"智能剪辑会看完每段视频，挑出更清晰、动作更多的片段。这是在你手机上完成的计算，不是神经网络，所以请检查结果。点按任意片段即可手动调整。","h_where":"短片发布到哪里","presets":"社交平台快速设置","p_post":"Instagram 帖子","p_cinema":"电影","h_format":"格式","length":"短片时长","u_s":"秒","u_min":"分钟","frame":"画幅","f_cinema":"带黑边的电影画幅","f_wide":"标准 16:9","f_vert":"竖屏 9:16","f_45":"帖子 4:5","f_sq":"方形 1:1","res":"分辨率","fps":"每秒帧数","fps24":"24，电影感","fps60":"60，流畅","size":"预计文件大小：{0}。","sizeLong":"长片按实际时长录制，期间请保持页面打开。","sizeBig":"文件非常大，请选择更低的分辨率。","MB":"MB","GB":"GB","h_pic":"画面","look":"电影滤镜","l_none":"原片","l_kino":"电影","l_block":"大片","l_dune":"沙漠","l_gold":"黄金时刻","l_north":"寒冷北方","l_dusk":"黄昏","l_neon":"霓虹","l_film70":"七十年代胶片","l_faded":"褪色胶片","l_retro":"复古","l_noir":"黑色电影","l_harsh":"冷峻","l_matrix":"绿色代码","l_soft":"柔和","l_vivid":"鲜艳","power":"滤镜强度：","stab":"防抖","off":"关闭","s_light":"轻度","s_strong":"强力","stabNote":"减轻手抖并略微放大画面。无法修复剧烈晃动。","fx":"特效","fx_grain":"胶片颗粒","fx_vig":"暗角","fx_push":"镜头缓慢推进","fx_leak":"漏光","fx_glow":"柔光","fx_ca":"镜头色边","fx_old":"老胶片","weather":"天气","w_none":"无","w_rain":"雨","w_snow":"雪","w_fog":"雾","w_rays":"阳光光束","w_dust":"空气中的尘埃","w_heat":"热浪","wxPower":"天气强度：","fine":"色彩微调","bright":"亮度：","contrast":"对比度：","sat":"饱和度：","temp":"色温：","resetFine":"重置色彩微调","h_edit":"剪辑","trans":"片段之间的转场","t_mix":"叠化","t_blur":"模糊","t_zoom":"推进","t_slide":"滑动","t_wipe":"擦除","t_iris":"圆形","t_black":"黑场过渡","t_white":"闪白","t_rand":"混合","t_cut":"硬切","title":"片头标题","titlePh":"例如：大海 · 十一月","outro":"片尾文字","outroPh":"例如：你的 Instagram 名称","h_sound":"声音","volVideo":"视频原声：","pickMusic":"选择音乐","noMusic":"未选择音乐","remove":"移除","volMusic":"音乐音量：","musicErr":"手机无法打开此文件。请选择 MP3 或 M4A。","h_slow":"如果卡顿","turbo":"快速模式","turboNote":"快速模式可减轻手机负担。如果颜色变了或画面翻转，请关闭它。降低分辨率、使用 24 或 30 帧、硬切和关闭防抖也有帮助。","h_theme":"外观","theme":"主题","th_auto":"跟随手机","th_light":"浅色","th_dark":"深色","th_custom":"自定义","thBg":"背景颜色","thAc":"按钮颜色","h_install":"安装到手机","install":"安装为应用","installNote":"在 Chrome 中通过应用自己的链接打开，点按三个点，然后选择“安装应用”或“添加到主屏幕”。","installed":"应用已安装。","lang":"语言","noClips":"还没有片段","watch":"预览","build":"生成短片","stopBtn":"停止","cancel":"取消","of":"{0} / {1}","exact":"时长正好","shorter":"短 {0}","longer":"长 {0}","ready":"短片已完成","share":"发送到社交平台","save":"保存到手机","back":"返回剪辑","c_bad":"无法打开","c_cut":"从 {0} 开始，时长 {1}","c_photo":"照片，时长 {0}","c_slow":"慢放","c_fast":"快放","c_mute":"静音","c_start":"起始时间","c_len":"显示时长：","c_fit":"如何适配画幅","c_auto":"自动","c_fill":"填满画幅","c_whole":"完整显示","c_pos":"大小和位置","c_zoom":"缩放：","c_px":"左右移动：","c_py":"上下移动：","c_center":"居中","c_reset":"重置","c_speed":"速度和声音","c_slower":"慢放","c_normal":"正常","c_faster":"快放","c_cam":"镜头运动","cam_none":"静止","cam_in":"推进","cam_out":"拉远","cam_left":"向左摇","cam_right":"向右摇","cam_up":"向上摇","cam_down":"向下摇","cam_punch":"急推","cam_shake":"手持晃动","c_up":"↑ 前移","c_down":"↓ 后移","c_dup":"再取一个片段","m_opening":"正在打开文件…","m_bad":"手机无法打开 {1} 个文件中的 {0} 个。","m_random":"新的随机版本。再点一次换一个。","m_even":"全部按顺序排列，时长平均分配。","m_scan":"正在看第 {0} 个视频（共 {1} 个），寻找最佳片段…","m_smart":"已挑出 {0} 个最佳片段。点按“预览”。再点一次换一个版本。","m_smartShort":"已挑出 {0} 个最佳片段。素材不够填满全部时长。","m_smartFail":"无法分析视频。请试试随机剪辑。","m_noGL":"此浏览器无法启动图形功能。请在 Chrome 中打开页面。","m_noRec":"此浏览器无法录制视频。请在 Chrome 中打开页面。","m_prep":"正在准备录制…","m_rec":"正在录制：{0} / {1}。请保持此页面打开。","m_openFail":"有一个片段无法打开。请降低分辨率或移除该文件。","m_recFail":"手机无法以此分辨率录制。请选择更低的分辨率。","m_glLost":"手机图形处理器不堪重负。请选择更低的分辨率。","m_saving":"正在保存…","m_cancelled":"录制已取消。","m_hidden":"页面被隐藏，录制已停止。请重新开始并保持页面打开。","m_slow":"手机跟不上，短片可能卡顿。如果是这样，请降低分辨率或帧率。","m_shareFail":"发送失败。请保存短片，然后从相册上传。","m_shareNo":"无法从这里发送。请在 Chrome 中通过应用自己的链接打开，或保存短片后从相册上传。","m_webm":"如果平台拒收文件：它是以 WebM 格式录制的。更新 Chrome 即可录制 MP4。","m_saved":"已保存：{0}","m_declined":"已取消保存。可以再点一次。","m_wait":"请等几秒再点一次。","m_tooBig":"文件太大，无法从这里保存。请缩短短片或降低分辨率。","m_saveFail":"保存失败。长按上方视频并选择“下载视频”。","m_hold":"如果下载没有开始，请长按上方视频并选择“下载视频”。","tab_clips":"片段","tab_more":"设置"},"ja":{"sub":"動画と写真から短いムービーを作成：スマート編集・ランダム編集・手動編集、映画風の色、エフェクト、音楽。","empty":"動画か写真を追加すると、ここにムービーが表示されます","h_clips":"クリップの順番","add":"動画か写真を追加","smart":"スマート編集：ベストな場面を選ぶ","random":"ランダム編集","even":"順番どおりに均等割り","autoNote":"スマート編集は各動画を確認し、よりくっきりして動きの多い場面を選びます。これはスマホ上の計算で、ニューラルネットワークではないので、結果を確認してください。クリップをタップすると手動で調整できます。","h_where":"ムービーの投稿先","presets":"SNS向けのクイック設定","p_post":"Instagram 投稿","p_cinema":"シネマ","h_format":"フォーマット","length":"ムービーの長さ","u_s":"秒","u_min":"分","frame":"画面比率","f_cinema":"帯付きシネマ","f_wide":"標準 16:9","f_vert":"縦 9:16","f_45":"投稿 4:5","f_sq":"正方形 1:1","res":"解像度","fps":"フレームレート","fps24":"24（映画風）","fps60":"60（なめらか）","size":"ファイルサイズの目安：{0}。","sizeLong":"長いムービーは実時間で録画されます。その間ページを開いたままにしてください。","sizeBig":"ファイルが非常に大きいです。解像度を下げてください。","MB":"MB","GB":"GB","h_pic":"映像","look":"シネマフィルター","l_none":"撮ったまま","l_kino":"シネマ","l_block":"大作映画","l_dune":"砂漠","l_gold":"ゴールデンアワー","l_north":"冷たい北国","l_dusk":"夕暮れ","l_neon":"ネオン","l_film70":"70年代フィルム","l_faded":"色あせたフィルム","l_retro":"レトロ","l_noir":"ノワール","l_harsh":"ハード","l_matrix":"グリーンコード","l_soft":"ソフト","l_vivid":"ビビッド","power":"フィルターの強さ：","stab":"手ぶれ補正","off":"オフ","s_light":"弱","s_strong":"強","stabNote":"手ぶれをなめらかにし、少しズームします。激しい揺れは補正できません。","fx":"エフェクト","fx_grain":"フィルムグレイン","fx_vig":"周辺を暗く","fx_push":"ゆっくりズーム","fx_leak":"光漏れ","fx_glow":"ソフトグロー","fx_ca":"レンズの色にじみ","fx_old":"古いフィルム","weather":"天気","w_none":"なし","w_rain":"雨","w_snow":"雪","w_fog":"霧","w_rays":"太陽の光線","w_dust":"舞うほこり","w_heat":"かげろう","wxPower":"天気の強さ：","fine":"色の微調整","bright":"明るさ：","contrast":"コントラスト：","sat":"彩度：","temp":"暖かさ：","resetFine":"色の調整をリセット","h_edit":"編集","trans":"クリップ間の切り替え","t_mix":"ディゾルブ","t_blur":"ぼかし","t_zoom":"ズーム","t_slide":"スライド","t_wipe":"ワイプ","t_iris":"サークル","t_black":"黒を挟む","t_white":"フラッシュ","t_rand":"ミックス","t_cut":"カット","title":"冒頭のタイトル","titlePh":"例：海。11月","outro":"最後のテロップ","outroPh":"例：Instagram のユーザー名","h_sound":"サウンド","volVideo":"動画の音：","pickMusic":"音楽を選ぶ","noMusic":"音楽は未選択","remove":"削除","volMusic":"音楽の音量：","musicErr":"このファイルを開けませんでした。MP3 か M4A を選んでください。","h_slow":"動作が重いとき","turbo":"高速モード","turboNote":"高速モードはスマホの負荷を減らします。色が変わったり映像が反転したりする場合はオフにしてください。解像度を下げる、24か30フレームにする、カット切り替えにする、手ぶれ補正をオフにするのも効果的です。","h_theme":"外観","theme":"テーマ","th_auto":"スマホに合わせる","th_light":"ライト","th_dark":"ダーク","th_custom":"カスタム","thBg":"背景の色","thAc":"ボタンの色","h_install":"スマホにインストール","install":"アプリとしてインストール","installNote":"Chrome でアプリ専用のリンクを開き、3点メニューをタップして「アプリをインストール」または「ホーム画面に追加」を選びます。","installed":"アプリはインストール済みです。","lang":"言語","noClips":"クリップがまだありません","watch":"プレビュー","build":"ムービーを作成","stopBtn":"停止","cancel":"キャンセル","of":"{0} / {1}","exact":"長さぴったり","shorter":"{0} 短い","longer":"{0} 長い","ready":"ムービーができました","share":"SNSに送る","save":"スマホに保存","back":"編集に戻る","c_bad":"開けません","c_cut":"{0} から、長さ {1}","c_photo":"写真、長さ {0}","c_slow":"スロー","c_fast":"早送り","c_mute":"音なし","c_start":"開始位置","c_len":"表示時間：","c_fit":"画面への合わせ方","c_auto":"自動","c_fill":"画面いっぱい","c_whole":"全体を表示","c_pos":"サイズと位置","c_zoom":"ズーム：","c_px":"左右に移動：","c_py":"上下に移動：","c_center":"中央","c_reset":"リセット","c_speed":"速度と音","c_slower":"遅くする","c_normal":"標準","c_faster":"速くする","c_cam":"カメラの動き","cam_none":"固定","cam_in":"ズームイン","cam_out":"ズームアウト","cam_left":"左へパン","cam_right":"右へパン","cam_up":"上へパン","cam_down":"下へパン","cam_punch":"クイックズーム","cam_shake":"手持ち風の揺れ","c_up":"↑ 前へ","c_down":"↓ 後ろへ","c_dup":"別の場面も使う","m_opening":"ファイルを開いています…","m_bad":"{1} 個中 {0} 個のファイルを開けませんでした。","m_random":"新しいランダム版です。もう一度タップで別の版に。","m_even":"すべて順番どおり、同じ長さです。","m_scan":"動画 {0} / {1} を確認し、ベストな場面を探しています…","m_smart":"ベストな場面を {0} 個選びました。「プレビュー」をタップ。もう一度タップで別の版に。","m_smartShort":"ベストな場面を {0} 個選びました。全体の長さには素材が足りません。","m_smartFail":"動画を解析できませんでした。ランダム編集をお試しください。","m_noGL":"このブラウザではグラフィックを起動できませんでした。Chrome でページを開いてください。","m_noRec":"このブラウザは動画を録画できません。Chrome でページを開いてください。","m_prep":"録画の準備中…","m_rec":"録画中：{0} / {1}。このページを開いたままにしてください。","m_openFail":"クリップの1つを開けませんでした。解像度を下げるか、そのファイルを削除してください。","m_recFail":"この解像度では録画できませんでした。低い解像度を選んでください。","m_glLost":"スマホのグラフィックが負荷に耐えられませんでした。解像度を下げてください。","m_saving":"保存中…","m_cancelled":"録画をキャンセルしました。","m_hidden":"ページが隠れたため録画が止まりました。もう一度開始し、開いたままにしてください。","m_slow":"スマホの処理が追いつかず、カクつく可能性があります。その場合は解像度かフレームレートを下げてください。","m_shareFail":"送信できませんでした。ムービーを保存してギャラリーからアップロードしてください。","m_shareNo":"ここからは送信できません。Chrome でアプリ専用のリンクを開くか、ムービーを保存してギャラリーからアップロードしてください。","m_webm":"SNSがファイルを受け付けない場合：WebM 形式で録画されています。Chrome を更新すると MP4 で録画できます。","m_saved":"保存しました：{0}","m_declined":"保存をキャンセルしました。もう一度タップできます。","m_wait":"数秒待ってからもう一度タップしてください。","m_tooBig":"ファイルが大きすぎてここからは保存できません。ムービーを短くするか解像度を下げてください。","m_saveFail":"保存できませんでした。上の動画を長押しして「動画をダウンロード」を選んでください。","m_hold":"ダウンロードが始まらない場合は、上の動画を長押しして「動画をダウンロード」を選んでください。","tab_clips":"クリップ","tab_more":"設定"}};
+const LANGS = [['uk','Українська'],['ru','Русский'],['en','English'],['pl','Polski'],['de','Deutsch'],['es','Español'],['fr','Français'],['it','Italiano'],['pt','Português'],['tr','Türkçe'],['ar','العربية'],['hi','हिन्दी'],['zh','中文'],['ja','日本語']];
+const COMMA = {ru:1, uk:1, pl:1, de:1, es:1, fr:1, it:1, pt:1, tr:1};
+const WX_ID = {none:0, rain:1, snow:2, fog:3, rays:4, dust:5, heat:6};
+let LANG = 'en';
+function tx(k){
+  let str = (I18N[LANG] || {})[k]; if(str == null) str = (I18N.en || {})[k]; if(str == null) str = k;
+  for(let i=1; i<arguments.length; i++) str = str.split('{' + (i-1) + '}').join(arguments[i]);
+  return str;
+}
+
+const S = { target:30, frame:'cinema', quality:1080, fps:30, look:'kino', power:100, stab:'off',
+            grain:true, vig:true, push:false, leak:false, glow:false, ca:false, old:false,
+            bright:0, contrast:0, sat:0, temp:0,
+            trans:'mix', title:'', outro:'', volVideo:100, volMusic:70, turbo:false, weather:'none', wx:70, lang:'',
+            theme:'auto', themeBg:'#14202b', themeAccent:'#f2b35d' };
+const NUMERIC = { target:1, quality:1, fps:1 };
+const BITRATE = { 360:1.2e6, 480:2.5e6, 720:6e6, 1080:12e6, 1440:20e6, 2160:40e6 };
+const STAB = { off:{zoom:1, k:0}, light:{zoom:1.07, k:.16}, strong:{zoom:1.16, k:.06} };
+const TRANS_ID = { mix:0, slide:3, wipe:4, iris:5, zoom:6, blur:7 };
+const RAND_TRANS = ['mix','blur','zoom','slide','wipe','iris','black'];
+const PRESETS = { reels:{frame:'vertical', quality:1080, fps:30}, youtube:{frame:'wide', quality:1080, fps:30},
+                  post:{frame:'four5', quality:1080, fps:30}, cinema:{frame:'cinema', quality:1080, fps:24} };
+/* g: highlight colour, sh: shadow colour, cu: contrast curve, sa: saturation, fa: faded blacks, ti/ta: overall tint */
+const LOOKS = {
+  none:   { },
+  kino:   { g:[1.04,1,.92],  sh:[-.01,.035,.05], cu:.35, sa:1.05, fa:.02 },
+  block:  { g:[1.08,1,.86],  sh:[-.03,.05,.08],  cu:.55, sa:1.22 },
+  dune:   { g:[1.12,1,.78],  sh:[-.02,.03,.03],  cu:.45, sa:1.15 },
+  gold:   { g:[1.08,1,.84],  sh:[.04,.015,-.02], cu:.25, sa:1.08, fa:.02 },
+  north:  { g:[.93,1,1.08],  sh:[-.02,.02,.07],  cu:.35, sa:.8 },
+  dusk:   { g:[.98,.95,1.08],sh:[.03,0,.08],     cu:.3,  sa:.92, fa:.03 },
+  neon:   { g:[1.1,.93,1.08],sh:[.01,0,.13],     cu:.45, sa:1.3 },
+  film70: { g:[1.06,1.02,.9],sh:[.03,.045,0],   cu:.15, sa:.88, fa:.07 },
+  faded:  { g:[1.02,1,.96],  cu:.05, sa:.72, fa:.1 },
+  retro:  { cu:.3, sa:.25, fa:.04, ti:[1.1,.9,.62], ta:.55 },
+  noir:   { cu:.7, sa:0 },
+  harsh:  { g:[.98,1,1.02],  cu:.75, sa:.45 },
+  matrix: { g:[.9,1.06,.88], sh:[-.02,.05,0],    cu:.4,  sa:.8 },
+  soft:   { g:[1.04,1,.95],  cu:-.25, sa:.95, fa:.06 },
+  vivid:  { cu:.3, sa:1.4 }
+};
+
+let sources = [];          // {url,file,name,dur,w,h,thumb,bad,scan}
+let clips = [];            // {id,src,start,len,rate,mute,fit,zoom,px,py,fresh}
+let openId = null, touched = false, nextId = 1, mode = 'even', busy = false;
+let running = null;
+let lastShown = null, stillTitle = null;
+
+/* ---------- helpers ---------- */
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const even = v => Math.round(v/2)*2;
+const floor1 = v => Math.floor(v*10 + 1e-6)/10;
+const fmt = t => { t = Math.max(0, Math.round(t)); return Math.floor(t/60) + ':' + String(t%60).padStart(2,'0'); };
+const sec = x => { if(x >= 90) return fmt(x) + ' ' + tx('u_min'); let v = (Math.round(x*10)/10).toString(); if(COMMA[LANG]) v = v.replace('.', ','); return v + ' ' + tx('u_s'); };
+function setMsg(text, err){ const m = $('msg'); m.textContent = text || ''; m.classList.toggle('err', !!err); }
+const good = () => clips.filter(c => !c.src.bad);
+const avail = c => Math.min(MAX_LEN, c.src.dur / c.rate);
+const autoCap = c => c.src.kind === 'img' ? PHOTO_AUTO : avail(c);
+const transLen = () => S.trans === 'cut' ? 0 : .5;
+function xf(){
+  const g = good(); if(g.length < 2) return 0;
+  const minLen = g.reduce((m,c) => Math.min(m, c.len), Infinity);
+  return Math.max(0, Math.min(transLen(), minLen/2));
+}
+function totalLen(){ const g = good(); if(!g.length) return 0; return g.reduce((a,c)=>a+c.len,0) - (g.length-1)*xf(); }
+function saveSettings(){ try{ localStorage.setItem('sklejka.settings', JSON.stringify(Object.assign({}, S, {title:'', outro:''}))); }catch(e){} }
+(function loadSettings(){
+  try{
+    const o = JSON.parse(localStorage.getItem('sklejka.settings') || 'null'); if(!o) return;
+    for(const k in S){ if(k in o && typeof o[k] === typeof S[k]) S[k] = o[k]; }
+    if(!/^#[0-9a-f]{6}$/i.test(S.themeBg)) S.themeBg = '#14202b'; if(!/^#[0-9a-f]{6}$/i.test(S.themeAccent)) S.themeAccent = '#f2b35d';
+    if(!(S.weather in WX_ID)) S.weather = 'none'; if(S.lang && !I18N[S.lang]) S.lang = '';
+    if(!LOOKS[S.look]) S.look = 'kino'; if(!STAB[S.stab]) S.stab = 'off'; if(!BITRATE[S.quality]) S.quality = 1080;
+  }catch(e){}
+})();
+
+function pickLang(){
+  if(S.lang && I18N[S.lang]) return S.lang;
+  const prefs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en'];
+  for(const p of prefs){ const c = String(p).toLowerCase().slice(0,2); if(I18N[c]) return c; }
+  return 'en';
+}
+LANG = pickLang();
+
+/* ---------- colour theme of the app itself ---------- */
+const rootEl = document.documentElement, hostTheme = rootEl.getAttribute('data-theme');
+const THEME_VARS = ['--bg','--surface','--line','--text','--muted','--accent','--accent-ink','--sea'];
+const rgb = h => [1,3,5].map(i => parseInt(h.slice(i, i+2), 16));
+const hex = a => '#' + a.map(v => clamp(Math.round(v), 0, 255).toString(16).padStart(2,'0')).join('');
+const mixc = (a, b, t) => { const x = rgb(a), y = rgb(b); return hex(x.map((v,i) => v + (y[i]-v)*t)); };
+const luma = h => { const c = rgb(h); return (c[0]*.299 + c[1]*.587 + c[2]*.114)/255; };
+function applyTheme(){
+  THEME_VARS.forEach(v => rootEl.style.removeProperty(v));
+  if(S.theme === 'light' || S.theme === 'dark') rootEl.setAttribute('data-theme', S.theme);
+  else if(S.theme === 'custom'){
+    const bg = S.themeBg, ac = S.themeAccent, dark = luma(bg) < .45, text = dark ? '#eef2f4' : '#10222c';
+    rootEl.setAttribute('data-theme', dark ? 'dark' : 'light');
+    const set = (k, v) => rootEl.style.setProperty(k, v);
+    set('--bg', bg); set('--surface', mixc(bg, '#ffffff', dark ? .07 : .6)); set('--line', mixc(bg, text, .18));
+    set('--text', text); set('--muted', mixc(text, bg, .42));
+    set('--accent', ac); set('--accent-ink', luma(ac) > .55 ? '#1a1206' : '#ffffff');
+    set('--sea', dark ? mixc(ac, '#ffffff', .3) : mixc(ac, '#000000', .3));
+  }
+  else if(hostTheme) rootEl.setAttribute('data-theme', hostTheme); else rootEl.removeAttribute('data-theme');
+  const ct = document.getElementById('customTheme'); if(ct) ct.hidden = S.theme !== 'custom';
+  const m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content', getComputedStyle(rootEl).getPropertyValue('--bg').trim() || '#0e1a22');
+}
+
+/* ---------- canvas geometry ---------- */
+function dims(q){
+  switch(S.frame){
+    case 'vertical': return [q, even(q*16/9)];
+    case 'square':   return [q, q];
+    case 'four5':    return [q, even(q*1.25)];
+    default:         return [even(q*16/9), q];
+  }
+}
+function sizeCanvas(full){
+  const d = dims(full ? S.quality : Math.min(S.quality, PREVIEW_Q));
+  if(cv.width !== d[0] || cv.height !== d[1]){ cv.width = d[0]; cv.height = d[1]; }
+}
+function picRect(){
+  if(S.frame === 'cinema'){ const h = even(cv.width/2.35); return {x:0, y:(cv.height-h)/2, w:cv.width, h}; }
+  return {x:0, y:0, w:cv.width, h:cv.height};
+}
+function fitMode(c, r){
+  if(c.fit !== 'auto') return c.fit;
+  const s = c.src; if(!s.w || !s.h) return 'fill';
+  const va = s.w/s.h, fa = r.w/r.h;
+  return ((va > 1.15 && fa < .87) || (va < .87 && fa > 1.15)) ? 'fit' : 'fill';
+}
+const pw = p => p.img ? p.img.width : p.v.videoWidth, ph = p => p.img ? p.img.height : p.v.videoHeight;
+/* camera move for one clip: q = how far through the clip (0..1), ts = seconds since it started */
+function camOf(c, i, q, ts){
+  let k = c.cam || 'auto', amp = .12;
+  if(k === 'auto'){ k = (S.push || c.src.kind === 'img') ? (i % 2 ? 'out' : 'in') : 'none'; amp = .07; }
+  const e = q*q*(3 - 2*q);
+  switch(k){
+    case 'in':    return {z:1 + amp*e, ux:0, uy:0};
+    case 'out':   return {z:1 + amp - amp*e, ux:0, uy:0};
+    case 'left':  return {z:1.12, ux:1 - 2*e, uy:0};
+    case 'right': return {z:1.12, ux:2*e - 1, uy:0};
+    case 'up':    return {z:1.12, ux:0, uy:1 - 2*e};
+    case 'down':  return {z:1.12, ux:0, uy:2*e - 1};
+    case 'punch': { const a = Math.min(1, ts/.3); return {z:1 + .22*(1 - Math.pow(1 - a, 3)) + .04*q, ux:0, uy:0}; }
+    case 'shake': return {z:1.08, ux:.6*Math.sin(ts*7.3) + .4*Math.sin(ts*13.1 + 1), uy:.6*Math.sin(ts*8.9 + 2) + .4*Math.sin(ts*15.7)};
+  }
+  return {z:1, ux:0, uy:0};
+}
+function xform(l, r){
+  const c = l.clip, vw = pw(l.p) || 16, vh = ph(l.p) || 9;
+  const base = fitMode(c, r) === 'fit' ? Math.min(r.w/vw, r.h/vh) : Math.max(r.w/vw, r.h/vh);
+  const s = base * (c.zoom || 1) * STAB[S.stab].zoom * (l.z || 1), sw = r.w/s, sh = r.h/s;
+  const slackX = (vw-sw)/2, slackY = (vh-sh)/2, st = l.p.stab;
+  let ox = (c.px || 0)*Math.abs(slackX), oy = (c.py || 0)*Math.abs(slackY);
+  ox += (l.ux || 0)*Math.abs(slackX); oy += (l.uy || 0)*Math.abs(slackY);
+  if(st){ ox -= st.ox; oy -= st.oy; }
+  if(slackX >= 0) ox = clamp(ox, -slackX, slackX);
+  if(slackY >= 0) oy = clamp(oy, -slackY, slackY);
+  const sb = Math.max(r.w/vw, r.h/vh)*1.25;
+  return { a:[sw/vw, sh/vh, ox/vw, oy/vh], bg:[r.w/sb/vw, r.h/sb/vh, 0, 0], fit:(slackX < -.5 || slackY < -.5) ? 1 : 0, limX:Math.max(Math.abs(slackX), vw*.03), limY:Math.max(Math.abs(slackY), vh*.03) };
+}
+
+/* ---------- graphics engine (WebGL) ---------- */
+const VS = 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0., 1.); }';
+const FS_SMALL = `
+precision mediump float;
+uniform sampler2D uV; uniform vec2 uTexel;
+void main(){
+  vec2 uv = gl_FragCoord.xy * uTexel; vec3 s = vec3(0.);
+  for(int i=0;i<4;i++){ for(int j=0;j<4;j++){ s += texture2D(uV, uv + (vec2(float(i), float(j)) + .5)/4. * uTexel - .5*uTexel).rgb; } }
+  gl_FragColor = vec4(s/16., 1.);
+}`;
+const FS_MAIN = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 uRes; uniform vec4 uPic;
+uniform sampler2D uA, uB, uAs, uBs, uT;
+uniform vec4 uAx, uBx, uAbg, uBbg;
+uniform float uAfit, uBfit, uHasB, uProg, uTrans, uFade, uTitleA, uTime;
+uniform vec4 uDip;
+uniform float uK, uCurve, uSat, uFa, uTa; uniform vec3 uGain, uShadow, uTint;
+uniform float uBright, uContrast, uSat2, uTemp;
+uniform float uVig, uGrain, uLeak, uGlow, uCA, uOld, uWx, uWxK;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+float vnoise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3. - 2.*f); return mix(mix(hash(i), hash(i + vec2(1., 0.)), f.x), mix(hash(i + vec2(0., 1.)), hash(i + vec2(1., 1.)), f.x), f.y); }
+float fbm(vec2 p){ float a = .5, s = 0.; for(int i=0;i<4;i++){ s += a*vnoise(p); p = p*2.03 + 7.1; a *= .5; } return s; }
+vec3 soft(sampler2D s, vec2 uv){
+  vec2 d = vec2(.012, .02);
+  return texture2D(s, uv).rgb*.28 + (texture2D(s, uv+vec2(d.x,0.)).rgb + texture2D(s, uv-vec2(d.x,0.)).rgb + texture2D(s, uv+vec2(0.,d.y)).rgb + texture2D(s, uv-vec2(0.,d.y)).rgb)*.18;
+}
+vec2 vuv(vec4 xf, vec2 p){ return (p-.5)*xf.xy + .5 + xf.zw; }
+vec3 layer(sampler2D tex, sampler2D texS, vec4 xf, vec4 bg, float fit, vec2 p){
+  vec2 uv = vuv(xf, p);
+  if(uv.x < 0. || uv.x > 1. || uv.y < 0. || uv.y > 1.){
+    if(fit > .5) return soft(texS, clamp(vuv(bg, p), 0., 1.))*.5;
+    return vec3(0.);
+  }
+  vec3 c;
+  if(uCA > 0.){
+    vec2 d = (p-.5)*.007*uCA*xf.xy;
+    c = vec3(texture2D(tex, clamp(uv+d,0.,1.)).r, texture2D(tex, uv).g, texture2D(tex, clamp(uv-d,0.,1.)).b);
+  } else c = texture2D(tex, uv).rgb;
+  if(uGlow > 0.) c += max(soft(texS, uv) - .62, 0.)*.8*uGlow;
+  return c;
+}
+vec3 low(sampler2D texS, vec4 xf, vec2 p){ return soft(texS, clamp(vuv(xf, p), 0., 1.)); }
+vec3 A(vec2 p){ return layer(uA, uAs, uAx, uAbg, uAfit, p); }
+vec3 B(vec2 p){ return layer(uB, uBs, uBx, uBbg, uBfit, p); }
+float lum(vec3 c){ return dot(c, vec3(.299, .587, .114)); }
+vec3 grade(vec3 c){
+  vec3 o = c;
+  c *= uGain;
+  float L = lum(c);
+  c += uShadow*(1.-L)*(1.-L);
+  c = clamp(c, 0., 1.);
+  if(uCurve >= 0.) c = mix(c, c*c*(3.-2.*c), uCurve); else c = mix(c, vec3(.5), -uCurve*.4);
+  L = lum(c);
+  c = mix(vec3(L), c, uSat);
+  c = mix(c, L*uTint, uTa);
+  c = uFa + c*(1.-uFa);
+  return mix(o, clamp(c, 0., 1.), uK);
+}
+void main(){
+  vec2 fc = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
+  vec2 p = (fc - uPic.xy)/uPic.zw;
+  if(p.x < 0. || p.x > 1. || p.y < 0. || p.y > 1.){ gl_FragColor = vec4(0., 0., 0., 1.); return; }
+  float t = uTime;
+  vec2 q = p;
+  if(uOld > .5) q.y = clamp(q.y + (hash(vec2(floor(t*24.), 9.)) - .5)*.004, 0., 1.);
+  if(uWx > 5.5) q = clamp(q + vec2(sin(q.y*38. + t*5.)*.003, sin(q.x*27. + t*3.7)*.002)*uWxK*(.4 + .6*q.y), 0., 1.);
+  vec3 c;
+  if(uHasB < .5) c = A(q);
+  else {
+    float a = uProg, e = a*a*(3.-2.*a);
+    if(uTrans < .5) c = mix(A(q), B(q), a);
+    else if(uTrans < 3.5){ if(q.x + e < 1.) c = A(vec2(q.x + e, q.y)); else c = B(vec2(q.x + e - 1., q.y)); }
+    else if(uTrans < 4.5){ float w = smoothstep(a*1.15 - .15, a*1.15, q.x); c = mix(B(q), A(q), w); }
+    else if(uTrans < 5.5){ vec2 asp = vec2(uPic.z/uPic.w, 1.); float d = length((q-.5)*asp); float R = a*(length(asp)*.5 + .1); c = mix(B(q), A(q), smoothstep(R - .08, R, d)); }
+    else if(uTrans < 6.5){ c = mix(A((q-.5)/(1. + e*.7) + .5), B((q-.5)/(1.35 - e*.35) + .5), e); }
+    else { float bl = sin(3.14159*a); c = mix(mix(A(q), low(uAs, uAx, q), bl), mix(B(q), low(uBs, uBx, q), bl), e); }
+  }
+  c = grade(c);
+  c = pow(max(c, 0.), vec3(exp(-uBright*.6)));
+  c = (c - .5)*(1. + uContrast*.6) + .5;
+  c = mix(vec3(lum(c)), c, 1. + uSat2);
+  c.r *= 1. + uTemp*.12; c.b *= 1. - uTemp*.12;
+  if(uLeak > 0.){
+    float l1 = pow(max(0., sin(p.x*2.4 + t*.45 + sin(t*.21)*2.)*sin(p.y*1.7 - t*.33 + 1.)), 2.5);
+    float l2 = pow(max(0., sin(p.x*1.3 - t*.27 + 2.)*sin(p.y*2.9 + t*.19)), 3.);
+    vec3 lk = (l1*vec3(1., .42, .12) + l2*vec3(1., .2, .35)*.6)*.55*uLeak;
+    c = 1. - (1. - clamp(c, 0., 1.))*(1. - lk);
+  }
+  if(uOld > .5){
+    c *= 1. + (hash(vec2(floor(t*16.), 3.)) - .5)*.14;
+    for(int k=0;k<2;k++){
+      float sx = hash(vec2(floor(t*9.) + float(k)*7., 1.));
+      float on = step(.55, hash(vec2(floor(t*9.), float(k) + 5.)));
+      c += on*smoothstep(.0018, 0., abs(p.x - sx))*.22;
+    }
+  }
+  if(uWx > .5){
+    float asp = uPic.z/uPic.w, K = uWxK;
+    if(uWx < 1.5){
+      float r = 0.;
+      for(int k=0;k<3;k++){
+        float fk = float(k), n = 46. + fk*34.;
+        vec2 u = vec2((p.x*asp + p.y*.14)*n, p.y*(2.5 + fk*1.3));
+        float col = floor(u.x), h = hash(vec2(col, fk*13. + 1.)), h2 = hash(vec2(col, fk*29. + 7.));
+        float y = fract(u.y - t*(2.4 + fk*.8 + h*.9) + h*9.);
+        float len = .18 + .3*h2;
+        r += smoothstep(.17, 0., abs(fract(u.x) - .5))*smoothstep(0., len, y)*step(y, len)*step(.35, h2)*(.75 - fk*.17);
+      }
+      c *= mix(vec3(1.), vec3(.84, .9, .98), K*.7);
+      c = mix(c, vec3(.86, .91, .98), clamp(r, 0., 1.)*.75*K);
+    } else if(uWx < 2.5 || (uWx > 4.5 && uWx < 5.5)){
+      float dust = step(4.5, uWx), sn = 0.;
+      for(int k=0;k<3;k++){
+        float fk = float(k), n = 7. + fk*6.;
+        vec2 u = vec2(p.x*asp, p.y)*n;
+        u.y -= t*mix(1.4 + fk*.7, -.12 - fk*.05, dust);
+        u.x += mix(sin(t*.6 + fk*2.)*.35, t*(.1 + fk*.04), dust);
+        vec2 cell = floor(u), f = fract(u) - .5;
+        float rnd = hash(cell + fk*17.);
+        vec2 o = (vec2(hash(cell + 1.3 + fk), hash(cell + 5.7 + fk)) - .5)*.6;
+        float sz = mix(.05 + .06*rnd, .08 + .1*rnd, dust);
+        sn += smoothstep(sz, sz*mix(.35, 0., dust), length(f - o))*step(mix(.4, .55, dust), rnd)*(1. - fk*.22);
+      }
+      sn = clamp(sn, 0., 1.);
+      if(dust > .5) c = 1. - (1. - clamp(c, 0., 1.))*(1. - sn*vec3(1., .88, .65)*.35*K);
+      else { c = mix(c, c*vec3(.94, .98, 1.05) + .02, K*.6); c = mix(c, vec3(1.), sn*.85*K); }
+    } else if(uWx < 3.5){
+      float f1 = fbm(vec2(p.x*asp*1.6 + t*.05, p.y*2.2 - t*.015)), f2 = fbm(vec2(p.x*asp*3.3 - t*.035, p.y*3.6 + 5.));
+      float dens = smoothstep(.25, .8, f1*.7 + f2*.3)*mix(.6, 1., p.y);
+      c = mix(c, vec3(.82, .85, .88), clamp(dens*.8 + .12, 0., 1.)*K);
+    } else if(uWx < 4.5){
+      vec2 v = vec2(p.x*asp, p.y) - vec2(-.1, -.25);
+      float ang = atan(v.y, v.x);
+      float ry = vnoise(vec2(ang*13., t*.12))*.6 + vnoise(vec2(ang*31. + 3., -t*.09))*.4;
+      ry = pow(ry, 2.2)*smoothstep(1.9, .15, length(v));
+      c = 1. - (1. - clamp(c, 0., 1.))*(1. - ry*vec3(1., .86, .6)*.75*K);
+    } else if(uWx > 5.5){ c *= mix(vec3(1.), vec3(1.05, 1., .93), K); }
+  }
+  if(uVig > 0.) c *= 1. - uVig*smoothstep(.45, 1., distance(p, vec2(.5))*1.414);
+  if(uGrain > 0.){
+    float gs = max(1., min(uRes.x, uRes.y)/900.);
+    float n = hash(floor(fc/gs) + fract(t*7.13)*vec2(37., 91.));
+    c += (n - .5)*uGrain*(.6 + .4*(1. - lum(clamp(c,0.,1.))));
+  }
+  c = mix(c, uDip.rgb, uDip.a);
+  c *= uFade;
+  if(uTitleA > 0.){ vec4 tt = texture2D(uT, p); c = mix(c, tt.rgb, tt.a*uTitleA); }
+  gl_FragColor = vec4(clamp(c, 0., 1.), 1.);
+}`;
+const SW = 128, SH = 72;
+let gl = null, glOK = false, progMain = null, progSmall = null, quad = null, texT = null, frameNo = 0;
+const smallBuf = new Uint8Array(SW*SH*4);
+function mkProg(fs){
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) || 'shader'); return s; };
+  const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs));
+  gl.bindAttribLocation(p, 0, 'a'); gl.linkProgram(p);
+  if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) || 'link');
+  const cache = {};
+  return { p, u: n => (n in cache ? cache[n] : (cache[n] = gl.getUniformLocation(p, n))) };
+}
+function mkTex(){
+  const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(16));
+  return t;
+}
+function initGL(){
+  glOK = false;
+  try{
+    gl = gl || cv.getContext('webgl', {alpha:false, antialias:false, depth:false, stencil:false, premultipliedAlpha:false, powerPreference:'high-performance'});
+    if(!gl) return false;
+    progMain = mkProg(FS_MAIN); progSmall = mkProg(FS_SMALL);
+    quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.disable(gl.DEPTH_TEST); gl.disable(gl.BLEND);
+    texT = mkTex(); titleKey = '';
+    for(const p of players){
+      p.tex = mkTex(); p.sTex = mkTex();
+      gl.bindTexture(gl.TEXTURE_2D, p.sTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SW, SH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      p.fbo = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, p.fbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, p.sTex, 0);
+      p.smallAt = -1; p.imgKey = '';
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    glOK = true;
+  }catch(e){ glOK = false; glError = String(e && e.message || e); }
+  return glOK;
+}
+let glError = '';
+cv.addEventListener('webglcontextlost', e => { e.preventDefault(); glOK = false; if(running) stop(tx('m_glLost'), true); });
+cv.addEventListener('webglcontextrestored', () => { if(initGL()) refreshStill(); });
+
+function upload(p){
+  if(!glOK) return false;
+  const v = p.img || p.v, vw = pw(p), vh = ph(p); if(!vw || !vh) return false;
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, p.tex);
+  try{
+    if(S.turbo && !p.img){ gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v); }
+    else {
+      const k = Math.min(1, Math.max(cv.width, cv.height)*1.3/Math.max(vw, vh));
+      const cw = Math.max(2, Math.round(vw*k)), ch = Math.max(2, Math.round(vh*k));
+      if(p.c2d.width !== cw || p.c2d.height !== ch){ p.c2d.width = cw; p.c2d.height = ch; }
+      if(p.img){ const key = cw + 'x' + ch; if(p.imgKey === key){ p.hasTex = true; return true; } p.imgKey = key; }
+      p.x2d.drawImage(v, 0, 0, cw, ch);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, p.c2d);
+    }
+  }catch(e){ return false; }
+  p.hasTex = true; return true;
+}
+function renderSmall(p){
+  if(p.smallAt === frameNo) return;
+  p.smallAt = frameNo;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, p.fbo); gl.viewport(0, 0, SW, SH);
+  gl.useProgram(progSmall.p);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, p.tex);
+  gl.uniform1i(progSmall.u('uV'), 0); gl.uniform2f(progSmall.u('uTexel'), 1/SW, 1/SH);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+/* titles are drawn as text once and laid over the picture */
+const tcv = document.createElement('canvas'), tctx = tcv.getContext('2d'); let titleKey = '';
+function titleTexture(text){
+  const r = picRect(), k = Math.min(1, 1920/Math.max(r.w, r.h)), w = Math.max(2, Math.round(r.w*k)), h = Math.max(2, Math.round(r.h*k));
+  const key = text + '|' + w + 'x' + h;
+  if(key === titleKey) return; titleKey = key;
+  tcv.width = w; tcv.height = h; tctx.clearRect(0,0,w,h);
+  let size = Math.round(w/h < .9 ? w*.085 : (w/h < 1.2 ? w*.075 : h*.105)), lines = [];
+  tctx.textAlign = 'center'; tctx.textBaseline = 'middle';
+  for(let tries=0; tries<6; tries++){
+    tctx.font = '500 ' + size + 'px Unbounded, "Arial Black", system-ui, sans-serif';
+    try{ tctx.letterSpacing = Math.round(size*.05) + 'px'; }catch(e){}
+    lines = []; let cur = '';
+    for(const word of text.split(/\s+/)){
+      const t = cur ? cur + ' ' + word : word;
+      if(cur && tctx.measureText(t).width > w*.84){ lines.push(cur); cur = word; } else cur = t;
+    }
+    if(cur) lines.push(cur);
+    const widest = lines.reduce((m,l) => Math.max(m, tctx.measureText(l).width), 0);
+    if(lines.length <= 3 && widest <= w*.9) break;
+    size = Math.round(size*.85);
+  }
+  tctx.fillStyle = '#fff'; tctx.shadowColor = 'rgba(0,0,0,.65)'; tctx.shadowBlur = size*.35;
+  const lh = size*1.25, y0 = h/2 - (lines.length-1)*lh/2;
+  lines.forEach((l,i) => tctx.fillText(l, w/2, y0 + i*lh));
+  gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, texT);
+  try{ gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tcv); }catch(e){}
+}
+
+/* layers: [{p, clip, z}] — first is the outgoing picture, second (optional) the incoming one */
+function draw(layers, o){
+  if(!glOK || !layers.length) return;
+  const r = picRect(), A = layers[0], B = layers[1] || null, trans = o.trans || 0;
+  const xa = xform(A, r), xb = B ? xform(B, r) : xa;
+  const wantSmall = (x) => S.glow || trans === 7 || x.fit;
+  if(wantSmall(xa)) renderSmall(A.p);
+  if(B && wantSmall(xb)) renderSmall(B.p);
+  const text = (o.titleText || '').trim();
+  if(text && o.titleA > 0) titleTexture(text);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, cv.width, cv.height);
+  const P = progMain, u = P.u; gl.useProgram(P.p);
+  const bp = B ? B.p : A.p;
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.p.tex);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, bp.tex);
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, A.p.sTex);
+  gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, bp.sTex);
+  gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, texT);
+  gl.uniform1i(u('uA'), 0); gl.uniform1i(u('uB'), 1); gl.uniform1i(u('uAs'), 2); gl.uniform1i(u('uBs'), 3); gl.uniform1i(u('uT'), 4);
+  gl.uniform2f(u('uRes'), cv.width, cv.height); gl.uniform4f(u('uPic'), r.x, r.y, r.w, r.h);
+  gl.uniform4fv(u('uAx'), xa.a); gl.uniform4fv(u('uBx'), xb.a); gl.uniform4fv(u('uAbg'), xa.bg); gl.uniform4fv(u('uBbg'), xb.bg);
+  gl.uniform1f(u('uAfit'), xa.fit); gl.uniform1f(u('uBfit'), xb.fit);
+  gl.uniform1f(u('uHasB'), B ? 1 : 0); gl.uniform1f(u('uProg'), o.prog || 0); gl.uniform1f(u('uTrans'), trans);
+  gl.uniform1f(u('uFade'), o.fade == null ? 1 : o.fade); gl.uniform1f(u('uTitleA'), text ? (o.titleA || 0) : 0); gl.uniform1f(u('uTime'), o.time || 0);
+  const d = o.dip; gl.uniform4f(u('uDip'), d ? d.c : 0, d ? d.c : 0, d ? d.c : 0, d ? clamp(d.a, 0, 1) : 0);
+  const L = LOOKS[S.look] || LOOKS.none, k = S.look === 'none' ? 0 : S.power/100;
+  gl.uniform1f(u('uK'), k); gl.uniform1f(u('uCurve'), L.cu || 0); gl.uniform1f(u('uSat'), L.sa == null ? 1 : L.sa);
+  gl.uniform1f(u('uFa'), L.fa || 0); gl.uniform1f(u('uTa'), L.ta || 0);
+  gl.uniform3fv(u('uGain'), L.g || [1,1,1]); gl.uniform3fv(u('uShadow'), L.sh || [0,0,0]); gl.uniform3fv(u('uTint'), L.ti || [1,1,1]);
+  gl.uniform1f(u('uBright'), S.bright/50); gl.uniform1f(u('uContrast'), S.contrast/50); gl.uniform1f(u('uSat2'), S.sat/50); gl.uniform1f(u('uTemp'), S.temp/50);
+  gl.uniform1f(u('uVig'), S.vig ? .42 : 0); gl.uniform1f(u('uGrain'), S.grain ? .1 : 0); gl.uniform1f(u('uLeak'), S.leak ? 1 : 0);
+  gl.uniform1f(u('uGlow'), S.glow ? 1 : 0); gl.uniform1f(u('uCA'), S.ca ? 1 : 0); gl.uniform1f(u('uOld'), S.old ? 1 : 0);
+  gl.uniform1f(u('uWx'), WX_ID[S.weather] || 0); gl.uniform1f(u('uWxK'), S.wx/100);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+function blank(){ if(!glOK) return; gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0,0,cv.width,cv.height); gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT); }
+
+/* ---------- stabiliser: follows how the picture shifts and moves it back ---------- */
+function profShift(A, B, R){
+  const n = A.length, vals = new Float32Array(2*R+1); let best = 0, bestV = Infinity, sum = 0;
+  for(let d=-R; d<=R; d++){
+    let s = 0, c = 0;
+    for(let x=Math.max(0,d); x<Math.min(n,n+d); x++){ s += Math.abs(B[x]-A[x-d]); c++; }
+    const v = s/c; vals[d+R] = v; sum += v; if(v < bestV){ bestV = v; best = d; }
+  }
+  if(vals[R] < 1e-6) return null;
+  if(!(bestV < (sum/(2*R+1))*0.6)) return 0;
+  let sub = 0;
+  if(best > -R && best < R){ const a = vals[best-1+R], c = vals[best+1+R], den = a - 2*bestV + c; if(den > 1e-9) sub = 0.5*(a-c)/den; }
+  return best + sub;
+}
+function stabUpdate(p){
+  const cfg = STAB[S.stab]; if(!cfg.k || !p.clip || p.img){ p.stab = null; return; }
+  const v = p.v, vw = v.videoWidth, vh = v.videoHeight; if(!vw || !vh) return;
+  renderSmall(p); gl.bindFramebuffer(gl.FRAMEBUFFER, p.fbo);
+  try{ gl.readPixels(0, 0, SW, SH, gl.RGBA, gl.UNSIGNED_BYTE, smallBuf); }catch(e){ return; }
+  const d = smallBuf, col = new Float32Array(SW), row = new Float32Array(SH);
+  for(let y=0, i=0; y<SH; y++){ for(let x=0; x<SW; x++, i+=4){ const l = d[i]*.3 + d[i+1]*.6 + d[i+2]*.1; col[x] += l; row[y] += l; } }
+  let mc = 0, mr = 0;
+  for(let x=0;x<SW;x++){ col[x] /= SH; mc += col[x]; } mc /= SW; for(let x=0;x<SW;x++) col[x] -= mc;
+  for(let y=0;y<SH;y++){ row[y] /= SW; mr += row[y]; } mr /= SH; for(let y=0;y<SH;y++) row[y] -= mr;
+  const st = p.stab;
+  if(!st){ p.stab = {col, row, cx:0, cy:0, mx:0, my:0, ox:0, oy:0}; return; }
+  const dx = profShift(st.col, col, 14), dy = profShift(st.row, row, 9);
+  if(dx === null && dy === null) return;
+  st.col = col; st.row = row;
+  st.cx += (dx || 0) * vw/SW; st.cy += (dy || 0) * vh/SH;
+  st.mx += (st.cx - st.mx) * cfg.k; st.my += (st.cy - st.my) * cfg.k;
+  const keep = {ox:st.ox, oy:st.oy}; st.ox = 0; st.oy = 0;
+  const lim = xform({p, clip:p.clip, z:1}, picRect()); st.ox = keep.ox; st.oy = keep.oy;
+  let ox = st.mx - st.cx, oy = st.my - st.cy;
+  if(ox > lim.limX){ ox = lim.limX; st.mx = st.cx + ox; } else if(ox < -lim.limX){ ox = -lim.limX; st.mx = st.cx + ox; }
+  if(oy > lim.limY){ oy = lim.limY; st.my = st.cy + oy; } else if(oy < -lim.limY){ oy = -lim.limY; st.my = st.cy + oy; }
+  st.ox = ox; st.oy = oy;
+}
+
+/* ---------- two players + sound ---------- */
+function mkPlayer(){
+  const v = document.createElement('video');
+  v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'auto';
+  $('pool').appendChild(v);
+  const c2d = document.createElement('canvas'); c2d.width = c2d.height = 2;
+  return { v, idx:-1, ready:false, tok:0, url:null, gain:null, stab:null, clip:null, c2d, x2d:c2d.getContext('2d', {alpha:false}), tex:null, sTex:null, fbo:null, smallAt:-1, hasTex:false, img:null, imgKey:'' };
+}
+const players = [mkPlayer(), mkPlayer()];
+const music = new Audio(); music.loop = true; music.preload = 'auto';
+let musicUrl = null, musicGain = null;
+let actx = null, master = null, recDest = null;
+function initAudio(){
+  if(actx) return;
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    actx = new AC();
+    master = actx.createGain(); master.connect(actx.destination);
+    recDest = actx.createMediaStreamDestination(); master.connect(recDest);
+    for(const p of players){ const src = actx.createMediaElementSource(p.v); p.gain = actx.createGain(); p.gain.gain.value = 0; src.connect(p.gain); p.gain.connect(master); }
+    const ms = actx.createMediaElementSource(music); musicGain = actx.createGain(); musicGain.gain.value = 0; ms.connect(musicGain); musicGain.connect(master);
+  }catch(e){ actx = null; master = null; recDest = null; musicGain = null; }
+}
+function setVol(p, g){ if(p.gain){ if(p.v.volume !== 1) p.v.volume = 1; if(p.v.muted) p.v.muted = false; p.gain.gain.value = g; } else p.v.volume = clamp(g,0,1); }
+function setMusicVol(g){ if(musicGain){ if(music.volume !== 1) music.volume = 1; musicGain.gain.value = g; } else music.volume = clamp(g,0,1); }
+
+function seekTo(v, time){
+  return new Promise(res => {
+    let done = false;
+    const fin = () => { if(done) return; done = true; v.removeEventListener('seeked', fin); res(); };
+    const go = () => { v.addEventListener('seeked', fin); try{ v.currentTime = clamp(time, 0, Math.max(0,(v.duration||time) - 0.05)); }catch(e){ fin(); } };
+    if(v.readyState >= 1) go(); else v.addEventListener('loadedmetadata', go, {once:true});
+    setTimeout(fin, 4000);
+  });
+}
+function load(p, src, time){
+  const tok = ++p.tok; p.ready = false; p.stab = null; p.imgKey = '';
+  try{ p.v.pause(); }catch(e){}
+  if(src.kind === 'img'){ p.img = src.img; p.ready = true; return Promise.resolve(true); }
+  p.img = null; const url = src.url;
+  if(p.url !== url){ p.url = url; p.v.src = url; p.v.load(); }
+  return seekTo(p.v, time).then(() => { if(p.tok === tok){ p.ready = true; return true; } return false; });
+}
+
+/* ---------- still preview while editing ---------- */
+let stillBusy = false, stillNext = null;
+function showStill(clip, time){
+  if(running || busy) return;
+  lastShown = {id:clip.id, time};
+  stillNext = {clip, time};
+  if(stillBusy) return;
+  stillBusy = true;
+  (async function loop(){
+    while(stillNext && !running && !busy){
+      const job = stillNext; stillNext = null;
+      const p = players[0]; p.idx = -1; p.clip = job.clip; setVol(p,0);
+      const ok = await load(p, job.clip.src, job.time);
+      if(ok && !running && !busy){
+        if(!p.img && p.v.readyState < 2) await new Promise(r => setTimeout(r, 120));
+        sizeCanvas(false); frameNo++;
+        if(upload(p)) draw([{p, clip:job.clip, z:1}], {fade:1, titleA: stillTitle ? 1 : 0, titleText: stillTitle === 'outro' ? S.outro : S.title, time:1.7});
+      }
+    }
+    stillBusy = false;
+  })();
+}
+function refreshStill(){
+  if(running || busy) return;
+  const g = good();
+  if(!g.length){ sizeCanvas(false); blank(); return; }
+  const c = lastShown && g.find(x => x.id === lastShown.id);
+  if(c) showStill(c, clamp(lastShown.time, 0, c.src.dur)); else showStill(g[0], g[0].start);
+}
+
+/* ---------- adding files ---------- */
+function probe(file){
+  return new Promise(res => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'metadata';
+    let settled = false;
+    const out = (o) => { if(settled) return; settled = true; try{ v.removeAttribute('src'); v.load(); }catch(e){} res(Object.assign({url}, o)); };
+    v.onerror = () => out({bad:true});
+    v.onloadedmetadata = async () => {
+      const dur = isFinite(v.duration) ? v.duration : 0, w = v.videoWidth, h = v.videoHeight;
+      if(!dur || !w){ return out({bad:true}); }
+      await seekTo(v, Math.min(1, dur/2));
+      let thumb = '';
+      try{
+        const c = document.createElement('canvas'); c.width = 216; c.height = 120;
+        const g = c.getContext('2d'); const s = Math.max(216/w, 120/h), sw = 216/s, sh = 120/s;
+        g.drawImage(v, (w-sw)/2, (h-sh)/2, sw, sh, 0,0,216,120);
+        thumb = c.toDataURL('image/jpeg', .7);
+      }catch(e){}
+      out({dur, thumb, w, h});
+    };
+    setTimeout(() => out({bad:true}), 12000);
+    v.src = url;
+  });
+}
+function probeImage(file){
+  return new Promise(res => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onerror = () => res({url, bad:true});
+    im.onload = () => {
+      const w = im.naturalWidth, h = im.naturalHeight; if(!w || !h){ res({url, bad:true}); return; }
+      const k = Math.min(1, 3840/Math.max(w, h)), c = document.createElement('canvas');
+      c.width = Math.max(2, Math.round(w*k)); c.height = Math.max(2, Math.round(h*k));
+      let thumb = '';
+      try{
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        const t2 = document.createElement('canvas'); t2.width = 216; t2.height = 120;
+        const sc = Math.max(216/c.width, 120/c.height), sw = 216/sc, sh = 120/sc;
+        t2.getContext('2d').drawImage(c, (c.width-sw)/2, (c.height-sh)/2, sw, sh, 0, 0, 216, 120);
+        thumb = t2.toDataURL('image/jpeg', .7);
+      }catch(e){ res({url, bad:true}); return; }
+      res({url, kind:'img', img:c, w:c.width, h:c.height, dur:PHOTO_MAX, thumb});
+    };
+    im.src = url;
+  });
+}
+function newClip(src, start, len){ return { id: nextId++, src, start: start || 0, len: len == null ? (src.kind === 'img' ? 3.5 : Math.min(4, src.dur)) : len, rate:1, mute:false, fit:'auto', cam:'auto', zoom:1, px:0, py:0, fresh:false }; }
+$('file').addEventListener('change', async e => {
+  const files = Array.from(e.target.files || []); e.target.value = '';
+  if(!files.length) return;
+  setMsg(tx('m_opening'));
+  let bad = 0;
+  for(const f of files){
+    const info = (/^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp|avif)$/i.test(f.name)) ? await probeImage(f) : await probe(f);
+    const src = { url:info.url, file:f, name:f.name, dur:info.dur||0, w:info.w||0, h:info.h||0, thumb:info.thumb||'', bad:!!info.bad, scan:null, kind:info.kind||'video', img:info.img||null };
+    sources.push(src);
+    const c = newClip(src); c.fresh = true;
+    if(src.bad) bad++;
+    clips.push(c);
+    renderClips();
+  }
+  if(!touched){ mode = 'even'; evenFit(); } else { clips.forEach(c => c.fresh = false); renderClips(); }
+  setMsg(bad ? tx('m_bad', bad, files.length) : '', !!bad);
+  refreshStill();
+});
+
+/* ---------- automatic cuts ---------- */
+function distribute(g, need, weight, cap){
+  cap = cap || autoCap;
+  let left = need, free = g.slice();
+  g.forEach(c => c.len = 0);
+  for(let pass=0; pass<8 && free.length && left > 0.05; pass++){
+    const wsum = free.reduce((a,c) => a + weight(c), 0), pool = left, still = [];
+    for(const c of free){
+      const add = Math.max(0, Math.min(pool*weight(c)/wsum, cap(c) - c.len));
+      c.len += add; left -= add;
+      if(cap(c) - c.len > 0.05) still.push(c);
+    }
+    free = still;
+  }
+  g.forEach(c => { c.len = Math.max(Math.min(MIN_LEN, cap(c)), Math.round(c.len*10)/10); });
+  const diff = need - g.reduce((a,c) => a + c.len, 0);
+  if(Math.abs(diff) > 0.01 && Math.abs(diff) < 1){
+    const c = g.find(c => c.len + diff >= Math.min(MIN_LEN, cap(c)) && c.len + diff <= cap(c));
+    if(c) c.len = Math.round((c.len + diff)*100)/100;
+  }
+}
+function evenFit(){
+  const g = good();
+  if(g.length){
+    distribute(g, S.target + (g.length-1)*(g.length > 1 ? transLen() : 0), () => 1);
+    g.forEach(c => {
+      const slack = Math.max(0, c.src.dur - c.len*c.rate);
+      if(c.src.kind === 'img'){ c.start = 0; c.fresh = false; }
+      else if(c.fresh){ c.start = floor1(slack*.3); c.fresh = false; } else c.start = Math.min(c.start, floor1(slack));
+    });
+  }
+  touched = false; renderClips(); refreshStill();
+}
+function randomCut(){
+  const g = good(); if(!g.length) return;
+  for(let i=g.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); const t = g[i]; g[i] = g[j]; g[j] = t; }
+  clips = g.concat(clips.filter(c => c.src.bad));
+  const w = new Map(); g.forEach(c => w.set(c, .6 + Math.random()));
+  distribute(g, S.target + (g.length-1)*(g.length > 1 ? transLen() : 0), c => w.get(c));
+  g.forEach(c => { c.start = c.src.kind === 'img' ? 0 : floor1(Math.random()*Math.max(0, c.src.dur - c.len*c.rate)); c.fresh = false; });
+  touched = false; mode = 'random'; openId = null; lastShown = null; stillTitle = null;
+  renderClips(); refreshStill();
+  setMsg(tx('m_random'));
+}
+$('fit').addEventListener('click', () => { mode = 'even'; evenFit(); setMsg(tx('m_even')); });
+$('random').addEventListener('click', randomCut);
+
+/* ---------- smart cut: watch every video quickly and score each moment ---------- */
+const scanV = document.createElement('video'); scanV.muted = true; scanV.playsInline = true; scanV.setAttribute('playsinline',''); scanV.preload = 'auto';
+$('pool').appendChild(scanV);
+const QW = 64, QH = 36, qcv = document.createElement('canvas'); qcv.width = QW; qcv.height = QH;
+const qctx = qcv.getContext('2d', {willReadFrequently:true});
+function scanSource(src, onProg){
+  return new Promise(res => {
+    const v = scanV, data = []; let prev = null, lastT = -1, lastWall = performance.now(), done = false, timer = 0;
+    const fin = () => { if(done) return; done = true; clearInterval(timer); try{ v.pause(); v.removeAttribute('src'); v.load(); }catch(e){} src.scan = data; res(); };
+    const take = () => {
+      let d; try{ qctx.drawImage(v, 0, 0, QW, QH); d = qctx.getImageData(0,0,QW,QH).data; }catch(e){ return; }
+      const n = QW*QH, L = new Float32Array(n); let sum = 0, sum2 = 0, colr = 0;
+      for(let i=0, j=0; j<n; i+=4, j++){ const r = d[i], g = d[i+1], b = d[i+2], l = r*.3 + g*.6 + b*.1; L[j] = l; sum += l; sum2 += l*l; colr += Math.abs(r-g) + Math.abs(g-b); }
+      const mean = sum/n, std = Math.sqrt(Math.max(0, sum2/n - mean*mean));
+      let sharp = 0, motion = 0;
+      for(let y=0; y<QH-1; y++){ for(let x=0; x<QW-1; x++){ const j = y*QW + x; sharp += Math.abs(L[j+1]-L[j]) + Math.abs(L[j+QW]-L[j]); } }
+      if(prev){ for(let j=0; j<n; j++) motion += Math.abs(L[j]-prev[j]); }
+      data.push({ t:v.currentTime, sharp:sharp/n, motion: prev ? motion/n : -1, mean, std, color:colr/n });
+      prev = L;
+    };
+    v.onerror = fin;
+    v.onloadeddata = () => {
+      try{ v.playbackRate = src.dur > 120 ? 8 : 4; }catch(e){}
+      const pr = v.play(); if(pr && pr.catch) pr.catch(fin);
+      timer = setInterval(() => {
+        const now = performance.now();
+        if(v.currentTime - lastT >= .25){ take(); lastT = v.currentTime; lastWall = now; if(onProg) onProg(clamp(v.currentTime/src.dur, 0, 1)); }
+        if(v.ended || v.currentTime >= src.dur - .15 || now - lastWall > 5000) fin();
+      }, 30);
+    };
+    setTimeout(() => { if(!data.length) fin(); }, 9000);
+    v.src = src.url; v.load();
+  });
+}
+function scoreSources(srcs){
+  const sh = [], mo = [], co = [];
+  srcs.forEach(s => s.scan.forEach(x => { sh.push(x.sharp); co.push(x.color); if(x.motion >= 0) mo.push(x.motion); }));
+  sh.sort((a,b)=>a-b); mo.sort((a,b)=>a-b); co.sort((a,b)=>a-b);
+  const rank = (arr, v) => { if(!arr.length) return .5; let lo = 0, hi = arr.length; while(lo < hi){ const m = (lo+hi)>>1; if(arr[m] < v) lo = m+1; else hi = m; } return lo/arr.length; };
+  srcs.forEach(s => s.scan.forEach(x => {
+    const sr = rank(sh, x.sharp); let mr = x.motion < 0 ? .5 : rank(mo, x.motion); if(mr > .96) mr = .45;
+    const ok = (x.mean > 30 && x.mean < 228 && x.std > 9) ? 1 : .35, edge = (x.t < .6 || x.t > s.dur - .6) ? .45 : 1;
+    x.score = (.5*sr + .4*mr + .1*rank(co, x.color))*ok*edge;
+  }));
+}
+function windowScore(src, a, b){ let s = 0, n = 0; for(const x of src.scan){ if(x.t >= a && x.t <= b){ s += x.score; n++; } } return n ? s/n : 0; }
+async function smartCut(){
+  if(busy || running) return;
+  const srcs = sources.filter(s => !s.bad && clips.some(c => c.src === s));
+  if(!srcs.length) return;
+  const todo = srcs.filter(s => !s.scan && s.kind !== 'img');
+  if(todo.length){
+    busy = true; stillNext = null; $('main').inert = true; $('play').disabled = true; $('save').disabled = true;
+    for(let i=0; i<todo.length; i++){
+      setMsg(tx('m_scan', i+1, todo.length));
+      await scanSource(todo[i], f => { $('gauge').style.width = ((i + f)/todo.length*100) + '%'; });
+    }
+    busy = false; $('main').inert = false;
+  }
+  if(!srcs.some(s => s.kind === 'img' || (s.scan && s.scan.length))){ setMsg(tx('m_smartFail'), true); updateTotal(); return; }
+  scoreSources(srcs.filter(s => s.scan));
+  const X = srcs.length > 1 || S.target > 6 ? transLen() : 0;
+  const T = S.target, segLen = T <= 20 ? 2.5 : T <= 45 ? 3.5 : T <= 90 ? 4.5 : T <= 240 ? 6 : 8;
+  const n = Math.max(1, Math.round((T - X)/(segLen - X)));
+  const cands = [];
+  srcs.forEach(s => {
+    if(s.kind === 'img'){ cands.push({ src:s, s:0, len:Math.min(segLen, 4), score:.5 + Math.random()*.08 }); return; }
+    if(!s.scan || !s.scan.length) return;
+    const len = Math.min(segLen, s.dur);
+    for(let a=0; a <= s.dur - len + 1e-6; a += .5) cands.push({ src:s, s:a, len, score: windowScore(s, a, a+len)*(.92 + Math.random()*.16) });
+  });
+  const picked = [], count = new Map();
+  const clash = c => picked.some(p => p.src === c.src && c.s < p.s + p.len + .4 && p.s < c.s + c.len + .4);
+  while(picked.length < n){
+    let best = null, bestE = -1;
+    for(const c of cands){ if(clash(c)) continue; const e = c.score*Math.pow(.7, count.get(c.src) || 0); if(e > bestE){ bestE = e; best = c; } }
+    if(!best) break;
+    picked.push(best); count.set(best.src, (count.get(best.src) || 0) + 1);
+  }
+  picked.sort((a,b) => (sources.indexOf(a.src) - sources.indexOf(b.src)) || (a.s - b.s));
+  const made = picked.map(p => { const c = newClip(p.src, floor1(p.s), p.len); c.w = Math.max(.05, p.score); return c; });
+  const room = c => { if(c.src.kind === 'img') return PHOTO_AUTO; let end = c.src.dur; for(const o of made){ if(o !== c && o.src === c.src && o.start > c.start) end = Math.min(end, o.start - .2); } return Math.max(Math.min(MIN_LEN, c.src.dur), Math.min(MAX_LEN, end - c.start)); };
+  if(made.length) distribute(made, T + (made.length-1)*(made.length > 1 ? transLen() : 0), c => c.w, room);
+  clips = made.concat(clips.filter(c => c.src.bad));
+  touched = false; mode = 'smart'; openId = null; lastShown = null; stillTitle = null;
+  renderClips(); refreshStill();
+  const t = totalLen();
+  setMsg(tx(t < T - 1 ? 'm_smartShort' : 'm_smart', made.length));
+}
+$('smart').addEventListener('click', smartCut);
+function refit(){ if(touched){ updateTotal(); return; } if(mode === 'smart' && sources.every(s => s.bad || s.scan || s.kind === 'img')) smartCut(); else evenFit(); }
+
+/* ---------- clip list ---------- */
+function cutText(c){
+  if(c.src.bad) return tx('c_bad');
+  if(c.src.kind === 'img') return tx('c_photo', sec(c.len));
+  let s = tx('c_cut', fmt(c.start), sec(c.len));
+  if(c.rate !== 1) s += ', ' + tx(c.rate < 1 ? 'c_slow' : 'c_fast');
+  if(c.mute) s += ', ' + tx('c_mute').toLowerCase();
+  return s;
+}
+function slider(label, min, max, step, value, show, onInput){
+  const l = document.createElement('label'); l.className = 'sl'; const b = document.createElement('b'); b.textContent = show(value);
+  l.append(label + ' ', b);
+  const r = document.createElement('input'); r.type = 'range'; r.min = min; r.max = max; r.step = step; r.value = value; l.append(r);
+  r.addEventListener('input', () => { const v = parseFloat(r.value); b.textContent = show(v); onInput(v, r, b); });
+  return {l, r, b};
+}
+function chips(label, options, current, onPick){
+  const box = document.createElement('div'); box.className = 'mini';
+  const sl = document.createElement('span'); sl.className = 'lbl'; sl.textContent = label; box.append(sl);
+  options.forEach(([val, text]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = text; b.setAttribute('aria-pressed', String(current === val));
+    b.addEventListener('click', () => onPick(val)); box.append(b);
+  });
+  return box;
+}
+function renderClips(){
+  const ol = $('clips'); ol.textContent = '';
+  let n = 0;
+  clips.forEach((c, i) => {
+    const bad = c.src.bad;
+    const li = document.createElement('li'); li.className = 'clip' + (c.id === openId ? ' open' : '') + (bad ? ' bad' : '');
+    const head = document.createElement('button'); head.className = 'clip-head'; head.type = 'button';
+    head.setAttribute('aria-expanded', c.id === openId ? 'true' : 'false');
+    const num = document.createElement('span'); num.className = 'num'; num.textContent = bad ? '!' : String(++n);
+    let pic;
+    if(c.src.thumb){ pic = document.createElement('img'); pic.src = c.src.thumb; pic.alt = ''; } else { pic = document.createElement('span'); pic.className = 'ph'; }
+    const meta = document.createElement('span'); meta.className = 'meta';
+    const cut = document.createElement('span'); cut.className = 'cut'; cut.textContent = cutText(c);
+    const name = document.createElement('span'); name.className = 'name'; name.textContent = c.src.name;
+    meta.append(cut, name);
+    const chev = document.createElement('span'); chev.className = 'chev'; chev.textContent = '▾'; chev.setAttribute('aria-hidden','true');
+    head.append(num, pic, meta, chev);
+    head.addEventListener('click', () => { setMsg(''); openId = (openId === c.id ? null : c.id); stillTitle = null; renderClips(); if(openId === c.id && !bad) showStill(c, c.start); });
+    li.append(head);
+
+    const body = document.createElement('div'); body.className = 'clip-body';
+    if(c.id === openId){
+      if(!bad){
+        const isImg = c.src.kind === 'img';
+        let s1, s2;
+        s1 = slider(tx('c_start'), 0, Math.max(0, c.src.dur - MIN_LEN*c.rate).toFixed(1), .1, c.start, fmt, v => {
+          touched = true; stillTitle = null; c.start = v;
+          if(c.start + c.len*c.rate > c.src.dur){ c.len = Math.max(Math.min(MIN_LEN, avail(c)), floor1((c.src.dur - c.start)/c.rate)); s2.r.value = c.len; s2.b.textContent = sec(c.len); }
+          cut.textContent = cutText(c); updateTotal(); showStill(c, c.start);
+        });
+        s2 = slider(tx('c_len'), Math.min(MIN_LEN, avail(c)), avail(c).toFixed(1), .1, c.len, sec, v => {
+          touched = true; stillTitle = null; c.len = v;
+          if(c.start + c.len*c.rate > c.src.dur){ c.start = Math.max(0, floor1(c.src.dur - c.len*c.rate)); s1.r.value = c.start; s1.b.textContent = fmt(c.start); }
+          cut.textContent = cutText(c); updateTotal(); showStill(c, Math.max(c.start, c.start + c.len*c.rate - .1));
+        });
+        if(isImg) body.append(s2.l); else body.append(s1.l, s2.l);
+        body.append(chips(tx('c_fit'), [['auto',tx('c_auto')],['fill',tx('c_fill')],['fit',tx('c_whole')]], c.fit, v => { c.fit = v; renderClips(); showStill(c, c.start); }));
+        body.append(chips(tx('c_cam'), [['auto',tx('c_auto')],['none',tx('cam_none')],['in',tx('cam_in')],['out',tx('cam_out')],['left',tx('cam_left')],['right',tx('cam_right')],['up',tx('cam_up')],['down',tx('cam_down')],['punch',tx('cam_punch')],['shake',tx('cam_shake')]], c.cam || 'auto', v => { c.cam = v; renderClips(); }));
+        const pos = document.createElement('details'); const sum = document.createElement('summary'); sum.textContent = tx('c_pos'); pos.append(sum);
+        if(c.zoom !== 1 || c.px || c.py) pos.open = true;
+        const pct = v => Math.round(v*100) + '%', shift = v => v === 0 ? tx('c_center') : (v > 0 ? '+' : '') + Math.round(v*100);
+        const still = () => showStill(c, lastShown && lastShown.id === c.id ? lastShown.time : c.start);
+        pos.append(slider(tx('c_zoom'), 1, 3, .05, c.zoom, pct, v => { c.zoom = v; still(); }).l);
+        pos.append(slider(tx('c_px'), -1, 1, .05, c.px, shift, v => { c.px = v; still(); }).l);
+        pos.append(slider(tx('c_py'), -1, 1, .05, c.py, shift, v => { c.py = v; still(); }).l);
+        const rs = document.createElement('button'); rs.type = 'button'; rs.className = 'linkbtn'; rs.textContent = tx('c_reset');
+        rs.addEventListener('click', () => { c.zoom = 1; c.px = 0; c.py = 0; c.fit = 'auto'; c.cam = 'auto'; renderClips(); showStill(c, c.start); });
+        pos.append(rs); body.append(pos);
+        const sp = chips(tx('c_speed'), [[.5,tx('c_slower')],[1,tx('c_normal')],[2,tx('c_faster')]], c.rate, r => {
+          touched = true; c.rate = r;
+          c.len = clamp(c.len, Math.min(MIN_LEN, avail(c)), floor1(avail(c)));
+          if(c.start + c.len*c.rate > c.src.dur) c.start = Math.max(0, floor1(c.src.dur - c.len*c.rate));
+          renderClips(); showStill(c, c.start);
+        });
+        const mu = document.createElement('button'); mu.type = 'button'; mu.className = 'chip'; mu.textContent = tx('c_mute'); mu.setAttribute('aria-pressed', String(c.mute));
+        mu.addEventListener('click', () => { c.mute = !c.mute; renderClips(); });
+        sp.append(mu); if(!isImg) body.append(sp);
+      }
+      const tools = document.createElement('div'); tools.className = 'tools';
+      const up = document.createElement('button'); up.type = 'button'; up.textContent = tx('c_up'); up.disabled = i === 0;
+      const down = document.createElement('button'); down.type = 'button'; down.textContent = tx('c_down'); down.disabled = i === clips.length-1;
+      const dup = document.createElement('button'); dup.type = 'button'; dup.textContent = tx('c_dup'); dup.disabled = bad;
+      const del = document.createElement('button'); del.type = 'button'; del.className = 'del'; del.textContent = tx('remove');
+      up.addEventListener('click', () => { touched = true; clips.splice(i-1, 0, clips.splice(i,1)[0]); renderClips(); });
+      down.addEventListener('click', () => { touched = true; clips.splice(i+1, 0, clips.splice(i,1)[0]); renderClips(); });
+      dup.addEventListener('click', () => {
+        touched = true;
+        const copy = Object.assign({}, c, { id: nextId++, fresh:false });
+        copy.start = floor1(Math.min(Math.max(0, c.src.dur - copy.len*copy.rate), c.start + c.len*c.rate));
+        clips.splice(i+1, 0, copy); openId = copy.id; renderClips(); showStill(copy, copy.start);
+      });
+      del.addEventListener('click', () => {
+        clips.splice(i,1);
+        if(!clips.some(x => x.src === c.src)){ sources = sources.filter(s => s !== c.src); try{ URL.revokeObjectURL(c.src.url); }catch(e){} }
+        if(openId === c.id) openId = null; renderClips(); refreshStill();
+      });
+      tools.append(up, down, dup, del); body.append(tools);
+    }
+    li.append(body); ol.append(li);
+  });
+  const any = good().length > 0;
+  $('empty').hidden = any; $('auto').hidden = !any; $('autoNote').hidden = !any;
+  updateTotal();
+}
+function bitrate(){ let b = BITRATE[S.quality] || 12e6; if(S.fps >= 50) b *= 1.4; if(S.frame === 'square') b *= .6; if(S.target > 120) b *= .75; return b; }
+function updateTotal(){
+  const g = good(), t = totalLen();
+  $('totalNum').textContent = tx('of', fmt(t), fmt(S.target));
+  const gi = $('gauge'); gi.style.width = clamp(t/S.target*100, 0, 100) + '%';
+  const hit = Math.abs(t - S.target) <= Math.max(.6, S.target*.01); gi.classList.toggle('hit', hit && g.length > 0);
+  let hint = tx('noClips');
+  if(g.length){
+    if(hit) hint = tx('exact');
+    else if(t < S.target) hint = tx('shorter', sec(S.target - t));
+    else hint = tx('longer', sec(t - S.target));
+  }
+  $('totalHint').textContent = hint;
+  const mb = bitrate()*(g.length ? t : S.target)/8/1e6, sn = $('sizeNote');
+  sn.textContent = tx('size', mb < 1000 ? Math.max(1, Math.round(mb)) + ' ' + tx('MB') : (mb/1000).toFixed(1) + ' ' + tx('GB'))
+    + (S.target >= 180 ? ' ' + tx('sizeLong') : '')
+    + (mb > 700 ? ' ' + tx('sizeBig') : '');
+  sn.classList.toggle('warn', mb > 700);
+  if(!running && !busy){ $('play').disabled = !g.length; $('save').disabled = !g.length; }
+}
+
+/* ---------- settings ---------- */
+(function buildLooks(){
+  const row = $('looks');
+  Object.keys(LOOKS).forEach(k => { const b = document.createElement('button'); b.className = 'chip'; b.dataset.v = k; b.dataset.i = 'l_' + k; row.append(b); });
+})();
+function rangeText(k, v){ return (k === 'power' || k === 'volVideo' || k === 'volMusic' || k === 'wx') ? v + '%' : (v > 0 ? '+' + v : String(v)); }
+function syncControls(){
+  document.querySelectorAll('[data-set]').forEach(row => {
+    const k = row.dataset.set;
+    row.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', String(String(S[k]) === b.dataset.v)));
+  });
+  document.querySelectorAll('[data-toggle]').forEach(b => b.setAttribute('aria-pressed', String(!!S[b.dataset.toggle])));
+  document.querySelectorAll('[data-range]').forEach(i => { const k = i.dataset.range; i.value = S[k]; $('o-' + k).textContent = rangeText(k, S[k]); });
+  document.querySelectorAll('[data-preset]').forEach(b => { const p = PRESETS[b.dataset.preset]; b.setAttribute('aria-pressed', String(p.frame === S.frame && p.quality === S.quality && p.fps === S.fps)); });
+  $('title').value = S.title; $('outro').value = S.outro;
+  $('thBg').value = S.themeBg; $('thAc').value = S.themeAccent;
+}
+function applied(k){
+  syncControls(); saveSettings(); stillTitle = null;
+  if(k === 'theme'){ applyTheme(); return; }
+  if(k === 'target' || k === 'trans') refit(); else updateTotal();
+  refreshStill();
+}
+document.querySelectorAll('[data-set] .chip').forEach(b => b.addEventListener('click', () => {
+  const k = b.parentElement.dataset.set; S[k] = NUMERIC[k] ? parseInt(b.dataset.v, 10) : b.dataset.v; applied(k);
+}));
+document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => { Object.assign(S, PRESETS[b.dataset.preset]); applied('frame'); }));
+document.querySelectorAll('[data-toggle]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.toggle; S[k] = !S[k]; applied(k); }));
+document.querySelectorAll('[data-range]').forEach(i => i.addEventListener('input', () => {
+  const k = i.dataset.range; S[k] = parseInt(i.value, 10); $('o-' + k).textContent = rangeText(k, S[k]); saveSettings();
+  if(k !== 'volVideo' && k !== 'volMusic') refreshStill();
+}));
+$('resetFine').addEventListener('click', () => { S.bright = 0; S.contrast = 0; S.sat = 0; S.temp = 0; applied('bright'); });
+$('title').addEventListener('input', e => { S.title = e.target.value; stillTitle = 'title'; saveSettings(); refreshStill(); });
+$('outro').addEventListener('input', e => { S.outro = e.target.value; stillTitle = 'outro'; saveSettings(); refreshStill(); });
+$('title').addEventListener('blur', () => { stillTitle = null; }); $('outro').addEventListener('blur', () => { stillTitle = null; });
+
+$('musicFile').addEventListener('change', e => {
+  const f = (e.target.files || [])[0]; e.target.value = ''; if(!f) return;
+  if(musicUrl) URL.revokeObjectURL(musicUrl);
+  musicUrl = URL.createObjectURL(f); music.src = musicUrl; music.load();
+  $('musicName').textContent = f.name; $('musicDel').hidden = false;
+});
+music.addEventListener('error', () => { if(!musicUrl) return; $('musicName').textContent = tx('musicErr'); });
+$('musicDel').addEventListener('click', () => {
+  try{ music.pause(); }catch(e){}
+  if(musicUrl) URL.revokeObjectURL(musicUrl); musicUrl = null; music.removeAttribute('src'); music.load();
+  $('musicName').textContent = tx('noMusic'); $('musicDel').hidden = true;
+});
+
+/* ---------- playback / recording engine ---------- */
+function pickMime(){
+  if(!window.MediaRecorder) return null;
+  const big = Math.max(cv.width, cv.height) > 1920 || S.fps > 30;
+  const list = big
+    ? ['video/mp4;codecs=avc1.640033,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']
+    : ['video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+  for(const m of list){ try{ if(MediaRecorder.isTypeSupported(m)) return m; }catch(e){} }
+  return '';
+}
+let wake = null;
+async function start(record){
+  if(running || busy) return;
+  const g = good(); if(!g.length) return;
+  if(!glOK){ setMsg(tx('m_noGL'), true); return; }
+  sizeCanvas(record);
+  let mime = null;
+  if(record){ mime = pickMime(); if(mime === null){ sizeCanvas(false); setMsg(tx('m_noRec'), true); return; } }
+  initAudio();
+  if(actx){ try{ await actx.resume(); }catch(e){} }
+  const X = xf(); let T = 0;
+  const plan = g.map(c => { const o = {T, L:c.len, s:c.start, url:c.src.url, rate:c.rate, mute:c.mute, clip:c}; T += c.len - X; return o; });
+  const total = T + X;
+  const cuts = plan.map(() => S.trans === 'rand' ? RAND_TRANS[Math.floor(Math.random()*RAND_TRANS.length)] : S.trans);
+  stillNext = null; stillTitle = null;
+  for(const p of players){ p.idx = -1; p.ready = false; p.tok++; p.stab = null; p.clip = null; try{ p.v.pause(); }catch(e){} setVol(p,0); }
+  setMusicVol(0);
+  if(musicUrl){ try{ music.pause(); music.currentTime = 0; }catch(e){} }
+  const now = performance.now();
+  running = { record, plan, cuts, total, t:0, last:now, nextDraw:now, stalled:true, stallSince:now, rec:null, chunks:[], mime, raf:0, started:false, X, frames:0 };
+  $('main').inert = true;
+  $('play').textContent = record ? tx('cancel') : tx('stopBtn'); $('save').disabled = true;
+  setMsg(record ? tx('m_prep') : '');
+  try{ if(record && navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); }catch(e){}
+  if(running) running.raf = requestAnimationFrame(tick);
+}
+function assign(p, i){ const R = running; p.idx = i; p.clip = R.plan[i].clip; load(p, R.plan[i].clip.src, R.plan[i].s); }
+function tick(now){
+  const R = running; if(!R) return;
+  const dt = Math.min(2, (now - R.last)/1000); R.last = now;
+  const plan = R.plan, end = i => plan[i].T + plan[i].L;
+  for(let i=0;i<plan.length;i++){
+    const p = players[i%2];
+    if(p.idx === i || R.t >= end(i)) continue;
+    if(R.t >= plan[i].T - 1.5 && (p.idx === -1 || (p.idx < i && R.t >= end(p.idx)))) assign(p, i);
+  }
+  const need = []; for(let i=0;i<plan.length;i++) if(R.t >= plan[i].T && R.t < end(i)) need.push(i);
+  const ok = need.length > 0 && need.every(i => { const p = players[i%2]; return p.idx === i && p.ready && (p.img || p.v.readyState >= 2); });
+  if(ok){
+    if(R.stalled){
+      R.stalled = false;
+      if(R.record){
+        if(!R.started){ if(!startRecorder(R)) return; R.started = true; }
+        else { try{ R.rec.resume(); }catch(e){} }
+      }
+    }
+    for(const i of need){
+      const p = players[i%2];
+      if(p.img) continue;
+      if(p.v.playbackRate !== plan[i].rate){ try{ p.v.playbackRate = plan[i].rate; }catch(e){} }
+      if(p.v.paused && !p.v.ended){ const pr = p.v.play(); if(pr && pr.catch) pr.catch(()=>{}); }
+    }
+    if(musicUrl && music.paused){ const pr = music.play(); if(pr && pr.catch) pr.catch(()=>{}); }
+    R.t += dt;
+  } else if(!R.stalled){
+    R.stalled = true; R.stallSince = now;
+    for(const p of players){ try{ p.v.pause(); }catch(e){} }
+    try{ music.pause(); }catch(e){}
+    if(R.record && R.started){ try{ R.rec.pause(); }catch(e){} }
+  } else if(now - R.stallSince > 10000){
+    stop(tx('m_openFail'), true); return;
+  }
+  for(const p of players){ if(p.idx >= 0 && R.t >= end(p.idx) && !p.v.paused){ try{ p.v.pause(); }catch(e){} } }
+
+  const fade = clamp(Math.min(R.t/0.8, (R.total - R.t)/1.2), 0, 1);
+  const camAt = i => camOf(plan[i].clip, i, clamp((R.t - plan[i].T)/plan[i].L, 0, 1), R.t - plan[i].T);
+  const vol = [0,0]; let prog = 0;
+  need.forEach((i, k) => {
+    const a = (i > 0 && R.X > 0) ? clamp((R.t - plan[i].T)/R.X, 0, 1) : 1;
+    vol[i%2] = a * fade * (plan[i].mute || plan[i].clip.src.kind === 'img' ? 0 : 1) * S.volVideo/100;
+    if(k > 0){ vol[need[k-1]%2] *= (1 - a); prog = a; }
+  });
+  if(ok && now >= R.nextDraw - 4){
+    const step = 1000/S.fps; R.nextDraw += step; if(now - R.nextDraw > 120) R.nextDraw = now + step;
+    frameNo++;
+    let layers, o = { fade, time:R.t, prog:0, trans:0, dip:null };
+    for(const i of need){ const p = players[i%2]; upload(p); if(STAB[S.stab].k) stabUpdate(p); }
+    const L = i => { const m = camAt(i); return { p:players[i%2], clip:plan[i].clip, z:m.z, ux:m.ux, uy:m.uy }; };
+    if(need.length >= 2){
+      const kind = R.cuts[need[1]];
+      if(kind === 'black' || kind === 'white'){ layers = [L(prog < .5 ? need[0] : need[1])]; o.dip = { c: kind === 'black' ? 0 : 1, a: prog < .5 ? prog*2 : (1-prog)*2 }; }
+      else { layers = [L(need[0]), L(need[1])]; o.prog = prog; o.trans = TRANS_ID[kind] || 0; }
+    } else layers = [L(need[0])];
+    if(S.title.trim() && R.t < 3.8){ o.titleText = S.title; o.titleA = clamp(Math.min((R.t - .3)/.8, (3.6 - R.t)/.8), 0, 1); }
+    else if(S.outro.trim() && R.t > R.total - 3.6 && R.total > 6){ o.titleText = S.outro; o.titleA = clamp((R.t - (R.total - 3.4))/.8, 0, 1) * fade; }
+    draw(layers, o);
+    R.frames++;
+  }
+  players.forEach((p, k) => setVol(p, ok ? vol[k] : 0));
+  setMusicVol(ok && musicUrl ? fade * S.volMusic/100 : 0);
+  if(R.record && R.started) setMsg(tx('m_rec', fmt(R.t), fmt(R.total)));
+  $('gauge').style.width = clamp(R.t/R.total*100,0,100) + '%';
+  if(R.t >= R.total){ finish(); return; }
+  R.raf = requestAnimationFrame(tick);
+}
+function startRecorder(R){
+  try{
+    const stream = cv.captureStream(S.fps);
+    if(recDest) recDest.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
+    const opt = { videoBitsPerSecond: bitrate(), audioBitsPerSecond: 160000 };
+    if(R.mime) opt.mimeType = R.mime;
+    R.rec = new MediaRecorder(stream, opt);
+    R.rec.ondataavailable = e => { if(e.data && e.data.size) R.chunks.push(e.data); };
+    R.rec.onerror = () => { stop(tx('m_recFail'), true); };
+    R.rec.start(1000);
+    return true;
+  }catch(e){
+    stop(tx('m_recFail'), true);
+    return false;
+  }
+}
+function cleanup(){
+  const R = running; running = null;
+  if(R) cancelAnimationFrame(R.raf);
+  for(const p of players){ try{ p.v.pause(); }catch(e){} setVol(p,0); p.idx = -1; p.stab = null; }
+  try{ music.pause(); }catch(e){} setMusicVol(0);
+  try{ if(wake){ wake.release(); wake = null; } }catch(e){}
+  $('main').inert = false;
+  $('play').textContent = tx('watch');
+  updateTotal();
+  return R;
+}
+function stop(text, err){
+  const R = cleanup();
+  if(R && R.rec && R.rec.state !== 'inactive'){ R.rec.onstop = null; R.rec.onerror = null; try{ R.rec.stop(); }catch(e){} }
+  setMsg(text || '', err);
+  refreshStill();
+}
+function finish(){
+  const R = cleanup();
+  if(!R.record || !R.rec){ setMsg(''); refreshStill(); return; }
+  setMsg(tx('m_saving'));
+  R.rec.onstop = () => {
+    const type = (R.rec.mimeType || R.mime || 'video/webm').split(';')[0];
+    const blob = new Blob(R.chunks, {type});
+    if(!blob.size){ setMsg(tx('m_recFail'), true); refreshStill(); return; }
+    setMsg('');
+    showResult(blob, type.indexOf('mp4') >= 0 ? 'mp4' : 'webm', R.frames/Math.max(1, R.total) < S.fps*.6);
+  };
+  try{ R.rec.stop(); }catch(e){ setMsg(tx('m_recFail'), true); }
+}
+$('play').addEventListener('click', () => { if(running) stop(running.record ? tx('m_cancelled') : ''); else start(false); });
+$('save').addEventListener('click', () => start(true));
+document.addEventListener('visibilitychange', () => { if(document.hidden && running){ stop(running.record ? tx('m_hidden') : '', true); } });
+
+/* ---------- result ---------- */
+let resBlob = null, resExt = 'mp4', resUrl = null, resName = '', dl;
+function showResult(blob, ext, slow){
+  resBlob = blob; resExt = ext;
+  const d = new Date(), pad = n => String(n).padStart(2,'0');
+  resName = 'sklejka-' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + '.' + ext;
+  if(resUrl) URL.revokeObjectURL(resUrl);
+  resUrl = URL.createObjectURL(blob);
+  $('resVideo').src = resUrl;
+  $('resMsg').textContent = slow ? tx('m_slow') : '';
+  $('resMsg').classList.remove('err');
+  $('result').hidden = false;
+}
+$('back').addEventListener('click', () => { try{ $('resVideo').pause(); }catch(e){} $('result').hidden = true; refreshStill(); });
+$('share').addEventListener('click', async () => {
+  if(!resBlob) return;
+  const m = $('resMsg'); m.classList.remove('err');
+  let file = null; try{ file = new File([resBlob], resName, {type: resBlob.type}); }catch(e){}
+  if(file && navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file], title:'Склейка'}); m.textContent = resExt === 'webm' ? tx('m_webm') : ''; }
+    catch(e){ if(!e || e.name !== 'AbortError'){ m.textContent = tx('m_shareFail'); m.classList.add('err'); } }
+  } else {
+    m.textContent = tx('m_shareNo');
+  }
+});
+$('download').addEventListener('click', async () => {
+  if(!resBlob) return;
+  const m = $('resMsg'); m.classList.remove('err');
+  const filename = resName;
+  m.textContent = tx('m_saving');
+  if(dl === undefined){ try{ dl = (window.claude && window.claude.use) ? await window.claude.use('downloads') : null; }catch(e){ dl = null; } }
+  if(dl){
+    try{ await dl.save({filename, data: resBlob}); m.textContent = tx('m_saved', filename); }
+    catch(e){
+      const code = e && e.code;
+      if(code === 'declined'){ m.textContent = tx('m_declined'); }
+      else if(code === 'rate_limited'){ m.textContent = tx('m_wait'); }
+      else if(code === 'too_large'){ m.textContent = tx('m_tooBig'); m.classList.add('err'); }
+      else { m.textContent = tx('m_saveFail'); m.classList.add('err'); }
+    }
+    return;
+  }
+  try{
+    const a = document.createElement('a'); a.href = resUrl; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    m.textContent = tx('m_hold');
+  }catch(e){ m.textContent = tx('m_saveFail'); }
+});
+
+$('thBg').addEventListener('input', e => { S.themeBg = e.target.value; applyTheme(); saveSettings(); });
+$('thAc').addEventListener('input', e => { S.themeAccent = e.target.value; applyTheme(); saveSettings(); });
+
+/* ---------- install as an app (works when opened from its own https address) ---------- */
+(function(){
+  let top = false; try{ top = window.top === window.self; }catch(e){}
+  if(!top || location.protocol !== 'https:') return;
+  try{
+    const l = document.createElement('link'); l.rel = 'manifest'; l.href = 'manifest.json'; document.head.appendChild(l);
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  }catch(e){}
+  let offer = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); offer = e; $('install').hidden = false; });
+  $('install').addEventListener('click', async () => { if(!offer) return; offer.prompt(); try{ await offer.userChoice; }catch(e){} offer = null; $('install').hidden = true; });
+  window.addEventListener('appinstalled', () => { $('install').hidden = true; $('installNote').dataset.i = 'installed'; $('installNote').textContent = tx('installed'); });
+  if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) { $('installNote').dataset.i = 'installed'; $('installNote').textContent = tx('installed'); }
+})();
+
+/* ---------- language ---------- */
+function applyLang(){
+  LANG = pickLang(); rootEl.lang = LANG; rootEl.dir = LANG === 'ar' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i]').forEach(e => { e.textContent = tx(e.dataset.i); });
+  document.querySelectorAll('[data-i-ph]').forEach(e => { e.placeholder = tx(e.dataset.iPh); });
+  document.querySelectorAll('[data-i-aria]').forEach(e => { e.setAttribute('aria-label', tx(e.dataset.iAria)); });
+  document.querySelectorAll('[data-set="target"] .chip').forEach(b => { const v = parseInt(b.dataset.v, 10); b.textContent = v < 60 ? v + ' ' + tx('u_s') : (v/60) + ' ' + tx('u_min'); });
+  $('langCode').textContent = LANG.toUpperCase(); $('langSel').value = LANG;
+  if(!musicUrl) $('musicName').textContent = tx('noMusic');
+  if(!running) $('play').textContent = tx('watch');
+  syncControls(); renderClips();
+}
+LANGS.forEach(([code, name]) => { const o = document.createElement('option'); o.value = code; o.textContent = name; $('langSel').append(o); });
+$('langSel').addEventListener('change', e => { S.lang = e.target.value; saveSettings(); setMsg(''); applyLang(); });
+$('themeBtn').addEventListener('click', () => {
+  const dark = getComputedStyle(rootEl).colorScheme.indexOf('dark') >= 0 || rootEl.getAttribute('data-theme') === 'dark';
+  S.theme = dark ? 'light' : 'dark'; syncControls(); saveSettings(); applyTheme();
+});
+
+/* ---------- tabs ---------- */
+function showTab(name){
+  document.querySelectorAll('.panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
+  document.querySelectorAll('.tabs button').forEach(b => { b.setAttribute('aria-selected', String(b.dataset.tab === name)); });
+  const y = document.querySelector('header').offsetHeight; if(window.scrollY > y) window.scrollTo(0, y);
+  const act = document.querySelector('.tabs button[aria-selected="true"]');
+  if(act && act.scrollIntoView){ try{ act.scrollIntoView({block:'nearest', inline:'center'}); }catch(e){} }
+}
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+/* ---------- boot ---------- */
+applyTheme();
+sizeCanvas(false);
+if(!initGL()){ $('empty').dataset.i = 'm_noGL'; }
+applyLang(); showTab('clips'); blank();
+try{ if(document.fonts && document.fonts.load) document.fonts.load('500 40px Unbounded').catch(()=>{}); }catch(e){}
+window.__sklejka = { err: () => glError };
+})();
+</script>
+</body>
+</html>
