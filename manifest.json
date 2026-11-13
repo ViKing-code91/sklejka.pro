@@ -3,7 +3,7 @@
   "short_name": "Склейка",
   "description": "Монтаж роликов на телефоне",
   "lang": "ru",
-  "start_url": "./Sklejka.pro.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
