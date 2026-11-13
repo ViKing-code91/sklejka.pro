@@ -1,0 +1,28 @@
+Sklejka (Склейка)
+Copyright (c) 2026 ViKing-code91. All rights reserved.
+
+ENGLISH
+You may use the application at its official address for your own personal
+and commercial video projects, free of charge.
+You may not copy, modify, republish, resell or redistribute the code of the
+application, in whole or in part, or publish it under another name, without
+the prior written permission of the author.
+The application is provided "as is", without warranty of any kind.
+
+РУССКИЙ
+Вы можете бесплатно пользоваться программой по её официальному адресу для
+своих личных и коммерческих видеопроектов.
+Нельзя копировать, изменять, заново публиковать, перепродавать или
+распространять код программы, целиком или частями, а также выкладывать его
+под другим названием без предварительного письменного разрешения автора.
+Программа предоставляется «как есть», без каких-либо гарантий.
+
+УКРАЇНСЬКА
+Ви можете безкоштовно користуватися програмою за її офіційною адресою для
+власних особистих і комерційних відеопроєктів.
+Не можна копіювати, змінювати, заново публікувати, перепродавати чи
+поширювати код програми, повністю або частинами, а також викладати його під
+іншою назвою без попереднього письмового дозволу автора.
+Програма надається «як є», без жодних гарантій.
+
+Contact: https://github.com/ViKing-code91/sklejka.pro
